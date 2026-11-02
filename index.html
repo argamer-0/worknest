@@ -3,83 +3,208 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WorkNest India | Verified Micro-Tasks & Daily Rewards</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <title>WorkNest India - Earn Real Money</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0b0f19; }
+    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { margin: 0; padding: 0; background: #0b0f19; color: #f8fafc; }
+    .header { background: #111827; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1f2937; }
+    .header h1 { margin: 0; font-size: 1.25rem; color: #38bdf8; }
+    .container { max-width: 600px; margin: 0 auto; padding: 15px; }
+    .card { background: #1e293b; border-radius: 12px; padding: 18px; margin-bottom: 16px; border: 1px solid #334155; }
+    .wallet-box { display: flex; justify-content: space-between; align-items: center; }
+    .wallet-stat { font-size: 1.5rem; font-weight: bold; color: #10b981; }
+    .btn { background: #0284c7; color: white; border: none; padding: 10px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; }
+    .btn-green { background: #10b981; }
+    .btn-danger { background: #ef4444; }
+    .input-box { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: white; margin-top: 8px; }
+    .tabs { display: flex; gap: 8px; margin-bottom: 15px; }
+    .tab-btn { flex: 1; padding: 10px; background: #1e293b; color: #94a3b8; border: 1px solid #334155; border-radius: 8px; cursor: pointer; text-align: center; }
+    .tab-btn.active { background: #0284c7; color: white; border-color: #0284c7; }
+    .captcha-code { font-size: 1.8rem; letter-spacing: 5px; font-weight: bold; color: #facc15; background: #0f172a; padding: 10px; text-align: center; border-radius: 8px; user-select: none; }
+    .hidden { display: none; }
   </style>
 </head>
-<body class="text-slate-200 antialiased min-h-screen flex flex-col justify-between">
+<body>
 
-  <!-- Header -->
-  <header class="border-b border-slate-800 bg-[#0b0f19]/80 backdrop-blur sticky top-0 z-50">
-    <div class="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 font-extrabold text-lg">W</div>
-        <span class="text-xl font-bold tracking-tight text-white">Work<span class="text-emerald-400">Nest</span></span>
-      </div>
-      <div class="flex items-center gap-3">
-        <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">🟢 Network Live</span>
-      </div>
-    </div>
-  </header>
+  <div class="header">
+    <h1>WorkNest India</h1>
+    <div id="authNav"></div>
+  </div>
 
-  <!-- Hero Section -->
-  <main class="max-w-5xl mx-auto px-4 py-12 flex-grow flex flex-col justify-center">
-    <div class="text-center max-w-2xl mx-auto space-y-4">
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800/80 border border-slate-700 text-slate-300 text-xs font-medium">
-        <span>⚡ 100% Verified Manual Tasks</span>
-      </div>
-      <h1 class="text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
-        Earn Real Daily Rewards with <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">WorkNest</span>
-      </h1>
-      <p class="text-slate-400 text-base md:text-lg leading-relaxed">
-        Complete consumer opinion surveys, verify text data, and view curated informative links. Direct daily payouts via UPI.
-      </p>
+  <div class="container">
+    <!-- Auth Section (Login / Sign Up) -->
+    <div id="authSection" class="card">
+      <h2 style="margin-top:0; color:#38bdf8; font-size: 1.2rem;">Sign In / Sign Up</h2>
+      <input type="email" id="authEmail" class="input-box" placeholder="Enter Email">
+      <input type="password" id="authPass" class="input-box" placeholder="Enter Password">
+      <button class="btn" onclick="handleAuth('login')">Login</button>
+      <button class="btn btn-green" onclick="handleAuth('signup')">Sign Up (Get 50 Bonus Coins)</button>
     </div>
 
-    <!-- Features Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-12">
-      <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 hover:border-slate-700 transition">
-        <div class="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 text-xl mb-3">📊</div>
-        <h3 class="text-white font-bold text-lg mb-1">Market Opinion Surveys</h3>
-        <p class="text-slate-400 text-sm leading-relaxed">Multi-router direct access to verified consumer research panels with zero app installs required.</p>
+    <!-- App Dashboard Section -->
+    <div id="dashSection" class="hidden">
+      <!-- Wallet Card -->
+      <div class="card">
+        <div class="wallet-box">
+          <div>
+            <span style="color: #94a3b8; font-size: 0.85rem;">Total Balance</span>
+            <div class="wallet-stat" id="coinDisplay">0 Coins</div>
+            <span style="color: #64748b; font-size: 0.8rem;" id="inrDisplay">≈ ₹0.00</span>
+          </div>
+          <button class="btn" style="width: auto;" onclick="openTab('withdraw')">Redeem</button>
+        </div>
       </div>
 
-      <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 hover:border-slate-700 transition">
-        <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-xl mb-3">⚡</div>
-        <h3 class="text-white font-bold text-lg mb-1">Text & Media Verification</h3>
-        <p class="text-slate-400 text-sm leading-relaxed">Solve real-time visual captchas and interactive data verification modules with guaranteed credits.</p>
+      <!-- Navigation Tabs -->
+      <div class="tabs">
+        <div class="tab-btn active" onclick="openTab('surveys')">Surveys</div>
+        <div class="tab-btn" onclick="openTab('captcha')">Captcha Work</div>
+        <div class="tab-btn" onclick="openTab('withdraw')">Withdraw UPI</div>
       </div>
 
-      <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 hover:border-slate-700 transition">
-        <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 text-xl mb-3">💳</div>
-        <h3 class="text-white font-bold text-lg mb-1">Direct Bank Transfers</h3>
-        <p class="text-slate-400 text-sm leading-relaxed">Transparent coin ledger with low ₹50 minimum withdrawal threshold credited directly via UPI.</p>
+      <!-- Surveys Tab -->
+      <div id="tabSurveys" class="card">
+        <h3 style="margin-top:0; color: #38bdf8;">CPX Live Surveys</h3>
+        <p style="color: #94a3b8; font-size: 0.85rem;">High paying surveys complete karke instant coins kamayein.</p>
+        <a href="survey.html" class="btn" style="display:block; text-align:center; text-decoration:none;">Open Survey Wall</a>
+      </div>
+
+      <!-- Captcha Tab -->
+      <div id="tabCaptcha" class="card hidden">
+        <h3 style="margin-top:0; color: #facc15;">Type & Earn</h3>
+        <p style="color: #94a3b8; font-size: 0.85rem;">Sahi code type karein aur har solve par +5 Coins earn karein.</p>
+        <div class="captcha-code" id="captchaBox">----</div>
+        <input type="text" id="captchaInput" class="input-box" placeholder="Upar diya code yahan likhein">
+        <button class="btn btn-green" onclick="submitCaptcha()">Claim 5 Coins</button>
+      </div>
+
+      <!-- Withdraw Tab -->
+      <div id="tabWithdraw" class="card hidden">
+        <h3 style="margin-top:0; color: #10b981;">UPI Cashout</h3>
+        <p style="color: #94a3b8; font-size: 0.85rem;">100 Coins = ₹1.00 (Minimum withdrawal: 500 Coins)</p>
+        <input type="text" id="upiInput" class="input-box" placeholder="Apna UPI ID daalein (e.g. name@upi)">
+        <input type="number" id="coinsInput" class="input-box" placeholder="Coins amount (min 500)">
+        <button class="btn btn-green" onclick="requestWithdrawal()">Submit Request</button>
       </div>
     </div>
+  </div>
 
-    <!-- Compliance Notice -->
-    <div class="mt-12 bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6 text-center max-w-xl mx-auto space-y-2">
-      <h4 class="text-slate-300 font-semibold text-sm">Publisher Compliance & Safety</h4>
-      <p class="text-slate-500 text-xs leading-relaxed">
-        WorkNest strictly prohibits proxy servers, emulators, or multi-accounting. All partner inventory is distributed via authenticated cryptographic postbacks.
-      </p>
-    </div>
-  </main>
+  <script>
+    const SUPABASE_URL = "https://dtnoscridxidckufaclr.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_OXVT_08Aba7ARIhNzMgUvQ_S51UMD0w";
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  <!-- Footer -->
-  <footer class="border-t border-slate-800/80 bg-[#080c14] py-8">
-    <div class="max-w-5xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-      <p>© 2026 WorkNest India. All rights reserved.</p>
-      <div class="flex items-center gap-6">
-        <a href="#privacy" class="hover:text-slate-300 transition">Privacy Policy</a>
-        <a href="#terms" class="hover:text-slate-300 transition">Terms of Service</a>
-        <a href="mailto:worknestindia9@gmail.com" class="hover:text-emerald-400 transition">Contact Support</a>
-      </div>
-    </div>
-  </footer>
+    let currentUser = null;
+    let currentCoins = 0;
+    let activeCaptcha = "";
 
+    async function checkSession() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        currentUser = session.user;
+        document.getElementById("authSection").classList.add("hidden");
+        document.getElementById("dashSection").classList.remove("hidden");
+        document.getElementById("authNav").innerHTML = `<button class="btn btn-danger" style="padding: 6px 12px; font-size:0.8rem; margin:0;" onclick="supabase.auth.signOut(); location.reload();">Logout</button>`;
+        loadProfile();
+        generateCaptcha();
+      }
+    }
+
+    async function handleAuth(type) {
+      const email = document.getElementById("authEmail").value;
+      const password = document.getElementById("authPass").value;
+      if (!email || !password) return alert("Email aur Password dono bharein!");
+
+      let res;
+      if (type === 'signup') {
+        res = await supabase.auth.signUp({ email, password });
+      } else {
+        res = await supabase.auth.signInWithPassword({ email, password });
+      }
+
+      if (res.error) {
+        alert(res.error.message);
+      } else {
+        location.reload();
+      }
+    }
+
+    async function loadProfile() {
+      const { data, error } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single();
+      if (data) {
+        currentCoins = data.coins || 0;
+        document.getElementById("coinDisplay").innerText = `${currentCoins} Coins`;
+        document.getElementById("inrDisplay").innerText = `≈ ₹${(currentCoins / 100).toFixed(2)}`;
+      }
+    }
+
+    function openTab(tab) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('tabSurveys').classList.add('hidden');
+      document.getElementById('tabCaptcha').classList.add('hidden');
+      document.getElementById('tabWithdraw').classList.add('hidden');
+
+      if (tab === 'surveys') {
+        document.getElementById('tabSurveys').classList.remove('hidden');
+      } else if (tab === 'captcha') {
+        document.getElementById('tabCaptcha').classList.remove('hidden');
+      } else if (tab === 'withdraw') {
+        document.getElementById('tabWithdraw').classList.remove('hidden');
+      }
+    }
+
+    function generateCaptcha() {
+      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+      let code = "";
+      for (let i = 0; i < 5; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
+      activeCaptcha = code;
+      document.getElementById("captchaBox").innerText = code;
+      document.getElementById("captchaInput").value = "";
+    }
+
+    async function submitCaptcha() {
+      const entered = document.getElementById("captchaInput").value.trim().toUpperCase();
+      if (entered !== activeCaptcha) return alert("Galat Captcha! Phir se koshish karein.");
+
+      const newCoins = currentCoins + 5;
+      const { error } = await supabase.from('profiles').update({ coins: newCoins }).eq('id', currentUser.id);
+      if (!error) {
+        currentCoins = newCoins;
+        document.getElementById("coinDisplay").innerText = `${currentCoins} Coins`;
+        document.getElementById("inrDisplay").innerText = `≈ ₹${(currentCoins / 100).toFixed(2)}`;
+        alert("+5 Coins Added!");
+        generateCaptcha();
+      }
+    }
+
+    async function requestWithdrawal() {
+      const upi = document.getElementById("upiInput").value.trim();
+      const coins = parseInt(document.getElementById("coinsInput").value);
+
+      if (!upi || isNaN(coins)) return alert("UPI ID aur Coins daalein!");
+      if (coins < 500) return alert("Kam se kam 500 Coins withdraw kar sakte hain!");
+      if (coins > currentCoins) return alert("Aapke paas itne coins nahi hain!");
+
+      const amountInr = (coins / 100).toFixed(2);
+      const { error } = await supabase.from('withdrawals').insert([{
+        user_id: currentUser.id,
+        user_email: currentUser.email,
+        upi_id: upi,
+        coins_redeemed: coins,
+        amount_inr: amountInr
+      }]);
+
+      if (!error) {
+        await supabase.from('profiles').update({ coins: currentCoins - coins }).eq('id', currentUser.id);
+        alert(`Withdrawal request submitted! ₹${amountInr} jald bhej diye jayenge.`);
+        location.reload();
+      } else {
+        alert(error.message);
+      }
+    }
+
+    checkSession();
+  </script>
 </body>
 </html>

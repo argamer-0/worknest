@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WorkNest India - Admin Control</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body { background: #090d16; color: #fff; font-family: sans-serif; padding: 20px; margin: 0; }
+    .card { background: #131d2e; border: 1px solid #1e293b; border-radius: 10px; padding: 15px; margin-bottom: 20px; }
+    h2 { margin-top: 0; color: #38bdf8; font-size: 1.2rem; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 10px; }
+    th, td { padding: 10px; border-bottom: 1px solid #1e293b; text-align: left; }
+    th { color: #94a3b8; }
+    .btn { padding: 6px 12px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; }
+    .btn-approve { background: #10b981; color: white; }
+    .btn-reject { background: #ef4444; color: white; margin-left: 5px; }
+  </style>
+</head>
+<body>
+  <h1>Admin Control Room</h1>
+
+  <div class="card">
+    <h2>Pending UPI Withdrawals</h2>
+    <div style="overflow-x:auto;">
+      <table>
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>UPI ID</th>
+            <th>Amount (₹)</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="withdrawalsBody">
+          <tr><td colspan="5">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Registered Users</h2>
+    <div style="overflow-x:auto;">
+      <table>
+        <thead>
+          <tr>
+            <th>Email</th>
+            <th>Coins</th>
+            <th>Role</th>
+          </tr>
+        </thead>
+        <tbody id="usersBody">
+          <tr><td colspan="3">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = "https://dtnoscridxidckufaclr.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_OXVT_08Aba7ARIhNzMgUvQ_S51UMD0w";
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    async function loadData() {
+      const { data: withdrawals } = await supabase.from('withdrawals').select('*').order('id', { ascending: false });
+      const wBody = document.getElementById('withdrawalsBody');
+      if (withdrawals && withdrawals.length > 0) {
+        wBody.innerHTML = withdrawals.map(w => `
+          <tr>
+            <td>${w.user_email || 'N/A'}</td>
+            <td><b style="color:#facc15">${w.upi_id}</b></td>
+            <td>₹${w.amount_inr} (${w.coins_redeemed} C)</td>
+            <td>${w.status}</td>
+            <td>
+              ${w.status === 'PENDING' ? `
+                <button class="btn btn-approve" onclick="updateStatus(${w.id}, 'PAID')">Paid</button>
+                <button class="btn btn-reject" onclick="updateStatus(${w.id}, 'REJECTED')">Reject</button>
+              ` : 'Completed'}
+            </td>
+          </tr>
+        `).join('');
+      } else {
+        wBody.innerHTML = '<tr><td colspan="5">Koi request pending nahi hai.</td></tr>';
+      }
+
+      const { data: profiles } = await supabase.from('profiles').select('*');
+      const uBody = document.getElementById('usersBody');
+      if (profiles && profiles.length > 0) {
+        uBody.innerHTML = profiles.map(p => `
+          <tr>
+            <td>${p.email || 'N/A'}</td>
+            <td>${p.coins}</td>
+            <td>${p.role}</td>
+          </tr>
+        `).join('');
+      }
+    }
+
+    async function updateStatus(id, newStatus) {
+      await supabase.from('withdrawals').update({ status: newStatus }).eq('id', id);
+      loadData();
+    }
+
+    loadData();
+  </script>
+</body>
+</html>
