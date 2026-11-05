@@ -3,31 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WorkNest - Earn Daily</title>
+  <title>WorkNest - Daily Earning</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
     body { background-color: #0b1329; color: #fff; min-height: 100vh; padding: 15px; display: flex; flex-direction: column; align-items: center; }
     
-    /* Login Box */
     .login-box { background: #1e293b; border: 1px solid #334155; border-radius: 16px; padding: 30px 20px; width: 100%; max-width: 400px; text-align: center; margin-top: 15vh; }
     .btn-login { width: 100%; background: #fff; color: #000; border: none; padding: 14px; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; }
     
-    /* Dashboard */
     .app-container { width: 100%; max-width: 500px; display: none; }
     .header-bar { display: flex; justify-content: space-between; align-items: center; background: #1e293b; padding: 12px 16px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #334155; }
     .wallet-pill { background: #0f172a; border: 1px solid #22c55e; color: #4ade80; padding: 6px 14px; border-radius: 20px; font-weight: bold; font-size: 15px; }
     
-    /* Navigation Tabs */
     .tabs { display: flex; gap: 8px; margin-bottom: 15px; }
     .tab-btn { flex: 1; padding: 10px; background: #1e293b; border: 1px solid #334155; color: #94a3b8; font-weight: bold; border-radius: 8px; cursor: pointer; text-align: center; font-size: 13px; }
     .tab-btn.active { background: #38bdf8; color: #0b1329; border-color: #38bdf8; }
     
-    /* Tab Contents */
     .content-box { background: #1e293b; border: 1px solid #334155; border-radius: 14px; padding: 18px; text-align: center; }
     .btn-logout { background: #ef4444; color: #fff; border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 12px; }
 
-    /* Captcha UI */
     .captcha-code { font-size: 26px; letter-spacing: 5px; font-weight: 800; background: #0f172a; padding: 12px; border-radius: 8px; border: 1px dashed #38bdf8; color: #38bdf8; user-select: none; margin: 15px 0; }
     .inp-text { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: #fff; font-size: 15px; text-align: center; margin-bottom: 12px; outline: none; }
     .btn-submit { width: 100%; background: #22c55e; color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: bold; font-size: 15px; cursor: pointer; }
@@ -35,17 +30,16 @@
 </head>
 <body>
 
-  <!-- 1. LOGIN SCREEN -->
+  <!-- LOGIN SCREEN -->
   <div id="login-view" class="login-box">
     <h2 style="color: #38bdf8; margin-bottom: 6px;">WorkNest</h2>
-    <p style="color: #94a3b8; font-size: 14px; margin-bottom: 25px;">Ghar Baithe Task Poora Karein & Kamayein</p>
+    <p style="color: #94a3b8; font-size: 14px; margin-bottom: 25px;">Ghar Baithe Task Karein & Rupaye Kamayein</p>
     <button class="btn-login" onclick="login()">👉 Continue with Google</button>
   </div>
 
-  <!-- 2. WORKER DASHBOARD -->
+  <!-- DASHBOARD -->
   <div id="dash-view" class="app-container">
     
-    <!-- Top Bar -->
     <div class="header-bar">
       <div>
         <div style="font-size: 11px; color: #94a3b8;">Worker Account</div>
@@ -57,41 +51,39 @@
       </div>
     </div>
 
-    <!-- Tabs Menu -->
+    <!-- Navigation Tabs -->
     <div class="tabs">
       <div class="tab-btn active" onclick="switchTab('surveys')">📋 Surveys</div>
-      <div class="tab-btn" onclick="switchTab('captcha')">⌨️ Captcha Tasks</div>
-      <div class="tab-btn" onclick="switchTab('wallet')">💰 Wallet & UPI</div>
+      <div class="tab-btn" onclick="switchTab('captcha')">⌨️ Captcha (₹1/Task)</div>
+      <div class="tab-btn" onclick="switchTab('wallet')">💰 Wallet (₹ Payout)</div>
     </div>
 
     <!-- TAB 1: SURVEYS -->
     <div id="tab-surveys" class="content-box">
-      <h3 style="color:#38bdf8; font-size: 16px; margin-bottom: 10px;">Daily High-Paying Surveys</h3>
-      <p style="color:#94a3b8; font-size: 12px; margin-bottom: 15px;">Har survey ka ₹20 se ₹80 turant credit hoga.</p>
-      <div id="cpx-wrapper" style="border-radius: 10px; overflow: hidden; background: #fff; min-height: 480px;">
-        <!-- CPX iFrame dynamically load hoga -->
-      </div>
+      <h3 style="color:#38bdf8; font-size: 16px; margin-bottom: 6px;">Daily Paid Surveys</h3>
+      <p style="color:#94a3b8; font-size: 12px; margin-bottom: 15px;">Har survey poora karne par seedha ₹20 se ₹80 Rupaye milenge.</p>
+      <div id="cpx-wrapper" style="border-radius: 10px; overflow: hidden; background: #fff; min-height: 480px;"></div>
     </div>
 
     <!-- TAB 2: CAPTCHA TASKS -->
     <div id="tab-captcha" class="content-box" style="display:none;">
-      <h3 style="color:#38bdf8; font-size: 16px;">Quick Captcha Typing</h3>
-      <p style="color:#94a3b8; font-size: 12px;">Neeche diya gaya code dekh kar type karein (₹1/Task):</p>
+      <h3 style="color:#38bdf8; font-size: 16px;">Captcha Typing</h3>
+      <p style="color:#94a3b8; font-size: 12px;">Sahi code daalte hi turant ₹1.00 Rupaya wallet me judega:</p>
       
       <div id="captcha-txt" class="captcha-code">A8K9Z2</div>
       <input type="text" id="captcha-inp" class="inp-text" placeholder="Yahan code daalein">
-      <button class="btn-submit" onclick="submitCaptcha()">Verify & Add ₹1.00</button>
+      <button class="btn-submit" onclick="submitCaptcha()">Check Karein & ₹1.00 Paayein</button>
       <div id="cap-msg" style="margin-top:10px; font-size:13px; font-weight:bold;"></div>
     </div>
 
     <!-- TAB 3: WALLET -->
     <div id="tab-wallet" class="content-box" style="display:none;">
-      <h3 style="color:#38bdf8; font-size: 16px;">Aapka Balance</h3>
+      <h3 style="color:#38bdf8; font-size: 16px;">Kul Kamai (Total Rupaye)</h3>
       <div style="font-size: 32px; font-weight: 800; color: #4ade80; margin: 15px 0;">₹<span id="wallet-amt">0.00</span></div>
       
-      <p style="color:#94a3b8; font-size: 12px; margin-bottom: 10px;">Withdrawal ke liye apna UPI ID daalein:</p>
+      <p style="color:#94a3b8; font-size: 12px; margin-bottom: 10px;">Apna UPI ID daalein (Google Pay / PhonePe / Paytm):</p>
       <input type="text" id="upi-inp" class="inp-text" placeholder="example@oksbi / example@paytm">
-      <button class="btn-submit" style="background:#38bdf8;" onclick="saveUpi()">Save UPI ID</button>
+      <button class="btn-submit" style="background:#38bdf8;" onclick="saveUpi()">UPI ID Save Karein</button>
       <div id="upi-msg" style="margin-top:10px; font-size:12px; color:#4ade80;"></div>
     </div>
 
@@ -117,11 +109,23 @@
       if (el) el.innerText = code;
     }
 
+    function syncBalance() {
+      if (!currentEmail) return;
+      const savedBal = localStorage.getItem('bal_' + currentEmail);
+      if (savedBal !== null) {
+        currentBalance = parseFloat(savedBal) || 0.00;
+      }
+      document.getElementById('bal').innerText = currentBalance.toFixed(2);
+      document.getElementById('wallet-amt').innerText = currentBalance.toFixed(2);
+    }
+
     function switchTab(tabName) {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       document.getElementById('tab-surveys').style.display = 'none';
       document.getElementById('tab-captcha').style.display = 'none';
       document.getElementById('tab-wallet').style.display = 'none';
+
+      syncBalance(); // Har tab switch par balance sahi se bana rahega
 
       if (tabName === 'surveys') {
         document.querySelectorAll('.tab-btn')[0].classList.add('active');
@@ -150,24 +154,13 @@
       document.getElementById('dash-view').style.display = 'block';
       document.getElementById('user-email-display').innerText = email;
 
-      // Saved balance fetch karein
-      const savedBal = localStorage.getItem('bal_' + email);
-      if (savedBal) currentBalance = parseFloat(savedBal);
-      updateBalUI();
+      syncBalance();
 
-      // Saved UPI
       const savedUpi = localStorage.getItem('upi_' + email);
       if (savedUpi) document.getElementById('upi-inp').value = savedUpi;
 
-      // CPX Survey Iframe Embed Karein
       const cpxUrl = `https://offers.cpx-research.com/index.php?app_id=37841&ext_user_id=${encodeURIComponent(email)}&email=${encodeURIComponent(email)}`;
       document.getElementById('cpx-wrapper').innerHTML = `<iframe width="100%" height="520" frameborder="0" src="${cpxUrl}"></iframe>`;
-    }
-
-    function updateBalUI() {
-      document.getElementById('bal').innerText = currentBalance.toFixed(2);
-      document.getElementById('wallet-amt').innerText = currentBalance.toFixed(2);
-      localStorage.setItem('bal_' + currentEmail, currentBalance);
     }
 
     function submitCaptcha() {
@@ -175,15 +168,17 @@
       const msg = document.getElementById('cap-msg');
 
       if (inp === expectedCode) {
-        currentBalance += 1.00;
-        updateBalUI();
+        currentBalance = (parseFloat(currentBalance) || 0) + 1.00;
+        localStorage.setItem('bal_' + currentEmail, currentBalance);
+        syncBalance();
+
         msg.style.color = "#4ade80";
-        msg.innerText = "Sahi Answer! ₹1.00 Wallet me jod diya gaya! 🎉";
+        msg.innerText = "Sahi Answer! ₹1.00 Rupaya Wallet me jud gaya! 🎉";
         document.getElementById('captcha-inp').value = "";
         setTimeout(() => {
           msg.innerText = "";
           generateCaptcha();
-        }, 1200);
+        }, 1000);
       } else {
         msg.style.color = "#ef4444";
         msg.innerText = "Galat code! Dobara dekh kar type karein.";
@@ -193,11 +188,11 @@
     function saveUpi() {
       const val = document.getElementById('upi-inp').value.trim();
       if (!val || !val.includes('@')) {
-        alert("Kripya sahi UPI ID daalein (Jaise: yourname@oksbi)");
+        alert("Sahi UPI ID daalein (jaise: name@oksbi)");
         return;
       }
       localStorage.setItem('upi_' + currentEmail, val);
-      document.getElementById('upi-msg').innerText = "UPI ID Safalta-poorvak save ho gaya! ✅";
+      document.getElementById('upi-msg').innerText = "UPI ID Safal save ho gaya! ✅";
     }
 
     function checkAuth() {
