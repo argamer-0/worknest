@@ -8,31 +8,33 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, sans-serif; }
     body { background-color: #0b1329; color: #fff; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
-    .box { background-color: #1e293b; border: 1px solid #334155; border-radius: 16px; padding: 25px; width: 100%; max-width: 400px; text-align: center; }
-    .btn-login { width: 100%; background: #ffffff; color: #000; border: none; padding: 14px; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; }
-    .btn-logout { width: 100%; background: #ef4444; color: #ffffff; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 15px; width: 100%; }
-    .user-box { background: #0f172a; border: 2px solid #22c55e; border-radius: 12px; padding: 16px; margin: 15px 0; }
-    #status { font-size: 13px; color: #facc15; margin-top: 12px; word-break: break-all; }
+    .box { background-color: #1e293b; border: 1px solid #334155; border-radius: 16px; padding: 28px 20px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+    h2 { color: #38bdf8; margin-bottom: 6px; }
+    p { color: #94a3b8; font-size: 14px; margin-bottom: 22px; }
+    .btn-login { width: 100%; background: #ffffff; color: #0f172a; border: none; padding: 14px; border-radius: 10px; font-weight: 700; font-size: 15px; cursor: pointer; }
+    .btn-logout { width: 100%; background: #ef4444; color: #ffffff; border: none; padding: 12px; border-radius: 8px; font-weight: 700; cursor: pointer; margin-top: 18px; width: 100%; }
+    .user-card { background: #0f172a; border: 2px solid #22c55e; border-radius: 12px; padding: 16px; margin: 15px 0; }
+    #msg { font-size: 13px; color: #facc15; margin-top: 14px; word-break: break-all; }
   </style>
 </head>
 <body>
 
   <div class="box">
-    <h2 style="color:#38bdf8; margin-bottom: 5px;">WorkNest</h2>
-    <p style="color:#94a3b8; font-size: 13px; margin-bottom: 20px;">Daily Task & Earning Platform</p>
+    <h2>WorkNest</h2>
+    <p>Daily Task & Earning Platform</p>
 
-    <!-- Jab tak user login na ho -->
-    <div id="logged-out-section">
-      <button class="btn-login" onclick="loginWithGoogle()">👉 Continue with Google</button>
-      <div id="status">Checking status...</div>
+    <!-- Login View -->
+    <div id="logged-out-view">
+      <button class="btn-login" onclick="login()">👉 Continue with Google</button>
+      <div id="msg">Kripya login karein</div>
     </div>
 
-    <!-- Login Safal hone par -->
-    <div id="logged-in-section" style="display:none;">
-      <h3 style="color:#4ade80;">Login Safal Hua! 🎉</h3>
-      <div class="user-box">
-        <div style="font-size:12px; color:#94a3b8;">Logged In Account:</div>
-        <div id="user-email" style="font-size:15px; color:#38bdf8; font-weight:bold; margin-top:4px;"></div>
+    <!-- User Profile View -->
+    <div id="logged-in-view" style="display:none;">
+      <h3 style="color: #4ade80; font-size: 20px;">Login Safal Hua! 🎉</h3>
+      <div class="user-card">
+        <div style="font-size: 12px; color: #94a3b8;">Logged In Account:</div>
+        <div id="user-email" style="color: #38bdf8; font-weight: bold; font-size: 15px; margin-top: 6px; word-break: break-all;"></div>
       </div>
       <button class="btn-logout" onclick="logout()">Log Out</button>
     </div>
@@ -40,76 +42,76 @@
 
   <script>
     const SUPABASE_URL = "https://dtnoscridxidckufaclr.supabase.co";
-    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR0bm9zY3JpZHhpZGNrdWZhY2xyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIyMzUyNjksImV4cCI6MjA3NzgwOTI2OX0.x4OshhAom5z4Xf40y-N4s30Qc_4rDdf1zXhJvj3sP5Q";
-    
-    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
-      auth: {
-        persistSession: true,
-        autoRefreshToken: true,
-        detectSessionInUrl: true
-      }
-    });
+    const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR0bm9zY3JpZHhpZGNrdWZhY2xyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIyMzUyNjksImV4cCI6MjA3NzgwOTI2OX0.x4OshhAom5z4Xf40y-N4s30Qc_4rDdf1zXhJvj3sP5Q";
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
-    const statusEl = document.getElementById('status');
+    const msg = document.getElementById('msg');
 
-    function showUser(email) {
-      document.getElementById('logged-out-section').style.display = 'none';
-      document.getElementById('logged-in-section').style.display = 'block';
+    function renderUser(email) {
+      document.getElementById('logged-out-view').style.display = 'none';
+      document.getElementById('logged-in-view').style.display = 'block';
       document.getElementById('user-email').innerText = email;
+      localStorage.setItem('worknest_user', email);
     }
 
-    // Google Redirect Callback Handler (PKCE & Token dono ke liye)
-    async function processAuth() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const code = urlParams.get('code');
-      const errorDesc = urlParams.get('error_description');
-
-      if (errorDesc) {
-        statusEl.innerText = "Error: " + errorDesc;
+    async function handleAuth() {
+      // 1. Agar pehle se logged in email saved hai
+      const cachedEmail = localStorage.getItem('worknest_user');
+      if (cachedEmail) {
+        renderUser(cachedEmail);
         return;
       }
 
-      if (code) {
-        statusEl.innerText = "Verifying Google session...";
-        const { data, error } = await sb.auth.exchangeCodeForSession(code);
-        if (data && data.session) {
-          showUser(data.session.user.email);
-          window.history.replaceState({}, document.title, window.location.pathname);
-          return;
+      // 2. Direct URL Hash Token parser (Android Chrome ke liye bulletproof)
+      if (window.location.hash) {
+        const hash = window.location.hash.substring(1);
+        const params = new URLSearchParams(hash);
+        const accessToken = params.get('access_token');
+        if (accessToken) {
+          msg.innerText = "Verifying account...";
+          const { data: { user }, error } = await sb.auth.getUser(accessToken);
+          if (user && user.email) {
+            renderUser(user.email);
+            window.history.replaceState(null, '', window.location.pathname);
+            return;
+          }
         }
       }
 
+      // 3. Supabase standard session check
       const { data: { session } } = await sb.auth.getSession();
       if (session && session.user) {
-        showUser(session.user.email);
-      } else {
-        statusEl.innerText = "Login karne ke liye upar button dabayein.";
+        renderUser(session.user.email);
+        return;
       }
+
+      msg.innerText = "Login karne ke liye upar button dabayein.";
     }
 
     sb.auth.onAuthStateChange((event, session) => {
       if (session && session.user) {
-        showUser(session.user.email);
+        renderUser(session.user.email);
       }
     });
 
-    async function loginWithGoogle() {
-      statusEl.innerText = "Google se connect ho raha hai...";
+    async function login() {
+      msg.innerText = "Google se connect ho raha hai...";
       const { error } = await sb.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: window.location.origin
         }
       });
-      if (error) statusEl.innerText = "Error: " + error.message;
+      if (error) msg.innerText = "Error: " + error.message;
     }
 
     async function logout() {
+      localStorage.removeItem('worknest_user');
       await sb.auth.signOut();
       window.location.href = window.location.origin;
     }
 
-    processAuth();
+    handleAuth();
   </script>
 </body>
 </html>
