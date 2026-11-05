@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WorkNest - Daily Micro Tasks</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 16px;
+      background-color: #0f172a;
+      color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .header {
+      margin-bottom: 16px;
+    }
+    .header h2 {
+      margin: 0 0 6px 0;
+      font-size: 1.25rem;
+    }
+    .header p {
+      margin: 0;
+      color: #94a3b8;
+      font-size: 0.85rem;
+    }
+    .wall-box {
+      width: 100%;
+      height: 780px;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #1e293b;
+    }
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h2>WorkNest Tasks (Zero-App Install)</h2>
+    <p>Clicks aur video tasks complete karein. Wallet me amount automatic credit hoga.</p>
+  </div>
+
+  <div class="wall-box">
+    <iframe 
+      id="tw-frame"
+      src="" 
+      allow="clipboard-write">
+    </iframe>
+  </div>
+
+  <script>
+    // Local session ya guest ID
+    const savedUser = localStorage.getItem('worknest_user_id') || ('user_' + Math.floor(Math.random() * 899999 + 100000));
+    localStorage.setItem('worknest_user_id', savedUser);
+    
+    const placementId = 'b8b7d53772f1dc7c';
+    document.getElementById('tw-frame').src = 'https://timewall.io/offers?userId=' + savedUser + '&placement=' + placementId;
+  </script>
+
+</body>
+</html>
