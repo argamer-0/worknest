@@ -3,29 +3,36 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WorkNest</title>
+  <title>WorkNest - Dashboard</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
-    body { background-color: #0f172a; color: white; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
-    .card { background-color: #1e293b; border-radius: 12px; padding: 30px 20px; width: 100%; max-width: 380px; text-align: center; }
-    .google-btn { width: 100%; background: white; color: black; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 15px; }
-    .logout-btn { background: #ef4444; color: white; border: none; padding: 10px; border-radius: 8px; margin-top: 15px; cursor: pointer; width: 100%; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background-color: #0b1329; color: #ffffff; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+    .box { background-color: #1e293b; border: 1px solid #334155; border-radius: 16px; padding: 30px 20px; width: 100%; max-width: 400px; text-align: center; }
+    h2 { color: #38bdf8; margin-bottom: 8px; }
+    p { color: #94a3b8; font-size: 14px; margin-bottom: 25px; }
+    .btn-login { width: 100%; background: #ffffff; color: #0f172a; border: none; padding: 14px; border-radius: 10px; font-weight: 700; font-size: 15px; cursor: pointer; }
+    .btn-logout { width: 100%; background: #ef4444; color: #ffffff; border: none; padding: 12px; border-radius: 8px; font-weight: 700; cursor: pointer; margin-top: 20px; }
+    .badge { background: #0f172a; border: 1px solid #38bdf8; color: #38bdf8; padding: 12px; border-radius: 10px; font-weight: 600; word-break: break-all; margin: 15px 0; }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h2 style="color:#38bdf8;">WorkNest</h2>
-    <div id="loading" style="margin-top:10px;">Checking status...</div>
-    
-    <div id="login-box" style="display:none;">
-      <button class="google-btn" onclick="login()">Continue with Google</button>
+
+  <div class="box">
+    <h2>WorkNest</h2>
+    <p>Daily Task & Earning Platform</p>
+
+    <!-- Jab Login na ho -->
+    <div id="section-logged-out">
+      <button class="btn-login" onclick="doLogin()">👉 Continue with Google</button>
+      <div id="msg" style="margin-top: 15px; font-size: 13px; color: #fbbf24;"></div>
     </div>
 
-    <div id="user-box" style="display:none;">
-      <h3 style="color:#4ade80; margin-top:15px;">Login Safal Hua! 🎉</h3>
-      <p id="user-mail" style="margin-top:10px; word-break:break-all; color:#94a3b8;"></p>
-      <button class="logout-btn" onclick="logout()">Log Out</button>
+    <!-- Jab Login ho jaye -->
+    <div id="section-logged-in" style="display: none;">
+      <h3 style="color: #4ade80;">Login Safal Hua! 🎉</h3>
+      <div id="user-display" class="badge"></div>
+      <button class="btn-logout" onclick="doLogout()">Log Out</button>
     </div>
   </div>
 
@@ -35,40 +42,45 @@
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR0bm9zY3JpZHhpZGNrdWZhY2xyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIyMzUyNjksImV4cCI6MjA3NzgwOTI2OX0.x4OshhAom5z4Xf40y-N4s30Qc_4rDdf1zXhJvj3sP5Q"
     );
 
-    function updateView(user) {
-      document.getElementById('loading').style.display = 'none';
-      if (user) {
-        document.getElementById('login-box').style.display = 'none';
-        document.getElementById('user-box').style.display = 'block';
-        document.getElementById('user-mail').innerText = user.email;
-      } else {
-        document.getElementById('login-box').style.display = 'block';
-        document.getElementById('user-box').style.display = 'none';
+    function showUser(email) {
+      document.getElementById('section-logged-out').style.display = 'none';
+      document.getElementById('section-logged-in').style.display = 'block';
+      document.getElementById('user-display').innerText = email;
+    }
+
+    // Google se aane wala session pakadne ke liye
+    sb.auth.onAuthStateChange((event, session) => {
+      if (session && session.user) {
+        showUser(session.user.email);
+      }
+    });
+
+    async function checkAuth() {
+      const { data: { session } } = await sb.auth.getSession();
+      if (session && session.user) {
+        showUser(session.user.email);
       }
     }
 
-    async function check() {
-      const { data: { session } } = await sb.auth.getSession();
-      updateView(session ? session.user : null);
-    }
-
-    sb.auth.onAuthStateChange((_, session) => {
-      updateView(session ? session.user : null);
-    });
-
-    async function login() {
-      await sb.auth.signInWithOAuth({
+    async function doLogin() {
+      document.getElementById('msg').innerText = "Google se connect ho raha hai...";
+      const { error } = await sb.auth.signInWithOAuth({
         provider: 'google',
-        options: { redirectTo: 'https://worknest-india.pages.dev' }
+        options: {
+          redirectTo: 'https://worknest-india.pages.dev'
+        }
       });
+      if (error) {
+        document.getElementById('msg').innerText = "Error: " + error.message;
+      }
     }
 
-    async function logout() {
+    async function doLogout() {
       await sb.auth.signOut();
-      window.location.reload();
+      window.location.href = 'https://worknest-india.pages.dev';
     }
 
-    check();
+    checkAuth();
   </script>
 </body>
 </html>
