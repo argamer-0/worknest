@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WorkNest - Dashboard</title>
+  <title>WorkNest</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
-    body { background-color: #0b1329; color: #ffffff; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, sans-serif; }
+    body { background-color: #0b1329; color: #fff; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
     .box { background-color: #1e293b; border: 1px solid #334155; border-radius: 16px; padding: 30px 20px; width: 100%; max-width: 400px; text-align: center; }
     h2 { color: #38bdf8; margin-bottom: 8px; }
     p { color: #94a3b8; font-size: 14px; margin-bottom: 25px; }
-    .btn-login { width: 100%; background: #ffffff; color: #0f172a; border: none; padding: 14px; border-radius: 10px; font-weight: 700; font-size: 15px; cursor: pointer; }
-    .btn-logout { width: 100%; background: #ef4444; color: #ffffff; border: none; padding: 12px; border-radius: 8px; font-weight: 700; cursor: pointer; margin-top: 20px; }
+    .btn-login { width: 100%; background: #fff; color: #0f172a; border: none; padding: 14px; border-radius: 10px; font-weight: 700; font-size: 15px; cursor: pointer; }
+    .btn-logout { width: 100%; background: #ef4444; color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: 700; cursor: pointer; margin-top: 20px; }
     .badge { background: #0f172a; border: 1px solid #38bdf8; color: #38bdf8; padding: 12px; border-radius: 10px; font-weight: 600; word-break: break-all; margin: 15px 0; }
   </style>
 </head>
@@ -22,13 +22,11 @@
     <h2>WorkNest</h2>
     <p>Daily Task & Earning Platform</p>
 
-    <!-- Jab Login na ho -->
     <div id="section-logged-out">
       <button class="btn-login" onclick="doLogin()">👉 Continue with Google</button>
       <div id="msg" style="margin-top: 15px; font-size: 13px; color: #fbbf24;"></div>
     </div>
 
-    <!-- Jab Login ho jaye -->
     <div id="section-logged-in" style="display: none;">
       <h3 style="color: #4ade80;">Login Safal Hua! 🎉</h3>
       <div id="user-display" class="badge"></div>
@@ -39,16 +37,26 @@
   <script>
     const sb = supabase.createClient(
       "https://dtnoscridxidckufaclr.supabase.co",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR0bm9zY3JpZHhpZGNrdWZhY2xyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIyMzUyNjksImV4cCI6MjA3NzgwOTI2OX0.x4OshhAom5z4Xf40y-N4s30Qc_4rDdf1zXhJvj3sP5Q"
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR0bm9zY3JpZHhpZGNrdWZhY2xyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIyMzUyNjksImV4cCI6MjA3NzgwOTI2OX0.x4OshhAom5z4Xf40y-N4s30Qc_4rDdf1zXhJvj3sP5Q",
+      {
+        auth: {
+          flowType: 'implicit',
+          detectSessionInUrl: true,
+          persistSession: true
+        }
+      }
     );
 
     function showUser(email) {
       document.getElementById('section-logged-out').style.display = 'none';
       document.getElementById('section-logged-in').style.display = 'block';
       document.getElementById('user-display').innerText = email;
+      // URL se token hash saaf karein
+      if (window.location.hash || window.location.search) {
+        window.history.replaceState(null, '', window.location.pathname);
+      }
     }
 
-    // Google se aane wala session pakadne ke liye
     sb.auth.onAuthStateChange((event, session) => {
       if (session && session.user) {
         showUser(session.user.email);
