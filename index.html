@@ -3,91 +3,139 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WorkNest India - Earn Real Money</title>
+  <title>WorkNest India - Earn Real Cash</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
+    :root {
+      --bg: #090d16;
+      --card: #131d2e;
+      --border: #1e293b;
+      --primary: #38bdf8;
+      --green: #10b981;
+      --gold: #facc15;
+    }
     * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { margin: 0; padding: 0; background: #0b0f19; color: #f8fafc; }
-    .header { background: #111827; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1f2937; }
-    .header h1 { margin: 0; font-size: 1.25rem; color: #38bdf8; }
-    .container { max-width: 600px; margin: 0 auto; padding: 15px; }
-    .card { background: #1e293b; border-radius: 12px; padding: 18px; margin-bottom: 16px; border: 1px solid #334155; }
+    body { margin: 0; background: var(--bg); color: #f8fafc; padding-bottom: 75px; }
+    .header { background: #0f172a; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+    .header h1 { margin: 0; font-size: 1.15rem; color: var(--primary); font-weight: 800; }
+    .container { max-width: 500px; margin: 0 auto; padding: 15px; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px; margin-bottom: 14px; }
     .wallet-box { display: flex; justify-content: space-between; align-items: center; }
-    .wallet-stat { font-size: 1.5rem; font-weight: bold; color: #10b981; }
-    .btn { background: #0284c7; color: white; border: none; padding: 10px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; }
-    .btn-green { background: #10b981; }
-    .btn-danger { background: #ef4444; }
-    .input-box { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: white; margin-top: 8px; }
-    .tabs { display: flex; gap: 8px; margin-bottom: 15px; }
-    .tab-btn { flex: 1; padding: 10px; background: #1e293b; color: #94a3b8; border: 1px solid #334155; border-radius: 8px; cursor: pointer; text-align: center; }
-    .tab-btn.active { background: #0284c7; color: white; border-color: #0284c7; }
-    .captcha-code { font-size: 1.8rem; letter-spacing: 5px; font-weight: bold; color: #facc15; background: #0f172a; padding: 10px; text-align: center; border-radius: 8px; user-select: none; }
+    .stat-val { font-size: 1.6rem; font-weight: 800; color: var(--gold); }
+    .stat-inr { font-size: 0.95rem; color: var(--green); font-weight: 700; margin-top: 2px; }
+    .btn { background: #0284c7; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: 700; cursor: pointer; width: 100%; font-size: 0.95rem; }
+    .btn-green { background: var(--green); }
+    .btn-google { background: #ffffff; color: #1e293b; display: flex; align-items: center; justify-content: center; gap: 10px; }
+    .input-box { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: #090d16; color: white; margin-top: 10px; font-size: 0.95rem; }
+    .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 60px; background: #0f172a; border-top: 1px solid var(--border); display: flex; justify-content: space-around; align-items: center; }
+    .nav-item { color: #94a3b8; font-size: 0.75rem; text-align: center; cursor: pointer; }
+    .nav-item.active { color: var(--primary); font-weight: bold; }
+    .captcha-text { font-size: 2rem; letter-spacing: 6px; font-weight: 900; color: var(--gold); background: #090d16; padding: 14px; text-align: center; border-radius: 10px; user-select: none; border: 1px dashed var(--border); }
+    .tag-badge { background: #1e293b; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; color: var(--primary); font-weight: 700; }
     .hidden { display: none; }
   </style>
 </head>
 <body>
 
   <div class="header">
-    <h1>WorkNest India</h1>
-    <div id="authNav"></div>
+    <h1>WorkNest</h1>
+    <div id="userBadge" class="tag-badge hidden">ID: ---</div>
   </div>
 
   <div class="container">
-    <!-- Auth Section (Login / Sign Up) -->
+    <!-- Auth Section -->
     <div id="authSection" class="card">
-      <h2 style="margin-top:0; color:#38bdf8; font-size: 1.2rem;">Sign In / Sign Up</h2>
-      <input type="email" id="authEmail" class="input-box" placeholder="Enter Email">
-      <input type="password" id="authPass" class="input-box" placeholder="Enter Password">
-      <button class="btn" onclick="handleAuth('login')">Login</button>
-      <button class="btn btn-green" onclick="handleAuth('signup')">Sign Up (Get 50 Bonus Coins)</button>
+      <h2 style="margin: 0 0 10px; color: var(--primary); font-size: 1.2rem;">Welcome to WorkNest</h2>
+      <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 20px;">Surveys, Captcha & Tasks karke daily kamayein (10 Coins = ₹1)</p>
+      
+      <button class="btn btn-google" onclick="loginWithGoogle()">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/><path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/></svg>
+        Continue with Google
+      </button>
+
+      <div style="text-align: center; margin: 15px 0; color: #64748b; font-size: 0.8rem;">OR WITH EMAIL</div>
+
+      <input type="email" id="emailInput" class="input-box" placeholder="Apna Email bharein">
+      <input type="password" id="passInput" class="input-box" placeholder="Password banayein">
+      <button class="btn" style="margin-top:10px;" onclick="emailAuth('login')">Login</button>
+      <button class="btn btn-green" style="margin-top:8px;" onclick="emailAuth('signup')">Sign Up (50 Coins Bonus)</button>
     </div>
 
-    <!-- App Dashboard Section -->
-    <div id="dashSection" class="hidden">
-      <!-- Wallet Card -->
+    <!-- Main Dashboard Section -->
+    <div id="mainSection" class="hidden">
+      <!-- Balance Card -->
       <div class="card">
         <div class="wallet-box">
           <div>
-            <span style="color: #94a3b8; font-size: 0.85rem;">Total Balance</span>
-            <div class="wallet-stat" id="coinDisplay">0 Coins</div>
-            <span style="color: #64748b; font-size: 0.8rem;" id="inrDisplay">≈ ₹0.00</span>
+            <div style="color: #94a3b8; font-size: 0.8rem;">Wallet Balance</div>
+            <div class="stat-val" id="coinBalance">0 Coins</div>
+            <div class="stat-inr" id="inrBalance">₹0.00</div>
           </div>
-          <button class="btn" style="width: auto;" onclick="openTab('withdraw')">Redeem</button>
+          <button class="btn btn-green" style="width: auto; padding: 8px 16px;" onclick="switchTab('tabWithdraw')">Redeem</button>
         </div>
       </div>
 
-      <!-- Navigation Tabs -->
-      <div class="tabs">
-        <div class="tab-btn active" onclick="openTab('surveys')">Surveys</div>
-        <div class="tab-btn" onclick="openTab('captcha')">Captcha Work</div>
-        <div class="tab-btn" onclick="openTab('withdraw')">Withdraw UPI</div>
+      <!-- Tab: Tasks -->
+      <div id="tabTasks">
+        <div class="card">
+          <h3 style="margin-top:0; color: var(--primary);">CPX Research Surveys</h3>
+          <p style="color: #94a3b8; font-size: 0.85rem;">Surveys complete karein aur har survey par high coins kamayein.</p>
+          <a href="survey.html" class="btn" style="display:block; text-align:center; text-decoration:none;">Open Surveys</a>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-top:0; color: var(--gold);">Captcha Typing Task</h3>
+          <p style="color: #94a3b8; font-size: 0.85rem;">Har sahi captcha par <b>5 Coins (₹0.50)</b> instant pay.</p>
+          <div class="captcha-text" id="capBox">----</div>
+          <input type="text" id="capInput" class="input-box" placeholder="Upar ka code yahan likhein">
+          <button class="btn btn-green" style="margin-top:10px;" onclick="submitCaptcha()">Claim 5 Coins</button>
+        </div>
       </div>
 
-      <!-- Surveys Tab -->
-      <div id="tabSurveys" class="card">
-        <h3 style="margin-top:0; color: #38bdf8;">CPX Live Surveys</h3>
-        <p style="color: #94a3b8; font-size: 0.85rem;">High paying surveys complete karke instant coins kamayein.</p>
-        <a href="survey.html" class="btn" style="display:block; text-align:center; text-decoration:none;">Open Survey Wall</a>
+      <!-- Tab: Referral -->
+      <div id="tabReferral" class="hidden">
+        <div class="card">
+          <h3 style="margin-top:0; color: var(--primary);">Refer & Earn System</h3>
+          <p style="color: #94a3b8; font-size: 0.85rem;">Dost ko invite karein. Dost jab 7 din active kaam karega tab aapko <b>100 Coins (₹10.00)</b> milenge!</p>
+          <div style="background: #090d16; padding: 14px; border-radius: 8px; text-align: center; border: 1px dashed var(--border);">
+            <span style="color: #94a3b8; font-size: 0.8rem;">YOUR REFERRAL CODE</span>
+            <div style="font-size: 1.4rem; font-weight: 800; color: var(--primary);" id="refCodeDisplay">---</div>
+          </div>
+        </div>
       </div>
 
-      <!-- Captcha Tab -->
-      <div id="tabCaptcha" class="card hidden">
-        <h3 style="margin-top:0; color: #facc15;">Type & Earn</h3>
-        <p style="color: #94a3b8; font-size: 0.85rem;">Sahi code type karein aur har solve par +5 Coins earn karein.</p>
-        <div class="captcha-code" id="captchaBox">----</div>
-        <input type="text" id="captchaInput" class="input-box" placeholder="Upar diya code yahan likhein">
-        <button class="btn btn-green" onclick="submitCaptcha()">Claim 5 Coins</button>
+      <!-- Tab: Withdraw -->
+      <div id="tabWithdraw" class="hidden">
+        <div class="card">
+          <h3 style="margin-top:0; color: var(--green);">UPI Instant Cashout</h3>
+          <p style="color: #94a3b8; font-size: 0.85rem;">Conversion: <b>10 Coins = ₹1.00</b><br>Minimum Cashout: 500 Coins (₹50.00)</p>
+          <input type="text" id="upiId" class="input-box" placeholder="Apna UPI ID daalein (e.g. mobile@upi)">
+          <input type="number" id="coinAmount" class="input-box" placeholder="Coins amount (min 500)">
+          <button class="btn btn-green" style="margin-top:10px;" onclick="cashout()">Request Payout</button>
+        </div>
       </div>
 
-      <!-- Withdraw Tab -->
-      <div id="tabWithdraw" class="card hidden">
-        <h3 style="margin-top:0; color: #10b981;">UPI Cashout</h3>
-        <p style="color: #94a3b8; font-size: 0.85rem;">100 Coins = ₹1.00 (Minimum withdrawal: 500 Coins)</p>
-        <input type="text" id="upiInput" class="input-box" placeholder="Apna UPI ID daalein (e.g. name@upi)">
-        <input type="number" id="coinsInput" class="input-box" placeholder="Coins amount (min 500)">
-        <button class="btn btn-green" onclick="requestWithdrawal()">Submit Request</button>
+      <!-- Tab: Settings / Legal -->
+      <div id="tabSettings" class="hidden">
+        <div class="card">
+          <h3 style="margin-top:0; color: var(--primary);">Account Info</h3>
+          <p style="color: #94a3b8; font-size: 0.85rem;" id="userEmailText">Email: ---</p>
+          <hr style="border: 0; border-top: 1px solid var(--border); margin: 15px 0;">
+          <p style="color: #94a3b8; font-size: 0.85rem;">Official Support: <a href="mailto:worknestindia9@gmail.com" style="color: var(--primary);">worknestindia9@gmail.com</a></p>
+          <p style="color: #64748b; font-size: 0.8rem;">Terms of Service & Privacy Policy Applicable.</p>
+          <button class="btn" style="background:#ef4444; margin-top: 15px;" onclick="supabase.auth.signOut(); location.reload();">Logout</button>
+        </div>
       </div>
+
     </div>
+  </div>
+
+  <!-- Bottom Navigation Bar -->
+  <div class="nav-bar hidden" id="bottomNav">
+    <div class="nav-item active" onclick="switchNav(this, 'tabTasks')">Tasks</div>
+    <div class="nav-item" onclick="switchNav(this, 'tabReferral')">Refer</div>
+    <div class="nav-item" onclick="switchNav(this, 'tabWithdraw')">Wallet</div>
+    <div class="nav-item" onclick="switchNav(this, 'tabSettings')">Profile</div>
   </div>
 
   <script>
@@ -95,116 +143,139 @@
     const SUPABASE_KEY = "sb_publishable_OXVT_08Aba7ARIhNzMgUvQ_S51UMD0w";
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    let currentUser = null;
-    let currentCoins = 0;
-    let activeCaptcha = "";
+    let activeUser = null;
+    let userCoins = 0;
+    let currCaptcha = "";
 
-    async function checkSession() {
+    function makeShortTag() {
+      const chars = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
+      let res = "WN";
+      for (let i = 0; i < 3; i++) res += chars.charAt(Math.floor(Math.random() * chars.length));
+      return res;
+    }
+
+    async function loginWithGoogle() {
+      await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: window.location.origin }
+      });
+    }
+
+    async function emailAuth(type) {
+      const email = document.getElementById('emailInput').value.trim();
+      const password = document.getElementById('passInput').value.trim();
+      if (!email || !password) return alert("Email & Password dono bharein!");
+
+      let res = type === 'signup' 
+        ? await supabase.auth.signUp({ email, password })
+        : await supabase.auth.signInWithPassword({ email, password });
+
+      if (res.error) alert(res.error.message);
+      else location.reload();
+    }
+
+    async function initUser() {
       const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        currentUser = session.user;
-        document.getElementById("authSection").classList.add("hidden");
-        document.getElementById("dashSection").classList.remove("hidden");
-        document.getElementById("authNav").innerHTML = `<button class="btn btn-danger" style="padding: 6px 12px; font-size:0.8rem; margin:0;" onclick="supabase.auth.signOut(); location.reload();">Logout</button>`;
-        loadProfile();
-        generateCaptcha();
+      if (!session) return;
+
+      activeUser = session.user;
+      document.getElementById('authSection').classList.add('hidden');
+      document.getElementById('mainSection').classList.remove('hidden');
+      document.getElementById('bottomNav').classList.remove('hidden');
+
+      let { data: profile } = await supabase.from('profiles').select('*').eq('id', activeUser.id).single();
+
+      if (!profile) {
+        const shortTag = makeShortTag();
+        const { data: newProf } = await supabase.from('profiles').insert([{
+          id: activeUser.id,
+          email: activeUser.email,
+          user_tag: shortTag,
+          coins: 50
+        }]).select().single();
+        profile = newProf;
+      }
+
+      userCoins = profile ? profile.coins : 0;
+      updateDisplays(profile);
+      makeCaptcha();
+    }
+
+    function updateDisplays(prof) {
+      document.getElementById('coinBalance').innerText = `${userCoins} Coins`;
+      document.getElementById('inrBalance').innerText = `₹${(userCoins / 10).toFixed(2)}`;
+      if (prof && prof.user_tag) {
+        document.getElementById('userBadge').innerText = `ID: ${prof.user_tag}`;
+        document.getElementById('userBadge').classList.remove('hidden');
+        document.getElementById('refCodeDisplay').innerText = prof.user_tag;
+        document.getElementById('userEmailText').innerText = `Email: ${activeUser.email}`;
       }
     }
 
-    async function handleAuth(type) {
-      const email = document.getElementById("authEmail").value;
-      const password = document.getElementById("authPass").value;
-      if (!email || !password) return alert("Email aur Password dono bharein!");
-
-      let res;
-      if (type === 'signup') {
-        res = await supabase.auth.signUp({ email, password });
-      } else {
-        res = await supabase.auth.signInWithPassword({ email, password });
-      }
-
-      if (res.error) {
-        alert(res.error.message);
-      } else {
-        location.reload();
-      }
+    function switchNav(el, tabId) {
+      document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+      el.classList.add('active');
+      ['tabTasks', 'tabReferral', 'tabWithdraw', 'tabSettings'].forEach(t => {
+        document.getElementById(t).classList.add('hidden');
+      });
+      document.getElementById(tabId).classList.remove('hidden');
     }
 
-    async function loadProfile() {
-      const { data, error } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single();
-      if (data) {
-        currentCoins = data.coins || 0;
-        document.getElementById("coinDisplay").innerText = `${currentCoins} Coins`;
-        document.getElementById("inrDisplay").innerText = `≈ ₹${(currentCoins / 100).toFixed(2)}`;
-      }
+    function switchTab(tabId) {
+      const navItems = document.querySelectorAll('.nav-item');
+      if (tabId === 'tabWithdraw') switchNav(navItems[2], 'tabWithdraw');
     }
 
-    function openTab(tab) {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.getElementById('tabSurveys').classList.add('hidden');
-      document.getElementById('tabCaptcha').classList.add('hidden');
-      document.getElementById('tabWithdraw').classList.add('hidden');
-
-      if (tab === 'surveys') {
-        document.getElementById('tabSurveys').classList.remove('hidden');
-      } else if (tab === 'captcha') {
-        document.getElementById('tabCaptcha').classList.remove('hidden');
-      } else if (tab === 'withdraw') {
-        document.getElementById('tabWithdraw').classList.remove('hidden');
-      }
-    }
-
-    function generateCaptcha() {
+    function makeCaptcha() {
       const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
       let code = "";
       for (let i = 0; i < 5; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
-      activeCaptcha = code;
-      document.getElementById("captchaBox").innerText = code;
-      document.getElementById("captchaInput").value = "";
+      currCaptcha = code;
+      document.getElementById("capBox").innerText = code;
+      document.getElementById("capInput").value = "";
     }
 
     async function submitCaptcha() {
-      const entered = document.getElementById("captchaInput").value.trim().toUpperCase();
-      if (entered !== activeCaptcha) return alert("Galat Captcha! Phir se koshish karein.");
+      const entered = document.getElementById("capInput").value.trim().toUpperCase();
+      if (entered !== currCaptcha) return alert("Galat Captcha! Phir se koshish karein.");
 
-      const newCoins = currentCoins + 5;
-      const { error } = await supabase.from('profiles').update({ coins: newCoins }).eq('id', currentUser.id);
+      const newCoins = userCoins + 5;
+      const { error } = await supabase.from('profiles').update({ coins: newCoins }).eq('id', activeUser.id);
       if (!error) {
-        currentCoins = newCoins;
-        document.getElementById("coinDisplay").innerText = `${currentCoins} Coins`;
-        document.getElementById("inrDisplay").innerText = `≈ ₹${(currentCoins / 100).toFixed(2)}`;
-        alert("+5 Coins Added!");
-        generateCaptcha();
+        userCoins = newCoins;
+        document.getElementById('coinBalance').innerText = `${userCoins} Coins`;
+        document.getElementById('inrBalance').innerText = `₹${(userCoins / 10).toFixed(2)}`;
+        alert("+5 Coins (₹0.50) added!");
+        makeCaptcha();
       }
     }
 
-    async function requestWithdrawal() {
-      const upi = document.getElementById("upiInput").value.trim();
-      const coins = parseInt(document.getElementById("coinsInput").value);
+    async function cashout() {
+      const upi = document.getElementById('upiId').value.trim();
+      const amount = parseInt(document.getElementById('coinAmount').value);
 
-      if (!upi || isNaN(coins)) return alert("UPI ID aur Coins daalein!");
-      if (coins < 500) return alert("Kam se kam 500 Coins withdraw kar sakte hain!");
-      if (coins > currentCoins) return alert("Aapke paas itne coins nahi hain!");
+      if (!upi || isNaN(amount)) return alert("UPI ID aur Coins amount bharein!");
+      if (amount < 500) return alert("Minimum cashout 500 Coins (₹50) hai!");
+      if (amount > userCoins) return alert("Aapke paas itne coins nahi hain!");
 
-      const amountInr = (coins / 100).toFixed(2);
+      const inrValue = (amount / 10).toFixed(2);
       const { error } = await supabase.from('withdrawals').insert([{
-        user_id: currentUser.id,
-        user_email: currentUser.email,
+        user_id: activeUser.id,
+        user_tag: document.getElementById('refCodeDisplay').innerText,
+        user_email: activeUser.email,
         upi_id: upi,
-        coins_redeemed: coins,
-        amount_inr: amountInr
+        coins_redeemed: amount,
+        amount_inr: inrValue
       }]);
 
       if (!error) {
-        await supabase.from('profiles').update({ coins: currentCoins - coins }).eq('id', currentUser.id);
-        alert(`Withdrawal request submitted! ₹${amountInr} jald bhej diye jayenge.`);
+        await supabase.from('profiles').update({ coins: userCoins - amount }).eq('id', activeUser.id);
+        alert(`Withdrawal Request Submitted: ₹${inrValue} to ${upi}`);
         location.reload();
-      } else {
-        alert(error.message);
       }
     }
 
-    checkSession();
+    initUser();
   </script>
 </body>
 </html>
