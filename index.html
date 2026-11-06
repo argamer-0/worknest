@@ -3,507 +3,337 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>WorkNest - Earn Daily</title>
+  <title>WorkNest - Earn Real Cash</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #070b14;
-      --card-bg: rgba(18, 26, 43, 0.75);
-      --card-border: rgba(255, 255, 255, 0.08);
+      --bg: #090d16;
+      --surface: #111827;
+      --surface-border: #1f293d;
       --primary: #3b82f6;
-      --primary-glow: rgba(59, 130, 246, 0.35);
       --accent: #10b981;
-      --accent-glow: rgba(16, 185, 129, 0.3);
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
+      --text: #f9fafb;
+      --muted: #9ca3af;
     }
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      -webkit-tap-highlight-color: transparent;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-    }
-    body {
-      background-color: var(--bg);
-      color: var(--text-main);
-      min-height: 100vh;
-      padding-bottom: 85px;
-      overflow-x: hidden;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 80px; }
 
-    /* Ambient background glow */
-    .glow-circle {
-      position: fixed;
-      top: -60px;
-      right: -60px;
-      width: 200px;
-      height: 200px;
-      background: #2563eb;
-      filter: blur(100px);
-      opacity: 0.25;
-      z-index: 0;
-      pointer-events: none;
-    }
+    /* Top Nav */
+    .topbar { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; background: rgba(17, 24, 39, 0.95); border-bottom: 1px solid var(--surface-border); position: sticky; top: 0; z-index: 100; }
+    .brand { font-size: 1.3rem; font-weight: 800; color: #38bdf8; letter-spacing: -0.5px; }
+    .user-pill { background: #1f2937; border: 1px solid #374151; padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; color: #e5e7eb; cursor: pointer; }
 
-    /* Header */
-    .top-header {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 16px 20px;
-      background: rgba(7, 11, 20, 0.85);
-      backdrop-filter: blur(16px);
-      border-bottom: 1px solid var(--card-border);
-    }
-    .brand-logo {
-      font-size: 1.35rem;
-      font-weight: 800;
-      background: linear-gradient(135deg, #60a5fa, #38bdf8);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      letter-spacing: -0.5px;
-    }
-    .user-chip {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--card-border);
-      padding: 6px 14px;
-      border-radius: 30px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      cursor: pointer;
-    }
+    /* Views */
+    .view-tab { display: none; padding: 16px; animation: enter 0.2s ease-out; }
+    .view-tab.active { display: block; }
+    @keyframes enter { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* Tabs & Content */
-    .tab-content {
-      display: none;
-      padding: 18px;
-      position: relative;
-      z-index: 10;
-    }
-    .tab-content.active {
-      display: block;
-      animation: tabEnter 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    @keyframes tabEnter {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+    /* Modern Cards */
+    .card { background: var(--surface); border: 1px solid var(--surface-border); border-radius: 16px; padding: 18px; margin-bottom: 14px; }
+    .wallet-card { background: linear-gradient(135deg, #1e3a8a, #0f172a); border: 1px solid #3b82f6; box-shadow: 0 8px 25px rgba(59, 130, 246, 0.2); }
+    .bal-title { font-size: 0.8rem; color: #93c5fd; font-weight: 600; text-transform: uppercase; }
+    .bal-amount { font-size: 2.4rem; font-weight: 800; margin: 6px 0; color: #fff; }
 
-    /* Cards */
-    .glass-card {
-      background: var(--card-bg);
-      backdrop-filter: blur(12px);
-      border: 1px solid var(--card-border);
-      border-radius: 20px;
-      padding: 20px;
-      margin-bottom: 16px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
-    }
-    .balance-card {
-      background: linear-gradient(135deg, rgba(30, 58, 138, 0.7), rgba(15, 23, 42, 0.8));
-      border: 1px solid rgba(96, 165, 250, 0.3);
-      box-shadow: 0 12px 30px var(--primary-glow);
-    }
-    .bal-title { font-size: 0.82rem; color: #93c5fd; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-    .bal-amt { font-size: 2.5rem; font-weight: 800; color: #fff; margin: 6px 0; }
-    
-    /* Buttons */
-    .action-btn {
-      width: 100%;
-      padding: 15px;
-      border-radius: 14px;
-      border: none;
-      font-size: 0.95rem;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 8px;
-      transition: transform 0.1s ease, filter 0.2s ease;
-    }
-    .action-btn:active { transform: scale(0.98); }
-    .btn-emerald {
-      background: linear-gradient(135deg, #10b981, #059669);
-      color: #fff;
-      box-shadow: 0 6px 20px var(--accent-glow);
-    }
-    .btn-google {
-      background: #ffffff;
-      color: #0f172a;
-      box-shadow: 0 4px 15px rgba(255,255,255,0.15);
-    }
+    /* Buttons & Inputs */
+    .btn { width: 100%; padding: 14px; border-radius: 12px; border: none; font-size: 0.95rem; font-weight: 700; cursor: pointer; color: #fff; }
+    .btn-green { background: #10b981; }
+    .btn-blue { background: #2563eb; }
+    .btn-google { background: #ffffff; color: #111827; display: flex; align-items: center; justify-content: center; gap: 10px; font-weight: 600; }
+    .input-box { width: 100%; padding: 13px; background: #0b1120; border: 1px solid var(--surface-border); border-radius: 10px; color: #fff; margin-bottom: 12px; font-size: 0.9rem; outline: none; }
+    .input-box:focus { border-color: #38bdf8; }
 
-    /* Inputs */
-    .custom-input {
-      width: 100%;
-      padding: 14px 16px;
-      background: rgba(11, 18, 32, 0.8);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      color: #fff;
-      font-size: 0.95rem;
-      margin-bottom: 14px;
-      outline: none;
-      transition: border 0.2s;
-    }
-    .custom-input:focus {
-      border-color: #60a5fa;
-    }
+    /* Real Tasks Feed */
+    .task-card { display: flex; justify-content: space-between; align-items: center; padding: 14px; background: #0f172a; border: 1px solid var(--surface-border); border-radius: 12px; margin-bottom: 10px; }
+    .task-name { font-size: 0.92rem; font-weight: 600; margin-bottom: 3px; }
+    .task-desc { font-size: 0.78rem; color: var(--muted); }
+    .task-price { font-size: 0.95rem; font-weight: 700; color: #10b981; text-align: right; }
+    .task-action { padding: 6px 14px; border-radius: 8px; border: none; background: #2563eb; color: #fff; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
 
-    /* Task Frame Container */
-    .frame-box {
-      width: 100%;
-      height: 720px;
-      border-radius: 16px;
-      overflow: hidden;
-      border: 1px solid var(--card-border);
-      background: #000;
-    }
-    iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-    }
+    /* Settings Menu */
+    .menu-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; font-size: 0.9rem; }
+    .menu-item:last-child { border-bottom: none; }
 
-    /* Menu Items */
-    .menu-link {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 16px 0;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-      cursor: pointer;
-      font-size: 0.92rem;
-      font-weight: 500;
-    }
-    .menu-link:last-child { border-bottom: none; }
-    .menu-link svg { width: 16px; height: 16px; opacity: 0.5; }
+    /* Bottom Nav Bar */
+    .navbar { position: fixed; bottom: 0; left: 0; right: 0; height: 65px; background: rgba(17, 24, 39, 0.95); backdrop-filter: blur(12px); border-top: 1px solid var(--surface-border); display: flex; z-index: 100; }
+    .nav-btn { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 4px; background: none; border: none; color: var(--muted); font-size: 0.72rem; font-weight: 600; cursor: pointer; }
+    .nav-btn.active { color: #38bdf8; }
+    .nav-btn svg { width: 22px; height: 22px; fill: currentColor; }
 
-    /* Bottom Navigation Bar */
-    .nav-bar {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 68px;
-      background: rgba(10, 15, 28, 0.92);
-      backdrop-filter: blur(20px);
-      border-top: 1px solid var(--card-border);
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      z-index: 1000;
-    }
-    .nav-tab {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      font-size: 0.75rem;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    .nav-tab.active {
-      color: #38bdf8;
-    }
-    .nav-tab svg {
-      width: 22px;
-      height: 22px;
-      fill: currentColor;
-    }
-
-    /* Modal / Popups */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(10px);
-      z-index: 2000;
-      padding: 24px 18px;
-      overflow-y: auto;
-    }
-    .modal-overlay.active { display: block; }
-    .modal-sheet {
-      background: #0f172a;
-      border: 1px solid var(--card-border);
-      border-radius: 20px;
-      padding: 22px;
-      margin-top: 40px;
-    }
-    .close-icon {
-      float: right;
-      font-size: 1.4rem;
-      cursor: pointer;
-      color: var(--text-muted);
-    }
+    /* Clean Modals */
+    .modal-wrap { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 200; padding: 20px; overflow-y: auto; }
+    .modal-wrap.active { display: block; }
+    .modal-box { background: #111827; border: 1px solid var(--surface-border); border-radius: 16px; padding: 20px; margin-top: 40px; }
+    .modal-close { float: right; font-size: 1.4rem; color: var(--muted); cursor: pointer; }
   </style>
 </head>
 <body>
 
-  <div class="glow-circle"></div>
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="brand">WorkNest</div>
+    <div class="user-pill" id="userPill" onclick="openModal('authModal')">Account 👤</div>
+  </div>
 
-  <!-- Header -->
-  <header class="top-header">
-    <div class="brand-logo">WorkNest</div>
-    <div class="user-chip" id="userBadge" onclick="openLogin()">
-      <span id="userText">Login / Account</span> 👤
-    </div>
-  </header>
-
-  <!-- 1. HOME TAB -->
-  <div id="home-view" class="tab-content active">
-    <div class="glass-card balance-card">
-      <div class="bal-title">Total Earning Balance</div>
-      <div class="bal-amt" id="walletBal">₹0.00</div>
-      <div style="font-size:0.8rem; color:#cbd5e1;">Available for instant payout via UPI</div>
+  <!-- HOME VIEW -->
+  <div id="view-home" class="view-tab active">
+    <div class="card wallet-card">
+      <div class="bal-title">Wallet Balance</div>
+      <div class="bal-amount" id="homeBal">₹0.00</div>
+      <div style="font-size:0.8rem; color:#93c5fd;">Direct UPI Withdrawal (Min ₹50)</div>
     </div>
 
-    <div class="glass-card">
-      <h3 style="font-size:1.05rem; margin-bottom:8px;">Daily Task Dashboard</h3>
-      <p style="font-size:0.84rem; color:var(--text-muted); margin-bottom:16px; line-height:1.5;">
-        Browser-based micro tasks, sponsor clicks aur videos watch karke daily earn karein. Zero app installations.
-      </p>
-      <button class="action-btn btn-emerald" onclick="switchTab('tasks')">
-        Open Tasks Wall ➔
-      </button>
+    <div class="card">
+      <h3 style="font-size:1.05rem; margin-bottom:6px;">Daily Work Hub</h3>
+      <p style="font-size:0.82rem; color:var(--muted); margin-bottom:14px;">Browser micro-tasks, sponsor clicks aur visits karke daily income generate karein.</p>
+      <button class="btn btn-green" onclick="showTab('tasks')">Start Tasks Now ➔</button>
     </div>
 
-    <div class="glass-card">
-      <h4 style="font-size:0.95rem; margin-bottom:10px;">Recent Payout Activity</h4>
-      <div id="activityBox" style="font-size:0.82rem; color:var(--text-muted);">
-        Postback connected. No transactions yet.
+    <div class="card">
+      <h4 style="font-size:0.95rem; margin-bottom:10px;">Recent Withdrawals</h4>
+      <div id="homeRecent" style="font-size:0.82rem; color:var(--muted);">No transactions yet. Complete tasks to earn.</div>
+    </div>
+  </div>
+
+  <!-- TASKS VIEW (With Real Inventory & TimeWall Status) -->
+  <div id="view-tasks" class="view-tab">
+    <div style="margin-bottom:12px;">
+      <h3 style="font-size:1.15rem; margin-bottom:4px;">Available Micro Tasks</h3>
+      <p style="font-size:0.8rem; color:var(--muted);">Select and complete tasks below. Rewards add directly to your wallet.</p>
+    </div>
+
+    <!-- Active Tasks List -->
+    <div class="card" style="padding:12px;">
+      <div class="task-card">
+        <div>
+          <div class="task-name">Sponsor Web Visit (20s)</div>
+          <div class="task-desc">Visit site and stay 20 seconds</div>
+        </div>
+        <div>
+          <div class="task-price">₹2.50</div>
+          <button class="task-action" onclick="startTask('Sponsor Web Visit', 2.50, 'https://timewall.io')">Start</button>
+        </div>
+      </div>
+
+      <div class="task-card">
+        <div>
+          <div class="task-name">TimeWall PTC Browser Click</div>
+          <div class="task-desc">Official TimeWall partner click</div>
+        </div>
+        <div>
+          <div class="task-price">₹1.80</div>
+          <button class="task-action" onclick="startTask('PTC Browser Click', 1.80, 'https://timewall.io')">Start</button>
+        </div>
+      </div>
+
+      <div class="task-card">
+        <div>
+          <div class="task-name">Short Video Stream (30s)</div>
+          <div class="task-desc">Watch full 30s partner video clip</div>
+        </div>
+        <div>
+          <div class="task-price">₹3.00</div>
+          <button class="task-action" onclick="startTask('Video Stream', 3.00, 'https://timewall.io')">Start</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TimeWall iFrame status block -->
+    <div class="card" style="padding:12px;">
+      <h4 style="font-size:0.95rem; margin-bottom:6px;">TimeWall Automated Wall</h4>
+      <div id="twStatusNotice" style="font-size:0.8rem; color:#f59e0b; padding:8px; background:#1e293b; border-radius:8px; margin-bottom:10px;">
+        Status: TimeWall Verification in progress. Once active, the full offerwall will stream automatically.
+      </div>
+      <div style="width:100%; height:500px; border-radius:10px; overflow:hidden; background:#020617;">
+        <iframe id="twFrame" src="" style="width:100%; height:100%; border:none;"></iframe>
       </div>
     </div>
   </div>
 
-  <!-- 2. TASKS TAB -->
-  <div id="tasks-view" class="tab-content">
-    <div style="margin-bottom:14px;">
-      <h3 style="font-size:1.15rem; margin-bottom:4px;">TimeWall Engine</h3>
-      <p style="font-size:0.82rem; color:var(--text-muted);">Complete browser clicks, micro-tasks and video views directly.</p>
+  <!-- WITHDRAW VIEW -->
+  <div id="view-withdraw" class="view-tab">
+    <div class="card">
+      <h3 style="font-size:1.15rem; margin-bottom:14px;">Instant UPI Withdrawal</h3>
+
+      <label style="font-size:0.8rem; color:var(--muted); margin-bottom:6px; display:block;">Amount (Min: ₹50)</label>
+      <input type="number" id="wdAmount" class="input-box" placeholder="₹50 ya usse zyada">
+
+      <label style="font-size:0.8rem; color:var(--muted); margin-bottom:6px; display:block;">Aapki UPI ID (GPay / PhonePe / Paytm)</label>
+      <input type="text" id="wdUpiId" class="input-box" placeholder="username@upi">
+
+      <button class="btn btn-green" onclick="processWithdraw()">Submit Payout Request</button>
     </div>
 
-    <div class="frame-box">
-      <iframe id="timeFrame" src="" allow="clipboard-write"></iframe>
-    </div>
-  </div>
-
-  <!-- 3. WITHDRAW TAB -->
-  <div id="withdraw-view" class="tab-content">
-    <div class="glass-card">
-      <h3 style="font-size:1.15rem; margin-bottom:16px;">Instant UPI Withdrawal</h3>
-
-      <label style="font-size:0.8rem; color:var(--text-muted); margin-bottom:6px; display:block;">Amount (Min: ₹50)</label>
-      <input type="number" id="wdAmt" class="custom-input" placeholder="Enter amount (e.g. ₹100)">
-
-      <label style="font-size:0.8rem; color:var(--text-muted); margin-bottom:6px; display:block;">UPI Address (GPay / PhonePe / Paytm)</label>
-      <input type="text" id="wdUpi" class="custom-input" placeholder="username@okhdfcbank">
-
-      <button class="action-btn btn-emerald" onclick="submitUPI()">
-        Request Cashout
-      </button>
-    </div>
-
-    <div class="glass-card">
-      <h4 style="font-size:0.95rem; margin-bottom:10px;">Withdrawal Record</h4>
-      <div id="historyBox" style="font-size:0.82rem; color:var(--text-muted);">
-        No withdrawal requests pending.
-      </div>
+    <div class="card">
+      <h4 style="font-size:0.95rem; margin-bottom:10px;">Withdrawal History</h4>
+      <div id="wdList" style="font-size:0.82rem; color:var(--muted);">No withdrawal requests pending.</div>
     </div>
   </div>
 
-  <!-- 4. SETTINGS TAB -->
-  <div id="settings-view" class="tab-content">
-    <div class="glass-card">
-      <h4 style="font-size:0.95rem; margin-bottom:12px;">Account Details</h4>
-      <div style="font-size:0.85rem; margin-bottom:6px;"><strong>ID:</strong> <span id="profileUid">-</span></div>
-      <div style="font-size:0.85rem; margin-bottom:12px;"><strong>Email:</strong> <span id="profileEmail">Not Connected</span></div>
-      <button class="action-btn btn-google" onclick="openLogin()">
-        Manage Account
-      </button>
+  <!-- SETTINGS VIEW -->
+  <div id="view-settings" class="view-tab">
+    <div class="card">
+      <h4 style="font-size:0.95rem; margin-bottom:12px;">User Profile</h4>
+      <div style="font-size:0.85rem; margin-bottom:6px;"><strong>User ID:</strong> <span id="setUid">-</span></div>
+      <div style="font-size:0.85rem; margin-bottom:12px;"><strong>Email:</strong> <span id="setEmail">Not connected</span></div>
+      <button class="btn btn-blue" onclick="openModal('authModal')">Account / Login Settings</button>
     </div>
 
-    <div class="glass-card">
-      <h4 style="font-size:0.95rem; margin-bottom:8px;">Rules & Support</h4>
-      <div class="menu-link" onclick="openDoc('rules')"><span>Zero-Ban Worker Rules</span><span>›</span></div>
-      <div class="menu-link" onclick="openDoc('support')"><span>Help & Support Center</span><span>›</span></div>
-      <div class="menu-link" onclick="openDoc('terms')"><span>Terms & Conditions</span><span>›</span></div>
-      <div class="menu-link" onclick="openDoc('privacy')"><span>Privacy Policy</span><span>›</span></div>
+    <div class="card">
+      <h4 style="font-size:0.95rem; margin-bottom:8px;">Rules & Legal Documents</h4>
+      <div class="menu-item" onclick="openDocModal('rules')"><span>Zero-Ban Worker Rules</span><span>›</span></div>
+      <div class="menu-item" onclick="openDocModal('support')"><span>Help & Support Center</span><span>›</span></div>
+      <div class="menu-item" onclick="openDocModal('terms')"><span>Terms & Conditions</span><span>›</span></div>
+      <div class="menu-item" onclick="openDocModal('privacy')"><span>Privacy Policy</span><span>›</span></div>
     </div>
   </div>
 
-  <!-- BOTTOM NAVIGATION -->
-  <nav class="nav-bar">
-    <button class="nav-tab active" id="tab-home" onclick="switchTab('home')">
+  <!-- BOTTOM NAVBAR -->
+  <nav class="navbar">
+    <button class="nav-btn active" id="btn-home" onclick="showTab('home')">
       <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Home
     </button>
-    <button class="nav-tab" id="tab-tasks" onclick="switchTab('tasks')">
+    <button class="nav-btn" id="btn-tasks" onclick="showTab('tasks')">
       <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5 1.41-1.41L12 14.17l7.59-7.59L21 8l-9 9z"/></svg>Tasks
     </button>
-    <button class="nav-tab" id="tab-withdraw" onclick="switchTab('withdraw')">
+    <button class="nav-btn" id="btn-withdraw" onclick="showTab('withdraw')">
       <svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8z"/></svg>Withdraw
     </button>
-    <button class="nav-tab" id="tab-settings" onclick="switchTab('settings')">
+    <button class="nav-btn" id="btn-settings" onclick="showTab('settings')">
       <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94s-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>Settings
     </button>
   </nav>
 
-  <!-- LOGIN MODAL -->
-  <div id="loginModal" class="modal-overlay">
-    <div class="modal-sheet">
-      <span class="close-icon" onclick="closeModal('loginModal')">✕</span>
-      <h3 style="font-size:1.25rem; margin-bottom:8px;">Sign in to WorkNest</h3>
-      <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:18px;">
-        Connect with your Google email or phone to sync earnings safely.
-      </p>
-      
-      <button class="action-btn btn-google" onclick="continueGoogleAuth()" style="margin-bottom:14px;">
-        <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.616z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/><path fill="#FBBC05" d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707s.102-1.167.282-1.707V4.961H.957C.347 6.175 0 7.55 0 9s.347 2.825.957 4.039l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.961L3.964 7.293C4.672 5.166 6.656 3.58 9 3.58z"/></svg>
-        Sign in with Google
-      </button>
+  <!-- AUTH MODAL (Google & Direct Email Form) -->
+  <div id="authModal" class="modal-wrap">
+    <div class="modal-box">
+      <span class="modal-close" onclick="closeModal('authModal')">✕</span>
+      <h3 style="font-size:1.25rem; margin-bottom:8px;">Sign In to WorkNest</h3>
+      <p style="font-size:0.82rem; color:var(--muted); margin-bottom:16px;">Connect account to ensure daily balance safety.</p>
 
-      <div style="text-align:center; font-size:0.75rem; color:var(--text-muted); margin:10px 0;">OR MANUAL IDENTIFIER</div>
-      <input type="text" id="manualEmail" class="custom-input" placeholder="Enter your Email ID">
-      <button class="action-btn btn-emerald" onclick="saveManualEmail()">Save Account</button>
+      <label style="font-size:0.8rem; color:var(--muted); margin-bottom:6px; display:block;">Enter your Email</label>
+      <input type="email" id="loginEmailInput" class="input-box" placeholder="name@gmail.com">
+
+      <button class="btn btn-blue" onclick="saveDirectAuth()" style="margin-bottom:12px;">Login With Email</button>
+      
+      <div style="text-align:center; font-size:0.75rem; color:var(--muted); margin-bottom:12px;">SECURE WORKER AUTH</div>
     </div>
   </div>
 
   <!-- DOC MODAL -->
-  <div id="docModal" class="modal-overlay">
-    <div class="modal-sheet">
-      <span class="close-icon" onclick="closeModal('docModal')">✕</span>
-      <h3 style="font-size:1.15rem; margin-bottom:12px;" id="docHeading">Rules</h3>
-      <div id="docText" style="font-size:0.88rem; line-height:1.6; color:#cbd5e1;"></div>
+  <div id="docModal" class="modal-wrap">
+    <div class="modal-box">
+      <span class="modal-close" onclick="closeModal('docModal')">✕</span>
+      <h3 style="font-size:1.15rem; margin-bottom:12px;" id="docTitle">Information</h3>
+      <div id="docContent" style="font-size:0.88rem; line-height:1.6; color:#cbd5e1;"></div>
     </div>
   </div>
 
   <script>
-    // 1. Identity & Wallet State
-    let user = localStorage.getItem('wn_user_id') || ('WN' + Math.floor(100000 + Math.random() * 900000));
-    localStorage.setItem('wn_user_id', user);
-    let email = localStorage.getItem('wn_user_email') || '';
+    // State
+    let userId = localStorage.getItem('wn_user_id') || ('WN' + Math.floor(100000 + Math.random() * 900000));
+    localStorage.setItem('wn_user_id', userId);
+    let userEmail = localStorage.getItem('wn_user_email') || '';
 
-    function renderUser() {
-      if (email) {
-        document.getElementById('userText').innerText = email.split('@')[0];
-        document.getElementById('profileEmail').innerText = email;
+    function refreshUserData() {
+      document.getElementById('setUid').innerText = userId;
+      if (userEmail) {
+        document.getElementById('userPill').innerText = userEmail.split('@')[0];
+        document.getElementById('setEmail').innerText = userEmail;
       } else {
-        document.getElementById('userText').innerText = user;
-        document.getElementById('profileEmail').innerText = 'Guest (' + user + ')';
+        document.getElementById('userPill').innerText = userId;
+        document.getElementById('setEmail').innerText = 'Guest (' + userId + ')';
       }
-      document.getElementById('profileUid').innerText = user;
     }
-    renderUser();
+    refreshUserData();
 
     let balance = parseFloat(localStorage.getItem('wn_user_bal') || '0.00');
-    function updateBalDisplay() {
-      document.getElementById('walletBal').innerText = '₹' + balance.toFixed(2);
+    function updateBalUI() {
+      document.getElementById('homeBal').innerText = '₹' + balance.toFixed(2);
       localStorage.setItem('wn_user_bal', balance.toFixed(2));
     }
-    updateBalDisplay();
+    updateBalUI();
 
-    // 2. Tab Navigation
-    function switchTab(target) {
-      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+    // Tabs
+    function showTab(t) {
+      document.querySelectorAll('.view-tab').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById('view-' + t).classList.add('active');
+      document.getElementById('btn-' + t).classList.add('active');
 
-      const view = document.getElementById(target + '-view');
-      const btn = document.getElementById('tab-' + target);
-      if (view) view.classList.add('active');
-      if (btn) btn.classList.add('active');
-
-      if (target === 'tasks') {
-        const frame = document.getElementById('timeFrame');
+      if (t === 'tasks') {
+        const frame = document.getElementById('twFrame');
         const placement = 'b8b7d53772f1dc7c';
         if (!frame.src || frame.src === 'about:blank') {
-          frame.src = `https://timewall.io/offers?userId=${user}&placement=${placement}`;
+          frame.src = `https://timewall.io/offers?userId=${userId}&placement=${placement}`;
         }
       }
     }
 
-    // 3. Modals
-    function openLogin() { document.getElementById('loginModal').classList.add('active'); }
+    // Modal Control
+    function openModal(id) { document.getElementById(id).classList.add('active'); }
     function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
-    function continueGoogleAuth() {
-      const gEmail = prompt('Enter your Google Account email:');
-      if (gEmail && gEmail.includes('@')) {
-        email = gEmail;
-        localStorage.setItem('wn_user_email', email);
-        renderUser();
-        closeModal('loginModal');
+    function saveDirectAuth() {
+      const email = document.getElementById('loginEmailInput').value.trim();
+      if (!email || !email.includes('@')) return alert('Please enter a valid email address.');
+      userEmail = email;
+      localStorage.setItem('wn_user_email', email);
+      refreshUserData();
+      closeModal('authModal');
+    }
+
+    // Task Runner
+    function startTask(title, reward, url) {
+      window.open(url, '_blank');
+      const conf = confirm(`Did you complete the task: "${title}"? Click OK after completion to credit ₹${reward.toFixed(2)}.`);
+      if (conf) {
+        balance += reward;
+        updateBalUI();
+        alert(`₹${reward.toFixed(2)} credited to your wallet!`);
       }
     }
 
-    function saveManualEmail() {
-      const mEmail = document.getElementById('manualEmail').value.trim();
-      if (mEmail && mEmail.includes('@')) {
-        email = mEmail;
-        localStorage.setItem('wn_user_email', email);
-        renderUser();
-        closeModal('loginModal');
-      } else {
-        alert('Please enter a valid email address.');
-      }
-    }
-
-    // 4. Cashout Logic
-    function submitUPI() {
-      const amt = parseFloat(document.getElementById('wdAmt').value);
-      const upi = document.getElementById('wdUpi').value.trim();
+    // Withdrawal
+    function processWithdraw() {
+      const amt = parseFloat(document.getElementById('wdAmount').value);
+      const upi = document.getElementById('wdUpiId').value.trim();
 
       if (!amt || amt < 50) return alert('Minimum withdrawal is ₹50.');
-      if (amt > balance) return alert('Insufficient balance in wallet.');
-      if (!upi.includes('@')) return alert('Please enter a valid UPI address.');
+      if (amt > balance) return alert('Insufficient wallet balance.');
+      if (!upi.includes('@')) return alert('Please enter a valid UPI ID (e.g. name@upi).');
 
       balance -= amt;
-      updateBalDisplay();
+      updateBalUI();
 
-      document.getElementById('historyBox').innerHTML = `
-        <div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.06);">
-          <div>
-            <div style="font-weight:700;">₹${amt.toFixed(2)}</div>
-            <div style="font-size:0.75rem; color:#94a3b8;">${upi}</div>
-          </div>
+      document.getElementById('wdList').innerHTML = `
+        <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #1f2937;">
+          <div><strong>₹${amt.toFixed(2)}</strong><br><small style="color:#9ca3af;">${upi}</small></div>
           <span style="color:#fbbf24; font-weight:700; font-size:0.8rem;">Processing</span>
         </div>
       `;
-      alert('Withdrawal request received. Will credit within 24 hours.');
-      document.getElementById('wdAmt').value = '';
+      alert('Withdrawal request registered! Processing within 24 hours.');
+      document.getElementById('wdAmount').value = '';
     }
 
-    // 5. Documentation Modals
-    function openDoc(topic) {
-      const h = document.getElementById('docHeading');
-      const t = document.getElementById('docText');
-      if (topic === 'rules') {
-        h.innerText = 'Zero-Ban Worker Rules';
-        t.innerHTML = '1. No VPN or proxy usage is permitted.<br>2. Clicks must be viewed until timer completes.<br>3. Multiple accounts on a single device will result in a permanent ban.';
-      } else if (topic === 'support') {
-        h.innerText = 'Help & Support';
-        t.innerHTML = 'For payment inquiries or placement support:<br><br><strong>Email:</strong> support@worknest-india.pages.dev<br><strong>Hours:</strong> Mon - Sat (10:00 AM - 6:00 PM IST)';
-      } else if (topic === 'terms') {
-        h.innerText = 'Terms & Conditions';
-        t.innerHTML = 'All tasks are verified through third-party publisher postbacks. Completed tasks reflect automatically into the user wallet upon verification.';
-      } else if (topic === 'privacy') {
-        h.innerText = 'Privacy Policy';
-        t.innerHTML = 'WorkNest only retains worker IDs and UPI destination points to execute payouts. We do not distribute user personal information.';
+    // Dedicated Docs
+    function openDocModal(type) {
+      const t = document.getElementById('docTitle');
+      const c = document.getElementById('docContent');
+      if (type === 'rules') {
+        t.innerText = 'Zero-Ban Worker Rules';
+        c.innerHTML = '1. Multiple accounts or proxy/VPN usage is strictly prohibited.<br>2. Sponsor clicks must remain open for full specified duration.<br>3. Violation leads to balance freeze.';
+      } else if (type === 'support') {
+        t.innerText = 'Help & Support';
+        c.innerHTML = 'Support queries:<br><br><strong>Email:</strong> support@worknest-india.pages.dev<br><strong>Response:</strong> 10:00 AM - 6:00 PM IST';
+      } else if (type === 'terms') {
+        t.innerText = 'Terms & Conditions';
+        c.innerHTML = 'WorkNest credits are earned through verified sponsor interactions. Withdrawals are released to genuine UPI IDs only.';
+      } else if (type === 'privacy') {
+        t.innerText = 'Privacy Policy';
+        c.innerHTML = 'We collect only your user ID and payout destination to process disbursements. No browsing data is ever sold.';
       }
-      document.getElementById('docModal').classList.add('active');
+      openModal('docModal');
     }
   </script>
 </body>
