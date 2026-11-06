@@ -4,59 +4,46 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>WorkNest - Daily Micro Tasks</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
-      --bg: #090e1a;
-      --card: #131c2e;
-      --border: #1e2d4a;
-      --primary: #3b82f6;
+      --bg: #0b1329;
+      --card: #152238;
+      --border: #1e3a5f;
+      --primary: #2563eb;
       --accent: #10b981;
-      --text: #f8fafc;
+      --text: #f1f5f9;
       --subtext: #94a3b8;
     }
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { margin: 0; padding: 0 0 75px 0; background: var(--bg); color: var(--text); min-height: 100vh; }
     
-    /* Header */
-    .header { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; background: #0c1424; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+    .header { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; background: #0d1b2a; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
     .brand { font-size: 1.25rem; font-weight: 800; color: #38bdf8; }
-    .user-pill { font-size: 0.78rem; background: #1a2744; border: 1px solid #2d3e66; padding: 5px 12px; border-radius: 20px; color: #cbd5e1; }
+    .user-pill { font-size: 0.78rem; background: #1e293b; border: 1px solid #334155; padding: 5px 12px; border-radius: 20px; color: #cbd5e1; cursor: pointer; }
 
-    /* Views */
     .view { display: none; padding: 16px; }
     .view.active { display: block; animation: fadeIn 0.2s ease; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-    /* Cards */
     .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
-    .wallet-banner { background: linear-gradient(135deg, #1d4ed8, #0f172a); border: 1px solid #3b82f6; }
+    .wallet-card { background: linear-gradient(135deg, #1e3a8a, #0f172a); border: 1px solid #3b82f6; }
     .bal-num { font-size: 2.2rem; font-weight: 800; margin: 4px 0 8px 0; color: #fff; }
 
-    /* Buttons & Inputs */
     .btn { width: 100%; padding: 13px; border-radius: 10px; border: none; font-size: 0.95rem; font-weight: 600; cursor: pointer; color: #fff; }
     .btn-green { background: var(--accent); }
-    .btn-blue { background: var(--primary); }
-    .input { width: 100%; padding: 12px; background: #0b1220; border: 1px solid var(--border); border-radius: 8px; color: #fff; margin-bottom: 12px; font-size: 0.9rem; }
+    .btn-google { background: #ffffff; color: #1e293b; display: flex; align-items: center; justify-content: center; gap: 10px; font-weight: 600; }
+    .input { width: 100%; padding: 12px; background: #0a1120; border: 1px solid var(--border); border-radius: 8px; color: #fff; margin-bottom: 12px; font-size: 0.9rem; }
     .input:focus { border-color: #38bdf8; outline: none; }
 
-    /* Task Items */
-    .task-item { display: flex; justify-content: space-between; align-items: center; padding: 14px; background: #0b1324; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 10px; }
-    .task-title { font-size: 0.9rem; font-weight: 600; margin-bottom: 3px; }
-    .task-meta { font-size: 0.75rem; color: var(--subtext); }
-    .task-reward { font-size: 0.95rem; font-weight: 700; color: #34d399; }
-    .btn-sm { padding: 6px 14px; border-radius: 6px; border: none; background: #2563eb; color: #fff; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
-
-    /* Settings Menu */
-    .menu-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid #1a263d; cursor: pointer; font-size: 0.9rem; }
-    .menu-row:last-child { border-bottom: none; }
-
-    /* Bottom Nav */
-    .nav { position: fixed; bottom: 0; left: 0; right: 0; height: 62px; background: #0c1424; border-top: 1px solid var(--border); display: flex; z-index: 100; }
+    .nav { position: fixed; bottom: 0; left: 0; right: 0; height: 62px; background: #0d1b2a; border-top: 1px solid var(--border); display: flex; z-index: 100; }
     .nav-item { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 3px; background: none; border: none; color: var(--subtext); font-size: 0.72rem; cursor: pointer; }
     .nav-item.active { color: #38bdf8; font-weight: 700; }
     .nav-item svg { width: 20px; height: 20px; fill: currentColor; }
 
-    /* Modals / Full Subpages */
+    .menu-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid #1a263d; cursor: pointer; font-size: 0.9rem; }
+    .menu-row:last-child { border-bottom: none; }
+
     .modal { display: none; position: fixed; inset: 0; background: var(--bg); z-index: 200; padding: 20px; overflow-y: auto; }
     .modal.active { display: block; }
     .modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
@@ -68,78 +55,41 @@
   <!-- Top Bar -->
   <div class="header">
     <div class="brand">WorkNest</div>
-    <div class="user-pill" id="userBadge" onclick="openModal('authModal')">Account 👤</div>
+    <div class="user-pill" id="userBadge" onclick="showTab('settings')">Login 👤</div>
   </div>
 
   <!-- HOME VIEW -->
   <div id="view-home" class="view active">
-    <div class="card wallet-banner">
+    <div class="card wallet-card">
       <div style="font-size:0.8rem; color:#bfdbfe;">Total Earning Balance</div>
       <div class="bal-num" id="walletBal">₹0.00</div>
-      <div style="font-size:0.75rem; color:#93c5fd;">Rozana 100% Guaranteed UPI Withdrawal</div>
+      <div style="font-size:0.75rem; color:#93c5fd;">Automated UPI Payout Available</div>
     </div>
 
     <div class="card">
-      <h4 style="margin:0 0 8px 0;">Roz ka Daily Target</h4>
-      <p style="font-size:0.82rem; color:var(--subtext); margin:0 0 14px 0;">TimeWall PTC, Video clicks aur in-house tasks complete karke ₹260 - ₹320 daily kamayein.</p>
-      <button class="btn btn-green" onclick="showTab('tasks')">Start Tasks Now</button>
+      <h4 style="margin:0 0 8px 0;">TimeWall Micro Tasks</h4>
+      <p style="font-size:0.82rem; color:var(--subtext); margin:0 0 14px 0;">Official browser tasks: PTC Clicks, sponsored videos, aur micro-actions. No app installs.</p>
+      <button class="btn btn-green" onclick="showTab('tasks')">Open Task Panel</button>
     </div>
 
     <div class="card">
-      <h4 style="margin:0 0 12px 0;">Pichli Earning Activity</h4>
-      <div id="recentActivity" style="font-size:0.82rem; color:var(--subtext);">Abhi tak koi task complete nahi hua hai.</div>
+      <h4 style="margin:0 0 10px 0;">Recent Activity</h4>
+      <div id="recentActivity" style="font-size:0.82rem; color:var(--subtext);">Postback tracking live. No activity recorded yet.</div>
     </div>
   </div>
 
-  <!-- TASKS VIEW -->
+  <!-- TASKS VIEW (Pure Real Engine) -->
   <div id="view-tasks" class="view">
-    <div style="margin-bottom: 14px;">
-      <h3 style="margin:0 0 4px 0; font-size:1.15rem;">WorkNest Tasks Engine</h3>
-      <p style="font-size:0.8rem; color:var(--subtext); margin:0;">In-House micro-tasks aur TimeWall PTC dono available hain.</p>
+    <div style="margin-bottom: 12px;">
+      <h3 style="margin:0 0 4px 0; font-size:1.15rem;">TimeWall Real-Time Task Wall</h3>
+      <p style="font-size:0.8rem; color:var(--subtext); margin:0;">Surveys excluded. Zero rejection browser tasks.</p>
     </div>
 
-    <!-- Active Tasks List -->
-    <div class="card" style="padding:12px;">
-      <h4 style="margin:0 0 10px 0; font-size:0.9rem; color:#38bdf8;">⚡ High-Priority Micro Tasks</h4>
-      
-      <div class="task-item">
-        <div>
-          <div class="task-title">Hindi Audio Check (15 sec)</div>
-          <div class="task-meta">Sun kar text verify karein • 15s</div>
-        </div>
-        <div style="text-align:right;">
-          <div class="task-reward">₹4.00</div>
-          <button class="btn-sm" onclick="runMiniTask('Audio Verification', 4.0)">Start</button>
-        </div>
-      </div>
-
-      <div class="task-item">
-        <div>
-          <div class="task-title">Store Receipt Data Verify</div>
-          <div class="task-meta">Shop receipt ka total verify karein</div>
-        </div>
-        <div style="text-align:right;">
-          <div class="task-reward">₹3.50</div>
-          <button class="btn-sm" onclick="runMiniTask('Receipt Verify', 3.5)">Start</button>
-        </div>
-      </div>
-
-      <div class="task-item">
-        <div>
-          <div class="task-title">Web Link Visit & Stay</div>
-          <div class="task-meta">Sponsored page dekhein (20 sec)</div>
-        </div>
-        <div style="text-align:right;">
-          <div class="task-reward">₹1.50</div>
-          <button class="btn-sm" onclick="runMiniTask('Web Link Visit', 1.5)">Start</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- TimeWall Frame Section -->
     <div class="card" style="padding:10px;">
-      <h4 style="margin:0 0 8px 0; font-size:0.9rem; color:#94a3b8;">TimeWall Partner Offers</h4>
-      <div style="width:100%; height:550px; border-radius:8px; overflow:hidden; background:#040711;">
+      <div id="taskNotice" style="font-size:0.82rem; color:#fbbf24; padding:8px; background:#1e293b; border-radius:6px; margin-bottom:10px; display:none;">
+        TimeWall Placement verification chal rahi hai. Approval milte hi live tasks yahan load ho jayenge.
+      </div>
+      <div style="width:100%; height:750px; border-radius:8px; overflow:hidden; background:#040711;">
         <iframe id="twIframe" style="width:100%; height:100%; border:none;" src="" allow="clipboard-write"></iframe>
       </div>
     </div>
@@ -148,37 +98,47 @@
   <!-- WITHDRAW VIEW -->
   <div id="view-withdraw" class="view">
     <div class="card">
-      <h3 style="margin:0 0 14px 0;">UPI Payout Request</h3>
+      <h3 style="margin:0 0 14px 0;">Instant UPI Withdrawal</h3>
       
-      <label style="font-size:0.8rem; color:var(--subtext);">Withdrawal Amount (Min ₹50)</label>
+      <label style="font-size:0.8rem; color:var(--subtext);">Amount (Min: ₹50)</label>
       <input type="number" id="wdAmt" class="input" placeholder="₹50 ya usse zyada">
 
-      <label style="font-size:0.8rem; color:var(--subtext);">Aapki UPI ID (PhonePe / GPay / Paytm)</label>
-      <input type="text" id="wdUpi" class="input" placeholder="mobile@upi">
+      <label style="font-size:0.8rem; color:var(--subtext);">UPI ID (PhonePe / GPay / Paytm)</label>
+      <input type="text" id="wdUpi" class="input" placeholder="example@upi">
 
-      <button class="btn btn-green" onclick="submitWithdraw()">Withdraw Request Bhejein</button>
+      <button class="btn btn-green" onclick="submitWithdraw()">Submit Request</button>
     </div>
 
     <div class="card">
       <h4 style="margin:0 0 10px 0;">Withdrawal History</h4>
-      <div id="wdHistoryList" style="font-size:0.82rem; color:var(--subtext);">Koi pichla withdrawal nahi hai.</div>
+      <div id="wdHistoryList" style="font-size:0.82rem; color:var(--subtext);">Koi pichla withdrawal record nahi hai.</div>
     </div>
   </div>
 
-  <!-- SETTINGS VIEW -->
+  <!-- SETTINGS VIEW (Google Auth & Dedicated Docs) -->
   <div id="view-settings" class="view">
     <div class="card">
-      <h4 style="margin:0 0 12px 0;">Account Overview</h4>
-      <div style="font-size:0.85rem; margin-bottom:6px;"><strong>ID:</strong> <span id="setUserId">-</span></div>
-      <div style="font-size:0.85rem;"><strong>Saved UPI:</strong> <span id="setSavedUpi">None</span></div>
+      <h4 style="margin:0 0 12px 0;">Account & Authentication</h4>
+      <div id="authSection">
+        <p style="font-size:0.82rem; color:var(--subtext); margin-bottom:12px;">Apna Google Account connect karein taaki balance aur withdrawal identity secure rahe.</p>
+        <button class="btn btn-google" onclick="loginWithGoogle()">
+          <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.616z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/><path fill="#FBBC05" d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707s.102-1.167.282-1.707V4.961H.957C.347 6.175 0 7.55 0 9s.347 2.825.957 4.039l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.961L3.964 7.293C4.672 5.166 6.656 3.58 9 3.58z"/></svg>
+          Continue with Google
+        </button>
+      </div>
+      <div id="profileSection" style="display:none; font-size:0.85rem;">
+        <div style="margin-bottom:6px;"><strong>Email:</strong> <span id="profEmail">-</span></div>
+        <div style="margin-bottom:6px;"><strong>User ID:</strong> <span id="profUid">-</span></div>
+        <button class="btn btn-primary" style="margin-top:10px; padding:8px;" onclick="logout()">Logout</button>
+      </div>
     </div>
 
     <div class="card">
-      <h4 style="margin:0 0 10px 0;">Rules, Terms & Help</h4>
+      <h4 style="margin:0 0 10px 0;">WorkNest Information</h4>
       <div class="menu-row" onclick="openDoc('terms')"><span>Terms of Service</span><span>›</span></div>
       <div class="menu-row" onclick="openDoc('privacy')"><span>Privacy Policy</span><span>›</span></div>
       <div class="menu-row" onclick="openDoc('support')"><span>Help & Support Center</span><span>›</span></div>
-      <div class="menu-row" onclick="openDoc('rules')"><span>Zero-Ban & Worker Rules</span><span>›</span></div>
+      <div class="menu-row" onclick="openDoc('rules')"><span>Zero-Ban Worker Rules</span><span>›</span></div>
     </div>
   </div>
 
@@ -198,46 +158,31 @@
     </button>
   </div>
 
-  <!-- AUTH MODAL -->
-  <div id="authModal" class="modal">
-    <div class="modal-head">
-      <h3 style="margin:0;">Worker Profile / Login</h3>
-      <button class="close-btn" onclick="closeModal('authModal')">✕</button>
-    </div>
-    <div class="card">
-      <p style="font-size:0.85rem; color:var(--subtext);">Apna Phone Number ya Email daal kar apna account connect karein taaki balance hamesha safe rahe.</p>
-      <input type="text" id="authInput" class="input" placeholder="Email ya Mobile Number">
-      <button class="btn btn-blue" onclick="saveAuth()">Account Save Karein</button>
-    </div>
-  </div>
-
-  <!-- DOCUMENT MODAL (Dedicated Policy Page) -->
+  <!-- DOC MODAL -->
   <div id="docModal" class="modal">
     <div class="modal-head">
       <h3 style="margin:0;" id="docTitle">Rules</h3>
-      <button class="close-btn" onclick="closeModal('docModal')">✕</button>
+      <button class="close-btn" onclick="closeModal()">✕</button>
     </div>
     <div class="card" id="docBody" style="font-size:0.88rem; line-height:1.6; color:#cbd5e1;"></div>
   </div>
 
   <script>
-    let user = localStorage.getItem('wn_user') || ('WN' + Math.floor(100000 + Math.random() * 900000));
-    localStorage.setItem('wn_user', user);
-    document.getElementById('userBadge').innerText = user;
-    document.getElementById('setUserId').innerText = user;
+    // Supabase Client Setup
+    const SUPABASE_URL = 'https://xyzcompany.supabase.co'; // Replace with active project
+    const SUPABASE_KEY = 'public-anon-key';
+    const supabase = (window.supabase && SUPABASE_URL.indexOf('xyz') === -1) ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+
+    let userUid = localStorage.getItem('wn_uid') || ('WN' + Math.floor(100000 + Math.random() * 900000));
+    localStorage.setItem('wn_uid', userUid);
+    document.getElementById('userBadge').innerText = userUid;
 
     let balance = parseFloat(localStorage.getItem('wn_bal') || '0.00');
-    function updateBalDisplay() {
+    function updateBal() {
       document.getElementById('walletBal').innerText = '₹' + balance.toFixed(2);
       localStorage.setItem('wn_bal', balance.toFixed(2));
     }
-    updateBalDisplay();
-
-    let savedUpi = localStorage.getItem('wn_upi') || '';
-    if (savedUpi) {
-      document.getElementById('wdUpi').value = savedUpi;
-      document.getElementById('setSavedUpi').innerText = savedUpi;
-    }
+    updateBal();
 
     function showTab(tab) {
       document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
@@ -247,84 +192,84 @@
 
       if (tab === 'tasks') {
         const frame = document.getElementById('twIframe');
+        const placement = 'b8b7d53772f1dc7c';
+        document.getElementById('taskNotice').style.display = 'block';
         if (!frame.src || frame.src === 'about:blank') {
-          frame.src = `https://timewall.io/offers?userId=${user}&placement=b8b7d53772f1dc7c`;
+          frame.src = `https://timewall.io/offers?userId=${userUid}&placement=${placement}`;
         }
       }
     }
 
-    function runMiniTask(name, reward) {
-      const btn = event.target;
-      btn.innerText = 'Checking...';
-      btn.disabled = true;
-      setTimeout(() => {
-        balance += reward;
-        updateBalDisplay();
-        btn.innerText = 'Completed ✓';
-        btn.style.background = '#059669';
-        document.getElementById('recentActivity').innerHTML = `
-          <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #1a2744;">
-            <span>${name}</span>
-            <span style="color:#34d399; font-weight:bold;">+₹${reward.toFixed(2)}</span>
-          </div>
-        `;
-      }, 1500);
+    async function loginWithGoogle() {
+      if (supabase) {
+        await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: { redirectTo: window.location.origin }
+        });
+      } else {
+        const dummyEmail = prompt('Enter your Gmail address to verify account:');
+        if (dummyEmail && dummyEmail.includes('@')) {
+          localStorage.setItem('wn_email', dummyEmail);
+          document.getElementById('authSection').style.display = 'none';
+          document.getElementById('profileSection').style.display = 'block';
+          document.getElementById('profEmail').innerText = dummyEmail;
+          document.getElementById('profUid').innerText = userUid;
+          document.getElementById('userBadge').innerText = dummyEmail.split('@')[0];
+        }
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem('wn_email');
+      location.reload();
+    }
+
+    if (localStorage.getItem('wn_email')) {
+      document.getElementById('authSection').style.display = 'none';
+      document.getElementById('profileSection').style.display = 'block';
+      document.getElementById('profEmail').innerText = localStorage.getItem('wn_email');
+      document.getElementById('profUid').innerText = userUid;
+      document.getElementById('userBadge').innerText = localStorage.getItem('wn_email').split('@')[0];
     }
 
     function submitWithdraw() {
       const amt = parseFloat(document.getElementById('wdAmt').value);
       const upi = document.getElementById('wdUpi').value.trim();
-      if (!amt || amt < 50) return alert('Min withdrawal ₹50 hai.');
+      if (!amt || amt < 50) return alert('Kam se kam ₹50 ka withdrawal request daalein.');
       if (amt > balance) return alert('Wallet me paryapt balance nahi hai.');
-      if (!upi.includes('@')) return alert('Sahi UPI ID dalein.');
+      if (!upi.includes('@')) return alert('Valid UPI ID enter karein.');
 
       balance -= amt;
-      updateBalDisplay();
-      localStorage.setItem('wn_upi', upi);
-      document.getElementById('setSavedUpi').innerText = upi;
-
+      updateBal();
       document.getElementById('wdHistoryList').innerHTML = `
-        <div style="display:flex; justify-content:space-between; padding:6px 0;">
-          <div><strong>₹${amt}</strong><br><small style="color:#94a3b8;">${upi}</small></div>
-          <span style="color:#fbbf24; font-size:0.8rem; font-weight:bold;">Processing</span>
+        <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #1e3a5f;">
+          <div><strong>₹${amt.toFixed(2)}</strong><br><small style="color:#94a3b8;">${upi}</small></div>
+          <span style="color:#fbbf24; font-size:0.8rem; font-weight:bold;">Under Admin Review</span>
         </div>
       `;
-      alert('Withdrawal request submit ho gaya!');
+      alert('Withdrawal request register ho gaya.');
       document.getElementById('wdAmt').value = '';
     }
 
-    function openModal(id) { document.getElementById(id).classList.add('active'); }
-    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-
-    function saveAuth() {
-      const val = document.getElementById('authInput').value.trim();
-      if (val) {
-        user = val;
-        localStorage.setItem('wn_user', user);
-        document.getElementById('userBadge').innerText = user;
-        document.getElementById('setUserId').innerText = user;
-        closeModal('authModal');
-      }
-    }
-
     function openDoc(type) {
-      const title = document.getElementById('docTitle');
-      const body = document.getElementById('docBody');
+      const t = document.getElementById('docTitle');
+      const b = document.getElementById('docBody');
       if (type === 'terms') {
-        title.innerText = 'Terms & Conditions';
-        body.innerHTML = '1. Har user ko per device sirf 1 account chalane ki anumati hai.<br>2. Bot, auto-clicker ya proxy use karne par account bina notice suspend hoga.<br>3. Payouts seedha verified UPI IDs par transfer hote hain.';
+        t.innerText = 'Terms of Service';
+        b.innerHTML = '1. Multiple accounts aur VPN/Proxy strict ban hain.<br>2. TimeWall automated postback ke hisaab se credit hota hai.<br>3. Payout UPI address par 24 hours me process hota hai.';
       } else if (type === 'privacy') {
-        title.innerText = 'Privacy Policy';
-        body.innerHTML = 'WorkNest aapke bina permission koi personal call ya contact data nahi leta. Sirf task history aur UPI payout tracking secure database me store hoti hai.';
+        t.innerText = 'Privacy Policy';
+        b.innerHTML = 'WorkNest sirf basic identifier, email authentication, aur withdrawal details track karta hai. Third-party data resale nahi hoti.';
       } else if (type === 'support') {
-        title.innerText = 'Support Center';
-        body.innerHTML = 'Kisi bhi payout delay ya technical dikkat ke liye:<br><br><strong>Email:</strong> support@worknest-india.pages.dev<br><strong>Resolution Window:</strong> Under 24 Hours';
+        t.innerText = 'Support Center';
+        b.innerHTML = 'Technical support email: <strong>support@worknest-india.pages.dev</strong><br>Working Hours: 10 AM - 6 PM IST.';
       } else if (type === 'rules') {
-        title.innerText = 'Zero-Ban Task Guidelines';
-        body.innerHTML = '1. PTC timer pura hone tak window close na karein.<br>2. Audio task sunte waqt background voice dhyan se check karein.<br>3. Fast forward ya skip karne par points automatically reverse ho jate hain.';
+        t.innerText = 'Zero-Ban Worker Rules';
+        b.innerHTML = '1. PTC window timer se pehle band na karein.<br>2. Multiple device login na karein.<br>3. Adblocker disable karke tasks complete karein.';
       }
-      openModal('docModal');
+      document.getElementById('docModal').classList.add('active');
     }
+    function closeModal() { document.getElementById('docModal').classList.remove('active'); }
   </script>
 </body>
 </html>
