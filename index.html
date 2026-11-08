@@ -3,9 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>WorkNest - Instant Audio Engine</title>
+  <title>WorkNest - Audio Tasks Engine</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
       --bg: #070b14;
@@ -64,6 +65,7 @@
       font-weight: 700; cursor: pointer; display: flex; justify-content: center; align-items: center; color: #fff;
     }
     .btn-green { background: #10b981; }
+    .btn-blue { background: #2563eb; }
     .btn-disabled { background: #334155; color: #94a3b8; cursor: not-allowed; }
 
     .status-msg {
@@ -71,37 +73,68 @@
     }
     .status-err { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); display: block; }
     .status-ok { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); display: block; }
+
+    .login-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(7, 11, 20, 0.96); z-index: 200;
+      display: flex; justify-content: center; align-items: center; padding: 20px;
+    }
   </style>
 </head>
 <body>
 
+  <!-- WORKER PHONE LOGIN MODAL -->
+  <div id="loginBox" class="login-overlay" style="display:none;">
+    <div class="card" style="width:100%; max-width:400px; text-align:center;">
+      <h3 style="color:#38bdf8; margin-bottom:8px;">Worker Registration</h3>
+      <p style="font-size:0.8rem; color:var(--muted); margin-bottom:16px;">Kaam shuru karne aur UPI payout ke liye apna 10 digit mobile number enter karein:</p>
+      <input type="tel" id="loginPhone" class="input-box" placeholder="Mobile Number (e.g. 9876543210)" maxlength="10">
+      <button class="btn btn-blue" onclick="saveWorkerPhone()">Login / Start Work ➔</button>
+    </div>
+  </div>
+
   <header class="topbar">
     <div class="brand">WorkNest</div>
-    <div class="badge">Instant QC Engine</div>
+    <div class="badge" id="netBadge">Supabase Connected</div>
   </header>
 
   <div class="container">
+    <!-- WALLET -->
     <div class="card wallet-card">
-      <div style="font-size:0.75rem; color:#93c5fd; font-weight:600; text-transform:uppercase;">Worker Verified Balance</div>
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-size:0.75rem; color:#93c5fd; font-weight:600; text-transform:uppercase;">Worker Balance</span>
+        <span id="workerIdBadge" style="font-size:0.75rem; color:#cbd5e1;">Worker: -</span>
+      </div>
       <div class="bal-num" id="userBal">₹0.00</div>
-      <div style="font-size:0.78rem; color:#cbd5e1;">Accepts: Hindi & Hinglish Typing</div>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+        <span style="font-size:0.78rem; color:#cbd5e1;">Live QC Verified</span>
+        <button onclick="toggleCashoutModal()" style="background:#10b981; border:none; color:#fff; font-size:0.75rem; font-weight:700; padding:6px 14px; border-radius:8px; cursor:pointer;">Withdraw UPI</button>
+      </div>
     </div>
 
+    <!-- WITHDRAWAL INPUT FORM -->
+    <div class="card" id="cashoutBox" style="display:none; border:1px solid #10b981;">
+      <h4 style="font-size:0.85rem; margin-bottom:8px; color:#34d399;">UPI Cashout Request</h4>
+      <input type="text" id="upiInput" class="input-box" placeholder="Apna UPI ID likhein (e.g. name@paytm)">
+      <button class="btn btn-green" onclick="submitWithdrawal()">Send Withdrawal Request</button>
+    </div>
+
+    <!-- LIVE TASK CARD -->
     <div class="card">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-        <span style="font-size:0.8rem; color:#38bdf8; font-weight:700;" id="batchIndex">Task ID: #TR-8921</span>
-        <span style="font-size:0.82rem; color:#34d399; font-weight:800;">₹3.00 / Verified Clip</span>
+        <span style="font-size:0.8rem; color:#38bdf8; font-weight:700;" id="batchIndex">Task ID: Loading...</span>
+        <span style="font-size:0.82rem; color:#34d399; font-weight:800;" id="rewardLabel">₹3.00 / Clip</span>
       </div>
 
       <div class="player-box">
         <div class="controls">
-          <button class="play-circle" id="playBtn" onclick="playInstantAudio()">▶</button>
+          <button class="play-circle" id="playBtn" onclick="playAudioTask()">▶</button>
           <div class="track-meta">
-            <div class="track-title" id="audioLabel">Clip 1: Banking OTP Alert</div>
+            <div class="track-title" id="audioLabel">Supabase se audio load ho raha hai...</div>
             <div class="progress-bar">
               <div class="progress-fill" id="pFill"></div>
             </div>
-            <div style="font-size:0.72rem; color:var(--muted); margin-top:5px;" id="audioStatusText">▶ Button dabakar turant sunein</div>
+            <div style="font-size:0.72rem; color:var(--muted); margin-top:5px;" id="audioStatusText">▶ Button dabakar sunein</div>
           </div>
         </div>
       </div>
@@ -109,44 +142,29 @@
       <div id="statusAlert" class="status-msg"></div>
 
       <label style="font-size:0.8rem; color:#94a3b8; margin-bottom:8px; display:block; font-weight:600;">Suni gayi aawaz ko Hindi ya English aksharon me likhein:</label>
-      <textarea id="taskInput" class="input-box" rows="2" placeholder="Example: Kripya apna OTP kisi ke sath..."></textarea>
+      <textarea id="taskInput" class="input-box" rows="2" placeholder="Example: Kripya apna OTP..."></textarea>
 
-      <button class="btn btn-disabled" id="subBtn" onclick="verifyAndSubmit()">Submit & Verify Task ➔</button>
+      <button class="btn btn-disabled" id="subBtn" onclick="submitTaskToSupabase()">Submit & Verify Task ➔</button>
     </div>
 
     <div class="card">
-      <h4 style="font-size:0.9rem; margin-bottom:10px;">Verification Log</h4>
-      <div id="logList" style="font-size:0.8rem; color:var(--muted);">Koi verified record nahi hai.</div>
+      <h4 style="font-size:0.9rem; margin-bottom:10px;">Submission Audit Log</h4>
+      <div id="logList" style="font-size:0.8rem; color:var(--muted);">Database se records sync ho rahe hain...</div>
     </div>
   </div>
 
   <script>
-    // Pure fast voice + dual hindi/hinglish matching dictionary
-    const tasks = [
-      {
-        id: "#TR-8921",
-        label: "Clip 1: Banking Security Alert",
-        speech: "कृपया अपना ओटीपी किसी के साथ साझा न करें",
-        // Hindi + English phonetic both accepted
-        validKeywords: ["otp", "kripya", "apna", "sath", "saja", "kare", "kripya", "साझा", "ओटीपी", "कृपया"]
-      },
-      {
-        id: "#TR-8922",
-        label: "Clip 2: E-Commerce Delivery Notice",
-        speech: "आपका पार्सल आज दोपहर तक डिलीवर कर दिया जाएगा",
-        validKeywords: ["parcel", "dopahar", "deliver", "jaega", "aaj", "aapka", "पार्सल", "दोपहर", "डिलीवर"]
-      },
-      {
-        id: "#TR-8923",
-        label: "Clip 3: Service Feedback Call",
-        speech: "हमारी सेवा का उपयोग करने के लिए आपका धन्यवाद",
-        validKeywords: ["sewa", "seva", "upyog", "dhanyawad", "dhanyavad", "hamari", "सेवा", "उपयोग", "धन्यवाद"]
-      }
-    ];
+    // Supabase Live Client Initialization
+    const SUPABASE_URL = "https://dtnoscridxidckufaclr.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_OXVT_08Aba7ARIhNzMgUvQ_S51UMD0w";
+    const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+    let workerPhone = localStorage.getItem('wn_worker_phone') || '';
+    let currentTasks = [];
     let currentIndex = 0;
     let hasListened = false;
     let bal = parseFloat(localStorage.getItem('wn_verified_bal') || '0.00');
+
     document.getElementById('userBal').innerText = '₹' + bal.toFixed(2);
 
     const playBtn = document.getElementById('playBtn');
@@ -155,59 +173,91 @@
     const alertBox = document.getElementById('statusAlert');
     const taskInput = document.getElementById('taskInput');
 
-    function loadTask(idx) {
-      const t = tasks[idx % tasks.length];
-      document.getElementById('batchIndex').innerText = "Task ID: " + t.id;
+    function checkWorkerAuth() {
+      if (!workerPhone) {
+        document.getElementById('loginBox').style.display = 'flex';
+      } else {
+        document.getElementById('loginBox').style.display = 'none';
+        document.getElementById('workerIdBadge').innerText = 'Worker: ' + workerPhone;
+        loadTasksFromDB();
+        loadWorkerSubmissions();
+      }
+    }
+
+    function saveWorkerPhone() {
+      const ph = document.getElementById('loginPhone').value.trim();
+      if (ph.length < 10) {
+        alert('Kripya valid 10-digit mobile number enter karein!');
+        return;
+      }
+      workerPhone = ph;
+      localStorage.setItem('wn_worker_phone', ph);
+      checkWorkerAuth();
+    }
+
+    async function loadTasksFromDB() {
+      const { data, error } = await db.from('tasks').select('*').eq('is_active', true);
+      if (error || !data || data.length === 0) {
+        document.getElementById('audioLabel').innerText = "Koi active task uplabdh nahi hai.";
+        return;
+      }
+      currentTasks = data;
+      currentIndex = 0;
+      renderCurrentTask();
+    }
+
+    function renderCurrentTask() {
+      if (currentTasks.length === 0) return;
+      const t = currentTasks[currentIndex % currentTasks.length];
+      document.getElementById('batchIndex').innerText = "Task ID: " + t.task_code;
       document.getElementById('audioLabel').innerText = t.label;
+      document.getElementById('rewardLabel').innerText = "₹" + parseFloat(t.reward).toFixed(2) + " / Clip";
       taskInput.value = '';
       taskInput.classList.remove('err-shake');
       alertBox.className = 'status-msg';
       alertBox.style.display = 'none';
       hasListened = false;
       subBtn.className = 'btn btn-disabled';
-      document.getElementById('audioStatusText').innerText = "▶ Button dabakar turant sunein";
+      document.getElementById('audioStatusText').innerText = "▶ Button dabakar sunein";
       pFill.style.width = '0%';
       playBtn.innerText = '▶';
     }
 
-    function playInstantAudio() {
-      const t = tasks[currentIndex % tasks.length];
-      window.speechSynthesis.cancel(); // instant flush
+    function playAudioTask() {
+      const t = currentTasks[currentIndex % currentTasks.length];
+      window.speechSynthesis.cancel();
 
-      const utter = new SpeechSynthesisUtterance(t.speech);
+      // Sample voice fallback or prompt text
+      let promptText = t.label;
+      if (t.keywords && t.keywords.length > 0) {
+        promptText = t.keywords.slice(0, 4).join(" ");
+      }
+
+      const utter = new SpeechSynthesisUtterance(promptText);
       utter.lang = 'hi-IN';
-      utter.rate = 1.0;
+      utter.rate = 0.95;
 
       playBtn.innerText = '🔊';
-      pFill.style.width = '20%';
-
-      let step = 20;
-      const progressTimer = setInterval(() => {
-        if (step < 90) {
-          step += 20;
-          pFill.style.width = step + '%';
-        }
-      }, 300);
+      pFill.style.width = '30%';
 
       utter.onend = function() {
-        clearInterval(progressTimer);
         playBtn.innerText = '▶';
         pFill.style.width = '100%';
         hasListened = true;
-        document.getElementById('audioStatusText').innerText = "✓ Audio complete. Ab niche text likhein.";
+        document.getElementById('audioStatusText').innerText = "✓ Sunkar niche text likhein.";
         subBtn.className = 'btn btn-green';
       };
 
       utter.onerror = function() {
-        clearInterval(progressTimer);
         playBtn.innerText = '▶';
+        hasListened = true;
+        subBtn.className = 'btn btn-green';
       };
 
-      // Direct instant execution
       window.speechSynthesis.speak(utter);
     }
 
-    function verifyAndSubmit() {
+    async function submitTaskToSupabase() {
       if (!hasListened) {
         alert('Pehle play button daba kar audio pura sunein!');
         return;
@@ -215,65 +265,138 @@
 
       const rawInput = taskInput.value.toLowerCase().replace(/[^a-zA-Z0-9\u0900-\u097F\s]/g, ' ');
       const userWords = rawInput.split(/\s+/).filter(w => w.length > 1);
-      const currentTask = tasks[currentIndex % tasks.length];
+      const currentTask = currentTasks[currentIndex % currentTasks.length];
 
-      if (userWords.length < 2) {
+      if (userWords.length < 1) {
         taskInput.classList.add('err-shake');
         alertBox.className = 'status-msg status-err';
-        alertBox.innerText = '✗ Bahut chhota text hai! Jo suna gaya hai use poora sentence likhein.';
+        alertBox.innerText = '✗ Text box khali hai! Suni gayi aawaz ko likhein.';
         setTimeout(() => taskInput.classList.remove('err-shake'), 400);
         return;
       }
 
-      // Check against Hindi or Hinglish keywords
+      // Check keywords match
+      const taskKeywords = currentTask.keywords || [];
       let matchedCount = 0;
       userWords.forEach(w => {
-        if (currentTask.validKeywords.some(kw => kw.toLowerCase().includes(w) || w.includes(kw.toLowerCase()))) {
+        if (taskKeywords.some(kw => kw.toLowerCase().includes(w) || w.includes(kw.toLowerCase()))) {
           matchedCount++;
         }
       });
 
-      if (matchedCount < 2) {
+      if (taskKeywords.length > 0 && matchedCount === 0) {
         taskInput.classList.add('err-shake');
         alertBox.className = 'status-msg status-err';
-        alertBox.innerText = '✗ Quality Failed! Suni gayi aawaz ke shabdon se match nahi hua. Kripya dhyan se sunkar sahi likhein.';
+        alertBox.innerText = '✗ Quality Failed! Shabdon ka match sahi nahi hua. Dhyan se sunkar type karein.';
         setTimeout(() => taskInput.classList.remove('err-shake'), 400);
         return;
       }
 
-      // PASS & REWARD
-      bal += 3.00;
-      localStorage.setItem('wn_verified_bal', bal.toFixed(2));
+      // Live Supabase Insert
+      const earned = parseFloat(currentTask.reward || 3.00);
+      const { error } = await db.from('submissions').insert([
+        {
+          worker_phone: workerPhone,
+          task_code: currentTask.task_code,
+          submitted_text: taskInput.value.trim(),
+          reward_earned: earned,
+          status: 'verified'
+        }
+      ]);
 
+      if (error) {
+        console.error(error);
+        alert('Supabase Sync Error: ' + error.message);
+        return;
+      }
+
+      // Balance increment
+      bal += earned;
+      localStorage.setItem('wn_verified_bal', bal.toFixed(2));
       const balEl = document.getElementById('userBal');
       balEl.innerText = '₹' + bal.toFixed(2);
       balEl.classList.add('pop');
       setTimeout(() => balEl.classList.remove('pop'), 250);
 
       alertBox.className = 'status-msg status-ok';
-      alertBox.innerText = `✓ Verified Pass! ₹3.00 add ho gaye. Agla task aa raha hai...`;
+      alertBox.innerText = `✓ Verified! ₹${earned.toFixed(2)} Supabase database me credit ho gaye.`;
 
-      // Log
-      const log = document.getElementById('logList');
-      if (currentIndex === 0) log.innerHTML = '';
-      const entry = document.createElement('div');
-      entry.style.cssText = "display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.05);";
-      entry.innerHTML = `
-        <div>
-          <span style="color:#fff; font-weight:600;">${currentTask.id}</span>
-          <div style="font-size:0.72rem; color:#34d399;">Audio Matched: Verified ✓</div>
-        </div>
-        <span style="color:#34d399; font-weight:700;">+₹3.00</span>
-      `;
-      log.prepend(entry);
+      loadWorkerSubmissions();
 
       setTimeout(() => {
         currentIndex++;
-        loadTask(currentIndex);
+        renderCurrentTask();
       }, 1000);
     }
 
-    loadTask(0);
+    async function loadWorkerSubmissions() {
+      const { data, error } = await db.from('submissions')
+        .select('*')
+        .eq('worker_phone', workerPhone)
+        .order('id', { ascending: false })
+        .limit(5);
+
+      const log = document.getElementById('logList');
+      if (error || !data || data.length === 0) {
+        log.innerHTML = 'Abhi tak koi live record nahi hai.';
+        return;
+      }
+
+      log.innerHTML = '';
+      data.forEach(item => {
+        const div = document.createElement('div');
+        div.style.cssText = "display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.05);";
+        div.innerHTML = `
+          <div>
+            <span style="color:#fff; font-weight:600;">${item.task_code}</span>
+            <div style="font-size:0.72rem; color:#94a3b8;">${item.submitted_text.substring(0, 25)}...</div>
+          </div>
+          <span style="color:#34d399; font-weight:700;">+₹${parseFloat(item.reward_earned).toFixed(2)} ✓</span>
+        `;
+        log.appendChild(div);
+      });
+    }
+
+    function toggleCashoutModal() {
+      const box = document.getElementById('cashoutBox');
+      box.style.display = box.style.display === 'none' ? 'block' : 'none';
+    }
+
+    async function submitWithdrawal() {
+      const upi = document.getElementById('upiInput').value.trim();
+      if (!upi || !upi.includes('@')) {
+        alert('Kripya sahi UPI ID enter karein (jaise number@upi ya name@paytm)');
+        return;
+      }
+
+      if (bal < 3.00) {
+        alert('Withdrawal ke liye kam se kam ₹3.00 balance hona chahiye!');
+        return;
+      }
+
+      const withdrawAmount = bal;
+      const { error } = await db.from('withdrawals').insert([
+        {
+          worker_phone: workerPhone,
+          upi_id: upi,
+          amount: withdrawAmount,
+          status: 'pending'
+        }
+      ]);
+
+      if (error) {
+        alert('Withdrawal error: ' + error.message);
+        return;
+      }
+
+      bal = 0.00;
+      localStorage.setItem('wn_verified_bal', '0.00');
+      document.getElementById('userBal').innerText = '₹0.00';
+      document.getElementById('cashoutBox').style.display = 'none';
+      alert(`✓ ₹${withdrawAmount.toFixed(2)} ka withdrawal request Supabase me chala gaya! Admin verify karke UPI par bhej dega.`);
+    }
+
+    checkWorkerAuth();
   </script>
 </body>
 </html>
