@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>WorkNest - Micro Tasks & Daily Rewards</title>
+  <title>WorkNest - Direct Audio & Data Tasks</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
       --bg: #070b14;
@@ -17,112 +18,138 @@
       --muted: #94a3b8;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
-    body { background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 70px; }
+    body { background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 75px; }
 
-    header {
+    .topbar {
       position: sticky; top: 0; z-index: 100;
       display: flex; justify-content: space-between; align-items: center;
-      padding: 16px 20px; background: rgba(7, 11, 20, 0.95);
-      border-bottom: 1px solid var(--border);
+      padding: 14px 18px; background: rgba(7, 11, 20, 0.95);
+      border-bottom: 1px solid var(--border); backdrop-filter: blur(16px);
     }
     .brand { font-size: 1.3rem; font-weight: 800; color: #38bdf8; }
-    .btn-login {
-      background: var(--primary); color: #fff; border: none;
-      padding: 6px 16px; border-radius: 20px; font-weight: 700; font-size: 0.85rem; cursor: pointer;
+    .badge { background: rgba(16, 185, 129, 0.15); color: #34d399; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 20px; border: 1px solid rgba(16, 185, 129, 0.3); }
+
+    .container { padding: 18px; max-width: 550px; margin: auto; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 18px; margin-bottom: 14px; }
+    .wallet-card { background: linear-gradient(135deg, #1e3a8a, #0b1329); border: 1px solid #3b82f6; }
+    .bal-num { font-size: 2.4rem; font-weight: 800; color: #fff; margin: 4px 0; }
+
+    /* AUDIO TASK INTERFACE */
+    .task-box { background: #0b1220; border: 1px solid var(--border); border-radius: 14px; padding: 16px; margin-top: 10px; }
+    .audio-player-mock {
+      display: flex; align-items: center; gap: 12px;
+      background: #1e293b; padding: 12px 16px; border-radius: 12px; margin-bottom: 14px;
     }
-
-    .container { padding: 18px; max-width: 600px; margin: auto; }
-    
-    .hero {
-      text-align: center; padding: 24px 10px;
-      background: radial-gradient(circle at top, #1e3a8a 0%, #070b14 80%);
-      border-radius: 20px; margin-bottom: 20px; border: 1px solid var(--border);
+    .play-btn {
+      width: 42px; height: 42px; border-radius: 50%; background: #38bdf8; border: none;
+      display: flex; justify-content: center; align-items: center; cursor: pointer; color: #070b14; font-weight: 800; font-size: 1.1rem;
     }
-    .hero h1 { font-size: 1.6rem; font-weight: 800; margin-bottom: 8px; color: #fff; }
-    .hero p { font-size: 0.85rem; color: var(--muted); line-height: 1.5; margin-bottom: 16px; }
+    .wave-line { flex: 1; height: 6px; background: #334155; border-radius: 3px; position: relative; overflow: hidden; }
+    .wave-fill { width: 45%; height: 100%; background: #38bdf8; }
 
-    .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 18px; margin-bottom: 16px; }
-    .card h3 { font-size: 1.05rem; margin-bottom: 12px; color: #38bdf8; }
-
-    .task-item {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 12px; background: #0b1120; border: 1px solid var(--border);
-      border-radius: 10px; margin-bottom: 10px;
+    .input-box {
+      width: 100%; padding: 14px; background: #070b14; border: 1px solid var(--border);
+      border-radius: 10px; color: #fff; font-size: 0.95rem; margin-bottom: 12px; outline: none;
     }
-    .task-item h4 { font-size: 0.9rem; font-weight: 600; }
-    .task-item p { font-size: 0.75rem; color: var(--muted); }
-    .reward { color: #34d399; font-weight: 800; font-size: 0.95rem; }
+    .input-box:focus { border-color: #38bdf8; }
 
-    /* TimeWall Placement Frame Container */
-    .timewall-box {
-      width: 100%; height: 600px; border-radius: 12px;
-      background: #000; border: 1px solid var(--border); overflow: hidden;
-      margin-top: 10px;
+    .btn {
+      width: 100%; padding: 14px; border-radius: 12px; border: none; font-size: 0.95rem;
+      font-weight: 700; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; color: #fff;
     }
-    iframe { width: 100%; height: 100%; border: none; }
+    .btn-green { background: #10b981; }
+    .btn-green:active { transform: scale(0.98); }
 
-    .footer { text-align: center; padding: 20px 10px; font-size: 0.75rem; color: var(--muted); }
-    .footer a { color: var(--primary); text-decoration: none; margin: 0 8px; }
+    .task-meta-info { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--muted); margin-bottom: 10px; }
   </style>
 </head>
 <body>
 
-  <header>
+  <header class="topbar">
     <div class="brand">WorkNest</div>
-    <button class="btn-login" onclick="alert('Login will activate with full placement.')">Sign In</button>
+    <div class="badge">Verified Tasks Active</div>
   </header>
 
   <div class="container">
-    <div class="hero">
-      <h1>Earn Daily Micro-Rewards</h1>
-      <p>Complete sponsored browser tasks, clicks, and surveys directly on your phone with zero downloads.</p>
+    <!-- WALLET SUMMARY -->
+    <div class="card wallet-card">
+      <div style="font-size:0.75rem; color:#93c5fd; font-weight:600; text-transform:uppercase;">Worker Wallet Balance</div>
+      <div class="bal-num" id="userBal">₹0.00</div>
+      <div style="font-size:0.78rem; color:#cbd5e1;">Daily UPI Cashout Enabled</div>
     </div>
 
-    <!-- Official Tasks Showcase for TimeWall Reviewer -->
+    <!-- LIVE NATIVE TASK ENGINE -->
     <div class="card">
-      <h3>Active Task Inventory</h3>
-      <div class="task-item">
-        <div>
-          <h4>Sponsored PTC Click</h4>
-          <p>Browse advertiser portal for 20 seconds</p>
-        </div>
-        <div class="reward">₹2.50</div>
+      <div class="task-meta-info">
+        <span id="taskQueue">Task Queue: Continuous Flow</span>
+        <span style="color:#34d399; font-weight:700;" id="taskReward">+₹3.00 Per Audio</span>
       </div>
-      <div class="task-item">
-        <div>
-          <h4>Partner Media View</h4>
-          <p>Watch short sponsored promo clip</p>
+
+      <div class="task-box">
+        <div style="font-size:0.85rem; font-weight:600; margin-bottom:8px;">Audio Clip Suniye Aur Likhiye:</div>
+        
+        <!-- AUDIO CONTROLLER -->
+        <div class="audio-player-mock">
+          <button class="play-btn" onclick="playAudioDemo()">▶</button>
+          <div class="wave-line">
+            <div class="wave-fill"></div>
+          </div>
+          <span style="font-size:0.75rem; color:#94a3b8;">00:06</span>
         </div>
-        <div class="reward">₹3.80</div>
-      </div>
-      <div class="task-item">
-        <div>
-          <h4>Web Engagement Survey</h4>
-          <p>Answer brand opinion questions</p>
-        </div>
-        <div class="reward">₹12.00</div>
+
+        <p style="font-size:0.75rem; color:var(--muted); margin-bottom:8px;" id="audioHint">Niche diye gaye box me jo aawaz sunai de wahi shuddh Hindi me type karein:</p>
+        <textarea id="taskInput" class="input-box" rows="2" placeholder="Sunkar Hindi me type karein..."></textarea>
+
+        <button class="btn btn-green" onclick="submitAudioTask()">Submit & Next Task ➔</button>
       </div>
     </div>
 
-    <!-- Placement Container -->
+    <!-- WORK GUIDELINES -->
     <div class="card">
-      <h3>TimeWall Official Offerwall</h3>
-      <p style="font-size:0.8rem; color:var(--muted); margin-bottom:10px;">Integrated offerwall space for verified partners:</p>
-      <div class="timewall-box">
-        <iframe src="https://timewall.io" allow="clipboard-write"></iframe>
-      </div>
-    </div>
-
-    <!-- Footer with Clear Quality Guidelines -->
-    <div class="footer">
-      <p style="margin-bottom:8px;">&copy; 2026 WorkNest Network. All rights reserved.</p>
-      <div>
-        <a href="#" onclick="alert('Privacy Policy: No personal user tracking.')">Privacy Policy</a> •
-        <a href="#" onclick="alert('Terms: Daily verified payouts via UPI.')">Terms of Service</a> •
-        <a href="#" onclick="alert('Support: support@worknest-india.pages.dev')">Help Center</a>
-      </div>
+      <h4 style="font-size:0.9rem; margin-bottom:8px;">Platform Quality Rules</h4>
+      <p style="font-size:0.8rem; color:var(--muted); line-height:1.5;">
+        1. Earphone ka upyog karein taaki aawaz saaf sunai de.<br>
+        2. Galat ya blank submit karne par task reject ho sakta hai.<br>
+        3. Balance ₹300 hote hi instant UPI withdrawal open ho jata hai.
+      </p>
     </div>
   </div>
 
+  <script>
+    let bal = parseFloat(localStorage.getItem('wn_direct_bal') || '0.00');
+    let taskCount = 1;
+    document.getElementById('userBal').innerText = '₹' + bal.toFixed(2);
+
+    const sampleAudios = [
+      { text: "कृपया अपना आधार कार्ड नंबर सत्यापित करें", hint: "Audio 1/5: Customer Care Voice Sample" },
+      { text: "आपका पार्सल आज दोपहर दो बजे डिलीवर होगा", hint: "Audio 2/5: Logistics Confirmation Sample" },
+      { text: "धन्यवाद हमारी सेवा का उपयोग करने के लिए", hint: "Audio 3/5: Quality Feedback Sample" }
+    ];
+
+    function playAudioDemo() {
+      const u = new SpeechSynthesisUtterance(sampleAudios[(taskCount - 1) % sampleAudios.length].text);
+      u.lang = 'hi-IN';
+      window.speechSynthesis.speak(u);
+    }
+
+    function submitAudioTask() {
+      const input = document.getElementById('taskInput').value.trim();
+      if (!input) {
+        alert('Pehle audio sunkar text box me type karein!');
+        return;
+      }
+
+      bal += 3.00;
+      localStorage.setItem('wn_direct_bal', bal.toFixed(2));
+      document.getElementById('userBal').innerText = '₹' + bal.toFixed(2);
+
+      taskCount++;
+      document.getElementById('taskInput').value = '';
+      alert('Task Approved! ₹3.00 wallet me jud gaye. Agla task load ho gaya.');
+      
+      const current = sampleAudios[(taskCount - 1) % sampleAudios.length];
+      document.getElementById('audioHint').innerText = current.hint;
+    }
+  </script>
 </body>
 </html>
