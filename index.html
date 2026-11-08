@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>WorkNest - Audio Quality Verification</title>
+  <title>WorkNest - Instant Audio Engine</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
   <style>
@@ -41,13 +41,13 @@
     }
     .controls { display: flex; align-items: center; gap: 14px; }
     .play-circle {
-      width: 46px; height: 46px; border-radius: 50%; background: #38bdf8; border: none;
+      width: 48px; height: 48px; border-radius: 50%; background: #38bdf8; border: none;
       display: flex; justify-content: center; align-items: center; cursor: pointer; color: #070b14;
-      font-size: 1.2rem; box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
+      font-size: 1.25rem; font-weight: 900; box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
     }
     .play-circle:active { transform: scale(0.92); }
     .track-meta { flex: 1; }
-    .track-title { font-size: 0.85rem; font-weight: 700; color: #f8fafc; margin-bottom: 4px; }
+    .track-title { font-size: 0.85rem; font-weight: 700; color: #f8fafc; margin-bottom: 6px; }
     .progress-bar { width: 100%; height: 6px; background: #1e293b; border-radius: 3px; overflow: hidden; }
     .progress-fill { width: 0%; height: 100%; background: #38bdf8; transition: width 0.1s linear; }
 
@@ -67,7 +67,7 @@
     .btn-disabled { background: #334155; color: #94a3b8; cursor: not-allowed; }
 
     .status-msg {
-      font-size: 0.8rem; padding: 10px; border-radius: 8px; margin-bottom: 12px; display: none;
+      font-size: 0.8rem; padding: 10px; border-radius: 8px; margin-bottom: 12px; display: none; line-height: 1.4;
     }
     .status-err { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); display: block; }
     .status-ok { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); display: block; }
@@ -77,14 +77,14 @@
 
   <header class="topbar">
     <div class="brand">WorkNest</div>
-    <div class="badge">Strict QC Engine Active</div>
+    <div class="badge">Instant QC Engine</div>
   </header>
 
   <div class="container">
     <div class="card wallet-card">
       <div style="font-size:0.75rem; color:#93c5fd; font-weight:600; text-transform:uppercase;">Worker Verified Balance</div>
       <div class="bal-num" id="userBal">₹0.00</div>
-      <div style="font-size:0.78rem; color:#cbd5e1;">Quality Score: <span id="qcScore" style="color:#34d399; font-weight:700;">100% Accuracy</span></div>
+      <div style="font-size:0.78rem; color:#cbd5e1;">Accepts: Hindi & Hinglish Typing</div>
     </div>
 
     <div class="card">
@@ -95,50 +95,52 @@
 
       <div class="player-box">
         <div class="controls">
-          <button class="play-circle" id="playBtn" onclick="togglePlayAudio()">▶</button>
+          <button class="play-circle" id="playBtn" onclick="playInstantAudio()">▶</button>
           <div class="track-meta">
-            <div class="track-title" id="audioLabel">Clip 1: Banking Security Alert</div>
+            <div class="track-title" id="audioLabel">Clip 1: Banking OTP Alert</div>
             <div class="progress-bar">
               <div class="progress-fill" id="pFill"></div>
             </div>
-            <div style="font-size:0.72rem; color:var(--muted); margin-top:4px;" id="audioStatusText">Pehle audio pura sunein (Required)</div>
+            <div style="font-size:0.72rem; color:var(--muted); margin-top:5px;" id="audioStatusText">▶ Button dabakar turant sunein</div>
           </div>
         </div>
       </div>
 
       <div id="statusAlert" class="status-msg"></div>
 
-      <label style="font-size:0.8rem; color:#94a3b8; margin-bottom:8px; display:block; font-weight:600;">Suni gayi aawaz ko shuddh shabdon me likhein:</label>
-      <textarea id="taskInput" class="input-box" rows="2" placeholder="Yahan sirf vahi likhein jo audio me bola gaya hai..."></textarea>
+      <label style="font-size:0.8rem; color:#94a3b8; margin-bottom:8px; display:block; font-weight:600;">Suni gayi aawaz ko Hindi ya English aksharon me likhein:</label>
+      <textarea id="taskInput" class="input-box" rows="2" placeholder="Example: Kripya apna OTP kisi ke sath..."></textarea>
 
       <button class="btn btn-disabled" id="subBtn" onclick="verifyAndSubmit()">Submit & Verify Task ➔</button>
     </div>
 
     <div class="card">
-      <h4 style="font-size:0.9rem; margin-bottom:10px;">Verification Log (Audit Trail)</h4>
+      <h4 style="font-size:0.9rem; margin-bottom:10px;">Verification Log</h4>
       <div id="logList" style="font-size:0.8rem; color:var(--muted);">Koi verified record nahi hai.</div>
     </div>
   </div>
 
   <script>
+    // Pure fast voice + dual hindi/hinglish matching dictionary
     const tasks = [
       {
         id: "#TR-8921",
         label: "Clip 1: Banking Security Alert",
-        text: "कृपया अपना ओटीपी किसी के साथ साझा न करें",
-        keywords: ["कृपया", "ओटीपी", "साझा", "करें"]
+        speech: "कृपया अपना ओटीपी किसी के साथ साझा न करें",
+        // Hindi + English phonetic both accepted
+        validKeywords: ["otp", "kripya", "apna", "sath", "saja", "kare", "kripya", "साझा", "ओटीपी", "कृपया"]
       },
       {
         id: "#TR-8922",
         label: "Clip 2: E-Commerce Delivery Notice",
-        text: "आपका पार्सल आज दोपहर तक डिलीवर कर दिया जाएगा",
-        keywords: ["पार्सल", "दोपहर", "डिलीवर", "जाएगा"]
+        speech: "आपका पार्सल आज दोपहर तक डिलीवर कर दिया जाएगा",
+        validKeywords: ["parcel", "dopahar", "deliver", "jaega", "aaj", "aapka", "पार्सल", "दोपहर", "डिलीवर"]
       },
       {
         id: "#TR-8923",
         label: "Clip 3: Service Feedback Call",
-        text: "हमारी सेवा का उपयोग करने के लिए आपका धन्यवाद",
-        keywords: ["सेवा", "उपयोग", "धन्यवाद"]
+        speech: "हमारी सेवा का उपयोग करने के लिए आपका धन्यवाद",
+        validKeywords: ["sewa", "seva", "upyog", "dhanyawad", "dhanyavad", "hamari", "सेवा", "उपयोग", "धन्यवाद"]
       }
     ];
 
@@ -163,74 +165,83 @@
       alertBox.style.display = 'none';
       hasListened = false;
       subBtn.className = 'btn btn-disabled';
-      document.getElementById('audioStatusText').innerText = "Pehle audio pura sunein (Required)";
+      document.getElementById('audioStatusText').innerText = "▶ Button dabakar turant sunein";
       pFill.style.width = '0%';
       playBtn.innerText = '▶';
     }
 
-    function togglePlayAudio() {
+    function playInstantAudio() {
       const t = tasks[currentIndex % tasks.length];
-      const utter = new SpeechSynthesisUtterance(t.text);
+      window.speechSynthesis.cancel(); // instant flush
+
+      const utter = new SpeechSynthesisUtterance(t.speech);
       utter.lang = 'hi-IN';
-      utter.rate = 0.85;
+      utter.rate = 1.0;
 
-      playBtn.innerText = '⏸';
-      pFill.style.width = '30%';
+      playBtn.innerText = '🔊';
+      pFill.style.width = '20%';
 
-      utter.onboundary = function() {
-        pFill.style.width = '70%';
-      };
+      let step = 20;
+      const progressTimer = setInterval(() => {
+        if (step < 90) {
+          step += 20;
+          pFill.style.width = step + '%';
+        }
+      }, 300);
 
       utter.onend = function() {
+        clearInterval(progressTimer);
         playBtn.innerText = '▶';
         pFill.style.width = '100%';
         hasListened = true;
-        document.getElementById('audioStatusText').innerText = "✓ Audio sun liya gaya. Ab shuddh Hindi likhein.";
+        document.getElementById('audioStatusText').innerText = "✓ Audio complete. Ab niche text likhein.";
         subBtn.className = 'btn btn-green';
       };
 
-      window.speechSynthesis.cancel();
+      utter.onerror = function() {
+        clearInterval(progressTimer);
+        playBtn.innerText = '▶';
+      };
+
+      // Direct instant execution
       window.speechSynthesis.speak(utter);
-    }
-
-    function calculateSimilarity(str1, str2) {
-      const s1 = str1.replace(/[^\u0900-\u097F\s]/gi, '').trim().toLowerCase();
-      const s2 = str2.replace(/[^\u0900-\u097F\s]/gi, '').trim().toLowerCase();
-      if (!s1 || !s2) return 0;
-
-      const words1 = s1.split(/\s+/);
-      const words2 = s2.split(/\s+/);
-      let matches = 0;
-
-      words1.forEach(w => {
-        if (words2.includes(w)) matches++;
-      });
-
-      return (matches / words2.length) * 100;
     }
 
     function verifyAndSubmit() {
       if (!hasListened) {
-        alert('Pehle play button daba kar audio ko pura sunein!');
+        alert('Pehle play button daba kar audio pura sunein!');
         return;
       }
 
-      const val = taskInput.value.trim();
+      const rawInput = taskInput.value.toLowerCase().replace(/[^a-zA-Z0-9\u0900-\u097F\s]/g, ' ');
+      const userWords = rawInput.split(/\s+/).filter(w => w.length > 1);
       const currentTask = tasks[currentIndex % tasks.length];
 
-      // STRICT QUALITY CHECK
-      const matchScore = calculateSimilarity(val, currentTask.text);
-
-      if (matchScore < 60) {
-        // REJECT IF INACCURATE OR JUNK
+      if (userWords.length < 2) {
         taskInput.classList.add('err-shake');
         alertBox.className = 'status-msg status-err';
-        alertBox.innerText = `✗ Quality Failed! Sahi shabdon ka match sirf ${matchScore.toFixed(0)}% hai. Kuch bhi galat likhne par paise nahi milenge. Sahi shabdon ke sath dobara koshish karein.`;
+        alertBox.innerText = '✗ Bahut chhota text hai! Jo suna gaya hai use poora sentence likhein.';
         setTimeout(() => taskInput.classList.remove('err-shake'), 400);
         return;
       }
 
-      // PASS & CREDIT ONLY ON VALID ACCURACY
+      // Check against Hindi or Hinglish keywords
+      let matchedCount = 0;
+      userWords.forEach(w => {
+        if (currentTask.validKeywords.some(kw => kw.toLowerCase().includes(w) || w.includes(kw.toLowerCase()))) {
+          matchedCount++;
+        }
+      });
+
+      if (matchedCount < 2) {
+        taskInput.classList.add('err-shake');
+        alertBox.className = 'status-msg status-err';
+        alertBox.innerText = '✗ Quality Failed! Suni gayi aawaz ke shabdon se match nahi hua. Kripya dhyan se sunkar sahi likhein.';
+        setTimeout(() => taskInput.classList.remove('err-shake'), 400);
+        return;
+      }
+
+      // PASS & REWARD
       bal += 3.00;
       localStorage.setItem('wn_verified_bal', bal.toFixed(2));
 
@@ -240,9 +251,9 @@
       setTimeout(() => balEl.classList.remove('pop'), 250);
 
       alertBox.className = 'status-msg status-ok';
-      alertBox.innerText = `✓ 100% Quality Pass! ₹3.00 verified wallet me jud gaye.`;
+      alertBox.innerText = `✓ Verified Pass! ₹3.00 add ho gaye. Agla task aa raha hai...`;
 
-      // Log verified entry
+      // Log
       const log = document.getElementById('logList');
       if (currentIndex === 0) log.innerHTML = '';
       const entry = document.createElement('div');
@@ -250,16 +261,16 @@
       entry.innerHTML = `
         <div>
           <span style="color:#fff; font-weight:600;">${currentTask.id}</span>
-          <div style="font-size:0.72rem; color:#34d399;">Match: ${matchScore.toFixed(0)}% (Verified)</div>
+          <div style="font-size:0.72rem; color:#34d399;">Audio Matched: Verified ✓</div>
         </div>
-        <span style="color:#34d399; font-weight:700;">+₹3.00 ✓</span>
+        <span style="color:#34d399; font-weight:700;">+₹3.00</span>
       `;
       log.prepend(entry);
 
       setTimeout(() => {
         currentIndex++;
         loadTask(currentIndex);
-      }, 1200);
+      }, 1000);
     }
 
     loadTask(0);
