@@ -13,7 +13,7 @@
       --card: #0d1322;
       --border: rgba(251, 191, 36, 0.2);
       --primary: #f59e0b;
-      --accent: #25d366;
+      --accent: #10b981;
       --gold: #fbbf24;
       --danger: #ef4444;
       --text: #f8fafc;
@@ -36,7 +36,7 @@
     }
     .brand { font-size: 1.3rem; font-weight: 800; color: #38bdf8; }
     .brand span { color: var(--gold); }
-    .badge { background: rgba(37, 211, 102, 0.15); color: #25d366; font-size: 0.72rem; font-weight: 700; padding: 4px 10px; border-radius: 20px; border: 1px solid rgba(37, 211, 102, 0.3); }
+    .badge { background: rgba(16, 185, 129, 0.15); color: #34d399; font-size: 0.72rem; font-weight: 700; padding: 4px 10px; border-radius: 20px; border: 1px solid rgba(16, 185, 129, 0.3); }
 
     .container { padding: 16px; max-width: 520px; margin: auto; }
     .card { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 18px; margin-bottom: 14px; }
@@ -55,7 +55,6 @@
 
     .btn { width: 100%; padding: 13px; border-radius: 12px; border: none; font-size: 0.92rem; font-weight: 700; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; color: #fff; }
     .btn-gold { background: linear-gradient(90deg, #d97706, #b45309); }
-    .btn-wa { background: #25d366; color: #070a12; font-weight: 800; }
     .btn-green { background: #10b981; }
     .btn-disabled { background: #1e293b; color: #64748b; cursor: not-allowed; }
 
@@ -78,14 +77,14 @@
 
   <header class="topbar">
     <div class="brand">WorkNest <span>• Audio QC</span></div>
-    <div class="badge">WhatsApp OTP Active</div>
+    <div class="badge">SMS Gateway Live</div>
   </header>
 
   <div id="authOverlay" class="modal-overlay" style="display:none;">
     <div class="auth-box">
       <div class="auth-tabs">
         <button class="tab-btn active" id="tabLogin" onclick="switchAuthTab('login')">Login</button>
-        <button class="tab-btn" id="tabSignup" onclick="switchAuthTab('signup')">Sign Up</button>
+        <button class="tab-btn" id="tabSignup" onclick="switchAuthTab('signup')">Sign Up (SMS)</button>
         <button class="tab-btn" id="tabForgot" onclick="switchAuthTab('forgot')">Forgot</button>
       </div>
 
@@ -98,18 +97,18 @@
         <button class="btn btn-gold" onclick="handleUserLogin()">Login to Dashboard ➔</button>
       </div>
 
-      <!-- 2. SIGNUP (Direct WhatsApp Delivery) -->
+      <!-- 2. SIGNUP (Real SIM SMS OTP) -->
       <div id="formSignup" style="display:none;">
-        <input type="tel" id="signPhone" class="input-box" placeholder="10 Digit WhatsApp Mobile Number" maxlength="10">
+        <input type="tel" id="signPhone" class="input-box" placeholder="10 Digit Mobile Number" maxlength="10">
         <input type="password" id="signPass" class="input-box" placeholder="Create Strong Password">
         
         <div id="signupOtpArea" style="display:none;">
-          <p style="font-size:0.75rem; color:#25d366; margin-bottom:8px;">✓ WhatsApp par code bhej diya gaya hai. Apna WhatsApp check karein:</p>
-          <input type="number" id="signOtpInput" class="input-box" placeholder="Enter 6-Digit WhatsApp Code">
-          <button class="btn btn-green" onclick="verifySignupOTP()">Verify & Activate Account</button>
+          <p style="font-size:0.75rem; color:#34d399; margin-bottom:8px;">✓ Aapke phone par SMS bhej diya gaya hai:</p>
+          <input type="number" id="signOtpInput" class="input-box" placeholder="Enter 6-Digit SMS OTP">
+          <button class="btn btn-green" onclick="verifySignupOTP()">Verify SMS OTP & Activate</button>
         </div>
 
-        <button class="btn btn-wa" id="btnSendSignOtp" onclick="sendWhatsAppOTP('signup')">Get OTP on WhatsApp 📲</button>
+        <button class="btn btn-gold" id="btnSendSignOtp" onclick="sendFast2SMS('signup')">Send OTP to Phone 📩</button>
       </div>
 
       <!-- 3. FORGOT PASSWORD -->
@@ -117,13 +116,13 @@
         <input type="tel" id="resetPhone" class="input-box" placeholder="Registered Mobile Number" maxlength="10">
         
         <div id="resetOtpArea" style="display:none;">
-          <p style="font-size:0.75rem; color:#25d366; margin-bottom:8px;">✓ WhatsApp par reset code bheja gaya hai:</p>
-          <input type="number" id="resetOtpInput" class="input-box" placeholder="Enter 6-Digit WhatsApp Code">
+          <p style="font-size:0.75rem; color:#34d399; margin-bottom:8px;">✓ Aapke mobile inbox me reset OTP bhej diya gaya hai:</p>
+          <input type="number" id="resetOtpInput" class="input-box" placeholder="Enter 6-Digit SMS OTP">
           <input type="password" id="resetNewPass" class="input-box" placeholder="Enter New Password">
           <button class="btn btn-green" onclick="verifyAndResetPassword()">Reset & Save Password</button>
         </div>
 
-        <button class="btn btn-wa" id="btnSendResetOtp" onclick="sendWhatsAppOTP('reset')">Send Reset Code on WhatsApp 📲</button>
+        <button class="btn btn-gold" id="btnSendResetOtp" onclick="sendFast2SMS('reset')">Send Reset SMS OTP 📩</button>
       </div>
     </div>
   </div>
@@ -136,7 +135,7 @@
       </div>
       <div class="bal-num" id="userBal">₹0.00</div>
       <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
-        <span style="font-size:0.76rem; color:#cbd5e1;">Zero-Glitch Engine</span>
+        <span style="font-size:0.76rem; color:#cbd5e1;">SMS Verified Workers</span>
         <button onclick="logoutWorker()" style="background:transparent; border:1px solid rgba(255,255,255,0.2); color:#94a3b8; font-size:0.72rem; padding:4px 10px; border-radius:6px; cursor:pointer;">Logout</button>
       </div>
     </div>
@@ -169,6 +168,8 @@
   <script>
     const SUPABASE_URL = "https://dtnoscridxidckufaclr.supabase.co";
     const SUPABASE_KEY = "sb_publishable_OXVT_08Aba7ARIhNzMgUvQ_S51UMD0w";
+    const FAST2SMS_KEY = "Hziz0pYWcLZeAoDpdCnnI7phquaTKQBlTdFIc3ksq1ilFytd396RoJpe6KzrU9ZumoXc8tkY44euZhQ3";
+    
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     let activeWorker = localStorage.getItem('wn_active_phone') || null;
@@ -216,7 +217,7 @@
 
       const { data, error } = await db.from('workers').select('*').eq('phone', phone).single();
       if (error || !data) {
-        showAuthNotice('Ye number registered nahi hai. Sign Up karein!', true);
+        showAuthNotice('Ye number registered nahi hai. Pehle Sign Up karein!', true);
         return;
       }
 
@@ -230,18 +231,32 @@
       checkAuthSession();
     }
 
-    // WHATSAPP OTP TRIGGER (Delivers code in WhatsApp inbox)
-    async function sendWhatsAppOTP(purpose) {
+    // FAST2SMS DIRECT SMS ENGINE
+    async function sendFast2SMS(purpose) {
       const phoneInput = purpose === 'signup' ? 'signPhone' : 'resetPhone';
       const phone = document.getElementById(phoneInput).value.trim();
 
       if (phone.length < 10) {
-        showAuthNotice('Sahi 10 digit WhatsApp number dalein!', true);
+        showAuthNotice('Sahi 10 digit mobile number dalein!', true);
         return;
       }
 
       const code = Math.floor(100000 + Math.random() * 900000).toString();
-      await db.from('phone_otps').insert([{ phone, otp_code: code, purpose: purpose }]);
+
+      // Store in Supabase
+      await db.from('phone_otps').insert([{ phone, otp_code: code, purpose }]);
+
+      showAuthNotice('SMS bheja ja raha hai...', false);
+
+      // Trigger Fast2SMS Quick Gateway
+      try {
+        const smsUrl = `https://www.fast2sms.com/dev/bulkV2?authorization=${FAST2SMS_KEY}&route=otp&variables_values=${code}&flash=0&numbers=${phone}`;
+        fetch(smsUrl, { mode: 'no-cors' }).then(() => {
+          console.log("Fast2SMS request dispatched.");
+        }).catch(err => console.log(err));
+      } catch (e) {
+        console.log(e);
+      }
 
       if (purpose === 'signup') {
         document.getElementById('signupOtpArea').style.display = 'block';
@@ -251,13 +266,7 @@
         document.getElementById('btnSendResetOtp').style.display = 'none';
       }
 
-      showAuthNotice('WhatsApp open ho raha hai, wahan apna code dekhein...', false);
-
-      // Open WhatsApp with direct pre-filled verification message
-      const text = encodeURIComponent(`*WorkNest Official Verification*\n\nAapka 6-digit verification code hai: *${code}*\n\nIse kisi ke sath share na karein.`);
-      const waUrl = `https://api.whatsapp.com/send?phone=91${phone}&text=${text}`;
-      
-      window.open(waUrl, '_blank');
+      showAuthNotice('✓ SMS OTP aapke mobile number par bhej diya gaya hai! Messages app check karein.', false);
     }
 
     async function verifySignupOTP() {
@@ -268,7 +277,7 @@
       const { data } = await db.from('phone_otps').select('*').eq('phone', phone).eq('purpose', 'signup').order('id', { ascending: false }).limit(1);
 
       if (!data || data.length === 0 || data[0].otp_code !== enteredOtp) {
-        showAuthNotice('Galat WhatsApp Code! Dobara dekhein.', true);
+        showAuthNotice('Galat SMS OTP Code! Messages app me check karke dobara dalein.', true);
         return;
       }
 
@@ -291,7 +300,7 @@
       const { data } = await db.from('phone_otps').select('*').eq('phone', phone).eq('purpose', 'reset').order('id', { ascending: false }).limit(1);
 
       if (!data || data.length === 0 || data[0].otp_code !== enteredOtp) {
-        showAuthNotice('Galat WhatsApp Code!', true);
+        showAuthNotice('Galat SMS Code!', true);
         return;
       }
 
