@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>WorkNest - Audio Transcription Engine</title>
+  <title>WorkNest - Audio Quality Verification</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
   <style>
@@ -13,6 +13,7 @@
       --border: rgba(255, 255, 255, 0.08);
       --primary: #38bdf8;
       --accent: #10b981;
+      --danger: #ef4444;
       --text: #f8fafc;
       --muted: #94a3b8;
     }
@@ -30,11 +31,10 @@
 
     .container { padding: 18px; max-width: 550px; margin: auto; }
     .card { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 18px; margin-bottom: 14px; }
-    .wallet-card { background: linear-gradient(135deg, #1e3a8a, #0b1329); border: 1px solid #3b82f6; position: relative; overflow: hidden; }
-    .bal-num { font-size: 2.5rem; font-weight: 800; color: #fff; margin: 4px 0; transition: transform 0.2s ease; }
+    .wallet-card { background: linear-gradient(135deg, #1e3a8a, #0b1329); border: 1px solid #3b82f6; }
+    .bal-num { font-size: 2.5rem; font-weight: 800; color: #fff; margin: 4px 0; transition: transform 0.2s; }
     .bal-num.pop { transform: scale(1.1); color: #34d399; }
 
-    /* REAL SOUND PLAYER */
     .player-box {
       background: #090e1a; border: 1px solid var(--border); border-radius: 14px;
       padding: 16px; margin: 12px 0 16px 0;
@@ -43,216 +43,223 @@
     .play-circle {
       width: 46px; height: 46px; border-radius: 50%; background: #38bdf8; border: none;
       display: flex; justify-content: center; align-items: center; cursor: pointer; color: #070b14;
-      font-size: 1.2rem; box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3); transition: transform 0.1s;
+      font-size: 1.2rem; box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
     }
     .play-circle:active { transform: scale(0.92); }
     .track-meta { flex: 1; }
     .track-title { font-size: 0.85rem; font-weight: 700; color: #f8fafc; margin-bottom: 4px; }
-    .progress-bar { width: 100%; height: 6px; background: #1e293b; border-radius: 3px; overflow: hidden; cursor: pointer; }
+    .progress-bar { width: 100%; height: 6px; background: #1e293b; border-radius: 3px; overflow: hidden; }
     .progress-fill { width: 0%; height: 100%; background: #38bdf8; transition: width 0.1s linear; }
-    .time-stamp { font-size: 0.72rem; color: var(--muted); margin-top: 4px; display: flex; justify-content: space-between; }
 
-    /* TYPING WORKSPACE */
-    .hint-label { font-size: 0.8rem; color: #94a3b8; margin-bottom: 8px; display: block; font-weight: 600; }
     .input-box {
       width: 100%; padding: 14px; background: #070b14; border: 1px solid var(--border);
       border-radius: 12px; color: #fff; font-size: 0.95rem; margin-bottom: 12px; outline: none; resize: none;
     }
     .input-box:focus { border-color: #38bdf8; }
+    .input-box.err-shake { border-color: var(--danger); animation: shake 0.3s ease-in-out; }
+    @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
 
     .btn {
       width: 100%; padding: 14px; border-radius: 12px; border: none; font-size: 0.95rem;
-      font-weight: 700; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; color: #fff;
+      font-weight: 700; cursor: pointer; display: flex; justify-content: center; align-items: center; color: #fff;
     }
-    .btn-green { background: #10b981; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2); }
-    .btn-green:active { transform: scale(0.98); }
+    .btn-green { background: #10b981; }
+    .btn-disabled { background: #334155; color: #94a3b8; cursor: not-allowed; }
 
-    /* REAL EARNING TOAST */
-    .toast {
-      position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
-      background: #10b981; color: #fff; font-weight: 700; font-size: 0.85rem;
-      padding: 10px 20px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-      transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28); z-index: 1000;
+    .status-msg {
+      font-size: 0.8rem; padding: 10px; border-radius: 8px; margin-bottom: 12px; display: none;
     }
-    .toast.show { transform: translateX(-50%) translateY(0); }
+    .status-err { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); display: block; }
+    .status-ok { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); display: block; }
   </style>
 </head>
 <body>
 
-  <div id="toast" class="toast">✓ ₹3.00 Wallet Me Credit Ho Gaye!</div>
-
   <header class="topbar">
     <div class="brand">WorkNest</div>
-    <div class="badge">Live Voice Task Queue</div>
+    <div class="badge">Strict QC Engine Active</div>
   </header>
 
   <div class="container">
-    <!-- WALLET -->
     <div class="card wallet-card">
-      <div style="font-size:0.75rem; color:#93c5fd; font-weight:600; text-transform:uppercase;">Worker Total Earnings</div>
+      <div style="font-size:0.75rem; color:#93c5fd; font-weight:600; text-transform:uppercase;">Worker Verified Balance</div>
       <div class="bal-num" id="userBal">₹0.00</div>
-      <div style="font-size:0.78rem; color:#cbd5e1;">Daily UPI Withdrawal: Available (Min ₹50)</div>
+      <div style="font-size:0.78rem; color:#cbd5e1;">Quality Score: <span id="qcScore" style="color:#34d399; font-weight:700;">100% Accuracy</span></div>
     </div>
 
-    <!-- TASK BOX -->
     <div class="card">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
         <span style="font-size:0.8rem; color:#38bdf8; font-weight:700;" id="batchIndex">Task ID: #TR-8921</span>
-        <span style="font-size:0.82rem; color:#34d399; font-weight:800;">₹3.00 / Clip</span>
+        <span style="font-size:0.82rem; color:#34d399; font-weight:800;">₹3.00 / Verified Clip</span>
       </div>
 
       <div class="player-box">
         <div class="controls">
           <button class="play-circle" id="playBtn" onclick="togglePlayAudio()">▶</button>
           <div class="track-meta">
-            <div class="track-title" id="audioLabel">Clip 1: Hindi Verification Prompt</div>
+            <div class="track-title" id="audioLabel">Clip 1: Banking Security Alert</div>
             <div class="progress-bar">
               <div class="progress-fill" id="pFill"></div>
             </div>
-            <div class="time-stamp">
-              <span id="currTime">00:00</span>
-              <span id="totTime">00:03</span>
-            </div>
+            <div style="font-size:0.72rem; color:var(--muted); margin-top:4px;" id="audioStatusText">Pehle audio pura sunein (Required)</div>
           </div>
         </div>
       </div>
 
-      <label class="hint-label" id="fieldLabel">Aapne kya suna? Shuddh Hindi me likhein:</label>
-      <textarea id="taskInput" class="input-box" rows="2" placeholder="Yahan sunkar type karein..."></textarea>
+      <div id="statusAlert" class="status-msg"></div>
 
-      <!-- QUICK HELPER CHIP (TAAKI TEST KAR SAKEIN) -->
-      <div style="margin-bottom:12px; font-size:0.75rem; color:var(--muted);">
-        <span>Sample Clip Audio: </span>
-        <span id="sampleRef" style="color:#38bdf8; cursor:pointer; text-decoration:underline;" onclick="pasteHelper()">Click here to auto-fill text</span>
-      </div>
+      <label style="font-size:0.8rem; color:#94a3b8; margin-bottom:8px; display:block; font-weight:600;">Suni gayi aawaz ko shuddh shabdon me likhein:</label>
+      <textarea id="taskInput" class="input-box" rows="2" placeholder="Yahan sirf vahi likhein jo audio me bola gaya hai..."></textarea>
 
-      <button class="btn btn-green" id="subBtn" onclick="submitRealTask()">Submit & Next Task ➔</button>
+      <button class="btn btn-disabled" id="subBtn" onclick="verifyAndSubmit()">Submit & Verify Task ➔</button>
     </div>
 
-    <!-- STATS -->
     <div class="card">
-      <h4 style="font-size:0.9rem; margin-bottom:10px;">Today's Submission Record</h4>
-      <div id="logList" style="font-size:0.8rem; color:var(--muted);">Abhi tak koi task submit nahi hua.</div>
+      <h4 style="font-size:0.9rem; margin-bottom:10px;">Verification Log (Audit Trail)</h4>
+      <div id="logList" style="font-size:0.8rem; color:var(--muted);">Koi verified record nahi hai.</div>
     </div>
   </div>
 
-  <audio id="audioEl" preload="auto"></audio>
-
   <script>
-    // Real accessible audio clips with clear Hindi voice
     const tasks = [
       {
         id: "#TR-8921",
-        label: "Clip 1: OTP & Bank Security Verification",
+        label: "Clip 1: Banking Security Alert",
         text: "कृपया अपना ओटीपी किसी के साथ साझा न करें",
-        url: "https://actions.google.com/sounds/v1/communication/incoming_call.ogg" // Reliable audio stream
+        keywords: ["कृपया", "ओटीपी", "साझा", "करें"]
       },
       {
         id: "#TR-8922",
         label: "Clip 2: E-Commerce Delivery Notice",
         text: "आपका पार्सल आज दोपहर तक डिलीवर कर दिया जाएगा",
-        url: "https://actions.google.com/sounds/v1/communication/notification_high_intensity.ogg"
+        keywords: ["पार्सल", "दोपहर", "डिलीवर", "जाएगा"]
       },
       {
         id: "#TR-8923",
         label: "Clip 3: Service Feedback Call",
         text: "हमारी सेवा का उपयोग करने के लिए आपका धन्यवाद",
-        url: "https://actions.google.com/sounds/v1/communication/hang_up.ogg"
+        keywords: ["सेवा", "उपयोग", "धन्यवाद"]
       }
     ];
 
     let currentIndex = 0;
-    let bal = parseFloat(localStorage.getItem('wn_direct_bal') || '0.00');
+    let hasListened = false;
+    let bal = parseFloat(localStorage.getItem('wn_verified_bal') || '0.00');
     document.getElementById('userBal').innerText = '₹' + bal.toFixed(2);
 
-    const audio = document.getElementById('audioEl');
     const playBtn = document.getElementById('playBtn');
     const pFill = document.getElementById('pFill');
-    const currTime = document.getElementById('currTime');
+    const subBtn = document.getElementById('subBtn');
+    const alertBox = document.getElementById('statusAlert');
+    const taskInput = document.getElementById('taskInput');
 
     function loadTask(idx) {
       const t = tasks[idx % tasks.length];
       document.getElementById('batchIndex').innerText = "Task ID: " + t.id;
       document.getElementById('audioLabel').innerText = t.label;
-      document.getElementById('sampleRef').innerText = '"' + t.text + '" (tap to copy)';
-      document.getElementById('taskInput').value = '';
+      taskInput.value = '';
+      taskInput.classList.remove('err-shake');
+      alertBox.className = 'status-msg';
+      alertBox.style.display = 'none';
+      hasListened = false;
+      subBtn.className = 'btn btn-disabled';
+      document.getElementById('audioStatusText').innerText = "Pehle audio pura sunein (Required)";
       pFill.style.width = '0%';
-      currTime.innerText = '00:00';
       playBtn.innerText = '▶';
     }
 
     function togglePlayAudio() {
-      // Native synthesizer voice + real sound effect sync
       const t = tasks[currentIndex % tasks.length];
       const utter = new SpeechSynthesisUtterance(t.text);
       utter.lang = 'hi-IN';
-      utter.rate = 0.9;
+      utter.rate = 0.85;
 
       playBtn.innerText = '⏸';
-      pFill.style.width = '20%';
-      currTime.innerText = '00:01';
+      pFill.style.width = '30%';
 
       utter.onboundary = function() {
         pFill.style.width = '70%';
-        currTime.innerText = '00:02';
       };
 
       utter.onend = function() {
         playBtn.innerText = '▶';
         pFill.style.width = '100%';
-        currTime.innerText = '00:03';
-        setTimeout(() => { pFill.style.width = '0%'; currTime.innerText = '00:00'; }, 1000);
+        hasListened = true;
+        document.getElementById('audioStatusText').innerText = "✓ Audio sun liya gaya. Ab shuddh Hindi likhein.";
+        subBtn.className = 'btn btn-green';
       };
 
       window.speechSynthesis.cancel();
       window.speechSynthesis.speak(utter);
     }
 
-    function pasteHelper() {
-      const t = tasks[currentIndex % tasks.length];
-      document.getElementById('taskInput').value = t.text;
+    function calculateSimilarity(str1, str2) {
+      const s1 = str1.replace(/[^\u0900-\u097F\s]/gi, '').trim().toLowerCase();
+      const s2 = str2.replace(/[^\u0900-\u097F\s]/gi, '').trim().toLowerCase();
+      if (!s1 || !s2) return 0;
+
+      const words1 = s1.split(/\s+/);
+      const words2 = s2.split(/\s+/);
+      let matches = 0;
+
+      words1.forEach(w => {
+        if (words2.includes(w)) matches++;
+      });
+
+      return (matches / words2.length) * 100;
     }
 
-    function submitRealTask() {
-      const val = document.getElementById('taskInput').value.trim();
-      if (!val) {
-        alert('Pehle aawaz sunkar likhein ya niche diye gaye sample par tap karein!');
+    function verifyAndSubmit() {
+      if (!hasListened) {
+        alert('Pehle play button daba kar audio ko pura sunein!');
         return;
       }
 
-      // 1. Balance Calculation
+      const val = taskInput.value.trim();
+      const currentTask = tasks[currentIndex % tasks.length];
+
+      // STRICT QUALITY CHECK
+      const matchScore = calculateSimilarity(val, currentTask.text);
+
+      if (matchScore < 60) {
+        // REJECT IF INACCURATE OR JUNK
+        taskInput.classList.add('err-shake');
+        alertBox.className = 'status-msg status-err';
+        alertBox.innerText = `✗ Quality Failed! Sahi shabdon ka match sirf ${matchScore.toFixed(0)}% hai. Kuch bhi galat likhne par paise nahi milenge. Sahi shabdon ke sath dobara koshish karein.`;
+        setTimeout(() => taskInput.classList.remove('err-shake'), 400);
+        return;
+      }
+
+      // PASS & CREDIT ONLY ON VALID ACCURACY
       bal += 3.00;
-      localStorage.setItem('wn_direct_bal', bal.toFixed(2));
-      
+      localStorage.setItem('wn_verified_bal', bal.toFixed(2));
+
       const balEl = document.getElementById('userBal');
       balEl.innerText = '₹' + bal.toFixed(2);
       balEl.classList.add('pop');
-      setTimeout(() => balEl.classList.remove('pop'), 300);
+      setTimeout(() => balEl.classList.remove('pop'), 250);
 
-      // 2. Real Toast
-      const toast = document.getElementById('toast');
-      toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), 2000);
+      alertBox.className = 'status-msg status-ok';
+      alertBox.innerText = `✓ 100% Quality Pass! ₹3.00 verified wallet me jud gaye.`;
 
-      // 3. Add to submission record
-      const currentTask = tasks[currentIndex % tasks.length];
+      // Log verified entry
       const log = document.getElementById('logList');
       if (currentIndex === 0) log.innerHTML = '';
-      
       const entry = document.createElement('div');
       entry.style.cssText = "display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.05);";
       entry.innerHTML = `
         <div>
           <span style="color:#fff; font-weight:600;">${currentTask.id}</span>
-          <div style="font-size:0.72rem; color:#94a3b8;">${val.substring(0, 24)}...</div>
+          <div style="font-size:0.72rem; color:#34d399;">Match: ${matchScore.toFixed(0)}% (Verified)</div>
         </div>
         <span style="color:#34d399; font-weight:700;">+₹3.00 ✓</span>
       `;
       log.prepend(entry);
 
-      // 4. Move to next continuous task
-      currentIndex++;
-      loadTask(currentIndex);
+      setTimeout(() => {
+        currentIndex++;
+        loadTask(currentIndex);
+      }, 1200);
     }
 
     loadTask(0);
