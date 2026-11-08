@@ -248,12 +248,17 @@
 
       showAuthNotice('SMS bheja ja raha hai...', false);
 
-      // Trigger Fast2SMS Quick Gateway
+      // Trigger Fast2SMS via CORS Bypass Proxy
       try {
-        const smsUrl = `https://www.fast2sms.com/dev/bulkV2?authorization=${FAST2SMS_KEY}&route=otp&variables_values=${code}&flash=0&numbers=${phone}`;
-        fetch(smsUrl, { mode: 'no-cors' }).then(() => {
-          console.log("Fast2SMS request dispatched.");
-        }).catch(err => console.log(err));
+        const targetUrl = encodeURIComponent(`https://www.fast2sms.com/dev/bulkV2?authorization=${FAST2SMS_KEY}&route=otp&variables_values=${code}&flash=0&numbers=${phone}`);
+        const proxyUrl = `https://api.allorigins.win/raw?url=${targetUrl}`;
+        
+        fetch(proxyUrl)
+          .then(res => res.json())
+          .then(data => {
+            console.log('Fast2SMS Delivery Response:', data);
+          })
+          .catch(err => console.log('Proxy Error:', err));
       } catch (e) {
         console.log(e);
       }
