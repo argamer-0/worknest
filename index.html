@@ -2,266 +2,333 @@
 <html lang="hi">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>WorkNest - Worker Portal</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
-    body { background: #070d1e; color: #f8fafc; margin: 0; padding: 15px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-    .card { background: #0f172a; padding: 22px; border-radius: 16px; width: 100%; max-width: 420px; box-shadow: 0 12px 35px rgba(0,0,0,0.7); border: 1px solid #1e293b; }
-    h2 { margin: 0; color: #38bdf8; text-align: center; font-size: 24px; }
-    p.sub { font-size: 13px; color: #94a3b8; text-align: center; margin: 5px 0 20px 0; }
-    label { font-size: 13px; color: #94a3b8; margin-top: 12px; display: block; font-weight: 500; }
-    input, textarea { width: 100%; padding: 12px; margin-top: 5px; margin-bottom: 12px; border-radius: 8px; border: 1px solid #334155; background: #020617; color: white; font-size: 14px; outline: none; }
-    input:focus, textarea:focus { border-color: #38bdf8; }
-    .btn-google { width: 100%; padding: 13px; background: #ffffff; color: #0f172a; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 15px; }
-    .btn-primary { width: 100%; padding: 12px; background: #0284c7; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 15px; }
-    .btn-success { background: #16a34a; color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; flex: 1; }
-    .btn-danger { background: #dc2626; color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; flex: 1; }
-    .hidden { display: none; }
-    .msg { font-size: 13px; margin-top: 12px; text-align: center; }
-    
-    /* Stats Bar */
-    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }
-    .stat-box { background: #020617; padding: 12px; border-radius: 10px; border: 1px solid #1e293b; text-align: center; }
-    .stat-val { font-size: 20px; font-weight: bold; color: #38bdf8; }
-    .stat-lbl { font-size: 11px; color: #94a3b8; margin-top: 2px; }
-
-    /* Task Workspace */
-    .task-card { background: #020617; border: 1px solid #1e293b; border-radius: 12px; padding: 15px; margin-top: 15px; }
-    audio { width: 100%; margin: 10px 0; border-radius: 6px; }
-    .btn-row { display: flex; gap: 10px; margin-top: 12px; }
-
-    /* UID Modal */
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: #070d1e; color: #f8fafc; min-height: 100vh; display: flex; flex-direction: column; }
+    .hidden { display: none !important; }
+    header { background: #0f172a; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1e293b; position: sticky; top: 0; z-index: 50; }
+    .brand { font-size: 19px; font-weight: 800; color: #38bdf8; }
+    .header-user img { width: 34px; height: 34px; border-radius: 50%; border: 2px solid #38bdf8; object-fit: cover; }
+    main { flex: 1; padding: 16px; max-width: 480px; width: 100%; margin: 0 auto 75px auto; }
+    .card { background: #0f172a; border: 1px solid #1e293b; border-radius: 14px; padding: 18px; margin-bottom: 14px; }
+    .card-title { font-size: 15px; font-weight: 700; color: #94a3b8; margin-bottom: 12px; text-transform: uppercase; }
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+    .stat-card { background: #020617; border: 1px solid #1e293b; border-radius: 12px; padding: 14px; text-align: center; }
+    .stat-val { font-size: 22px; font-weight: 800; color: #22c55e; }
+    .stat-lbl { font-size: 11px; color: #94a3b8; margin-top: 4px; }
+    label { font-size: 12px; color: #94a3b8; font-weight: 600; display: block; margin-bottom: 6px; }
+    input, textarea, select { width: 100%; padding: 12px; background: #020617; border: 1px solid #334155; border-radius: 8px; color: white; font-size: 14px; outline: none; margin-bottom: 12px; }
+    .btn { width: 100%; padding: 13px; border-radius: 8px; font-weight: 700; font-size: 14px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .btn-primary { background: #0284c7; color: white; }
+    .btn-success { background: #16a34a; color: white; flex: 1; }
+    .btn-danger { background: #dc2626; color: white; flex: 1; }
+    .btn-google { background: #ffffff; color: #0f172a; }
+    nav { position: fixed; bottom: 0; left: 0; right: 0; background: #0f172a; border-top: 1px solid #1e293b; display: flex; justify-content: space-around; padding: 8px 0 10px 0; z-index: 50; }
+    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; background: none; border: none; color: #64748b; font-size: 11px; font-weight: 600; cursor: pointer; flex: 1; }
+    .nav-item.active { color: #38bdf8; }
+    .nav-item svg { width: 20px; height: 20px; fill: currentColor; }
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 100; }
-    .modal-content { background: #0f172a; padding: 25px; border-radius: 14px; width: 100%; max-width: 340px; text-align: center; border: 1px solid #38bdf8; }
-    .uid-badge { background: #020617; padding: 12px; border-radius: 8px; font-size: 20px; font-weight: bold; color: #38bdf8; letter-spacing: 2px; margin: 15px 0; border: 1px dashed #38bdf8; }
+    .modal-box { background: #0f172a; border: 1px solid #38bdf8; border-radius: 14px; width: 100%; max-width: 350px; padding: 22px; position: relative; text-align: center; }
+    .modal-close { position: absolute; top: 12px; right: 14px; background: none; border: none; color: #94a3b8; font-size: 20px; font-weight: bold; cursor: pointer; }
+    .uid-badge { background: #020617; border: 1px dashed #38bdf8; color: #38bdf8; padding: 12px; border-radius: 8px; font-size: 20px; font-weight: 800; letter-spacing: 2px; margin: 15px 0; }
+    audio { width: 100%; margin: 10px 0 14px 0; }
+    .btn-group { display: flex; gap: 10px; }
+    .badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; }
+    .badge-success { background: rgba(34,197,94,0.15); color: #22c55e; }
+    .list-item { background: #020617; border: 1px solid #1e293b; border-radius: 8px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
   </style>
 </head>
 <body>
+  <header id="appHeader" class="hidden">
+    <div class="brand">WorkNest</div>
+    <div class="header-user"><img id="headAvatar" src="https://via.placeholder.com/40" alt="Avatar"></div>
+  </header>
+  <main>
+    <section id="secAuth" class="card" style="margin-top: 25vh; text-align: center;">
+      <h2 style="color:#38bdf8; font-size:26px; font-weight:800; margin-bottom:6px;">WorkNest</h2>
+      <p style="color:#94a3b8; font-size:13px; margin-bottom:24px;">Certified Audio QC & Microtask Workspace</p>
+      <button class="btn btn-google" onclick="loginWithGoogle()">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.4l3.7 2.9C6.5 7.4 9 5 12 5z"/><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.7-.2-2.3H12v4.6h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.9z"/><path fill="#FBBC05" d="M5.6 14.7c-.2-.7-.4-1.5-.4-2.7 0-1.1.2-2 .4-2.7L1.9 6.4C.7 8.8 0 10.3 0 12s.7 3.2 1.9 5.6l3.7-2.9z"/><path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.4-6.4-5.3L1.9 16c1.8 3.8 5.6 7 10.1 7z"/></svg>
+        Sign in with Google
+      </button>
+      <div id="authStatus" style="font-size:13px; margin-top:14px; color:#ef4444;"></div>
+    </section>
 
-<div class="card">
-  <h2>WorkNest</h2>
-  <p class="sub">Worker Portal & Task Workspace</p>
+    <section id="secProfileForm" class="card hidden">
+      <h3 style="color:#38bdf8; font-size:17px; margin-bottom:4px;">Mandatory Profile Setup</h3>
+      <p style="color:#94a3b8; font-size:12px; margin-bottom:16px;">Duplicate identities strictly block ki jaati hain.</p>
+      <label>Full Name</label>
+      <input type="text" id="regName" placeholder="Poora Naam">
+      <label>10-Digit Mobile Number</label>
+      <input type="tel" id="regPhone" maxlength="10" placeholder="Mobile Number">
+      <label>Government ID Number</label>
+      <input type="text" id="regGovId" placeholder="Govt ID / Document No">
+      <button class="btn btn-primary" onclick="submitProfile()">Generate UID & Continue</button>
+      <div id="regStatus" style="font-size:13px; margin-top:10px; color:#ef4444;"></div>
+    </section>
 
-  <!-- 1. GOOGLE LOGIN -->
-  <div id="authSection">
-    <button class="btn-google" onclick="loginWithGoogle()">
-      <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.4l3.7 2.9C6.5 7.4 9 5 12 5z"/><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.7-.2-2.3H12v4.6h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.9z"/><path fill="#FBBC05" d="M5.6 14.7c-.2-.7-.4-1.5-.4-2.7 0-1.1.2-2 .4-2.7L1.9 6.4C.7 8.8 0 10.3 0 12s.7 3.2 1.9 5.6l3.7-2.9z"/><path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.4-6.4-5.3L1.9 16c1.8 3.8 5.6 7 10.1 7z"/></svg>
-      Sign in with Google
+    <section id="tabHome" class="hidden">
+      <div class="card" style="display:flex; align-items:center; gap:14px;">
+        <img id="homeAvatar" src="https://via.placeholder.com/50" style="width:50px; height:50px; border-radius:50%; border:2px solid #38bdf8;" alt="Profile">
+        <div>
+          <div id="homeName" style="font-size:16px; font-weight:800;"></div>
+          <div style="font-size:12px; color:#94a3b8; margin-top:2px;">UID: <span id="homeUid" style="color:#38bdf8; font-weight:700;"></span></div>
+          <span class="badge badge-success" style="margin-top:4px;">Verified Worker</span>
+        </div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div id="homeBalance" class="stat-val">₹0.00</div>
+          <div class="stat-lbl">Wallet Balance</div>
+        </div>
+        <div class="stat-card">
+          <div id="homeTasks" class="stat-val" style="color:#38bdf8;">0</div>
+          <div class="stat-lbl">Tasks Done</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Quick Actions</div>
+        <button class="btn btn-primary" style="margin-bottom:10px;" onclick="switchTab('task')">🎧 Start Tasks</button>
+        <button class="btn btn-success" onclick="switchTab('withdraw')">💳 Request Payout</button>
+      </div>
+    </section>
+
+    <section id="tabTask" class="hidden">
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <span id="taskNumber" style="font-size:13px; font-weight:700; color:#38bdf8;">Task #101 (Audio QC)</span>
+          <span style="font-size:13px; font-weight:800; color:#22c55e;">Reward: ₹2.50</span>
+        </div>
+        <audio id="audioElement" controls>
+          <source src="https://actions.google.com/sounds/v1/speech/hello.ogg" type="audio/ogg">
+        </audio>
+        <label>Transcription Check & Edit:</label>
+        <textarea id="taskText" rows="3">Hello, how can I help you today?</textarea>
+        <div class="btn-group">
+          <button class="btn btn-success" onclick="processTask('Approved')">✔ Approve (₹2.50)</button>
+          <button class="btn btn-danger" onclick="processTask('Rejected')">✖ Reject</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="tabWithdraw" class="hidden">
+      <div class="card">
+        <div class="card-title">Withdrawal Request</div>
+        <div style="font-size:12px; color:#94a3b8; margin-bottom:12px;">Minimum threshold is ₹50.00</div>
+        <label>Available Balance</label>
+        <input type="text" id="withdrawBal" readonly value="₹0.00">
+        <label>Payout Method</label>
+        <select id="payoutMethod">
+          <option value="upi">UPI ID</option>
+          <option value="bank">Bank Account</option>
+        </select>
+        <label>Payout Details</label>
+        <input type="text" id="payoutDetails" placeholder="UPI ID / Bank Account Details">
+        <button class="btn btn-primary" onclick="submitWithdrawal()">Submit Payout Request</button>
+        <div id="withdrawMsg" style="font-size:13px; margin-top:10px;"></div>
+      </div>
+    </section>
+
+    <section id="tabHistory" class="hidden">
+      <div class="card">
+        <div class="card-title">Activity & Payout History</div>
+        <div id="historyList"></div>
+      </div>
+    </section>
+
+    <section id="tabProfile" class="hidden">
+      <div class="card">
+        <div class="card-title">Worker Profile Card</div>
+        <div style="font-size:13px; line-height:2;">
+          <div><strong>Worker Name:</strong> <span id="profName"></span></div>
+          <div><strong>Permanent UID:</strong> <span id="profUid" style="color:#38bdf8;"></span></div>
+          <div><strong>Phone:</strong> <span id="profPhone"></span></div>
+          <div><strong>Verification:</strong> <span class="badge badge-success">Verified</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Platform Policies</div>
+        <div style="font-size:12px; color:#94a3b8; line-height:1.6; margin-bottom:14px;">
+          <strong>Privacy Policy:</strong> WorkNest workers ka sensitive data aur payouts encrypted database me secure rehte hain.<br><br>
+          <strong>Worker Rules:</strong> Multiple fake accounts banana strictly prohibited hai.
+        </div>
+        <button class="btn btn-danger" onclick="handleLogout()">Sign Out</button>
+      </div>
+    </section>
+  </main>
+
+  <nav id="appNav" class="hidden">
+    <button class="nav-item active" onclick="switchTab('home')">
+      <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Home
     </button>
-  </div>
+    <button class="nav-item" onclick="switchTab('task')">
+      <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>Tasks
+    </button>
+    <button class="nav-item" onclick="switchTab('withdraw')">
+      <svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8z"/></svg>Withdraw
+    </button>
+    <button class="nav-item" onclick="switchTab('history')">
+      <svg viewBox="0 0 24 24"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>History
+    </button>
+    <button class="nav-item" onclick="switchTab('profile')">
+      <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>Profile
+    </button>
+  </nav>
 
-  <!-- 2. MANDATORY PROFILE FORM -->
-  <div id="profileSection" class="hidden">
-    <h3 style="color:#38bdf8; font-size:16px; margin:0 0 5px 0;">Worker Profile Form</h3>
-    <p style="font-size:12px; color:#94a3b8; margin:0 0 10px 0;">Registration ke liye valid details bharein.</p>
-
-    <label>Pura Naam</label>
-    <input type="text" id="fullName" placeholder="Apna Poora Naam">
-
-    <label>Mobile Number (10 Digits)</label>
-    <input type="tel" id="userPhone" placeholder="Mobile Number" maxlength="10">
-
-    <label>Government ID Number</label>
-    <input type="text" id="govId" placeholder="Govt ID No">
-
-    <button class="btn-primary" onclick="submitProfile()">Save & Generate UID</button>
-  </div>
-
-  <!-- 3. WORKER DASHBOARD & TASK WORKSPACE -->
-  <div id="dashboardSection" class="hidden">
-    <!-- Header -->
-    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #1e293b; padding-bottom:10px;">
-      <div>
-        <div id="dashName" style="font-weight:bold; font-size:15px;"></div>
-        <div id="dashUid" style="color:#38bdf8; font-size:12px; font-weight:600;"></div>
-      </div>
-      <button onclick="handleLogout()" style="background:#ef4444; border:none; color:white; padding:6px 12px; border-radius:6px; font-size:12px; cursor:pointer;">Logout</button>
-    </div>
-
-    <!-- Earnings & Stats -->
-    <div class="stats-grid">
-      <div class="stat-box">
-        <div id="statEarnings" class="stat-val" style="color:#22c55e;">₹0.00</div>
-        <div class="stat-lbl">Today's Earnings</div>
-      </div>
-      <div class="stat-box">
-        <div id="statTasks" class="stat-val">0</div>
-        <div class="stat-lbl">Completed Tasks</div>
-      </div>
-    </div>
-
-    <!-- Live Task Section -->
-    <div class="task-card">
-      <div style="display:flex; justify-content:space-between; font-size:12px; color:#94a3b8;">
-        <span id="taskIdLabel">Task #101 (Audio QC)</span>
-        <span style="color:#22c55e; font-weight:bold;">Reward: ₹2.50</span>
-      </div>
-
-      <audio id="audioPlayer" controls style="display:block;">
-        <source src="https://actions.google.com/sounds/v1/speech/hello.ogg" type="audio/ogg">
-      </audio>
-
-      <label style="margin-top:5px;">Audio Transcription (Check / Correct)</label>
-      <textarea id="taskTranscript" rows="2">Hello, how can I help you today?</textarea>
-
-      <div class="btn-row">
-        <button class="btn-success" onclick="completeTask('Approved')">✔ Approve (₹2.50)</button>
-        <button class="btn-danger" onclick="completeTask('Rejected')">✖ Reject</button>
-      </div>
+  <div id="uidModal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeUidModal()">✖</button>
+      <h3 style="color:#22c55e; font-size:18px; margin-bottom:6px;">Registration Complete!</h3>
+      <p style="color:#cbd5e1; font-size:12px;">Aapka permanent WorkNest UID assign ho gaya hai:</p>
+      <div id="modalUidText" class="uid-badge"></div>
+      <button class="btn btn-primary" onclick="closeUidModal()">Go to Dashboard</button>
     </div>
   </div>
-
-  <div id="status" class="msg"></div>
-</div>
-
-<!-- 4. UID POPUP MODAL -->
-<div id="uidModal" class="modal-overlay hidden">
-  <div class="modal-content">
-    <h3 style="color:#22c55e; margin:0;">Account Verified!</h3>
-    <p style="font-size:13px; color:#cbd5e1; margin-top:8px;">Aapka WorkNest UID Code generate ho gaya:</p>
-    <div id="modalUidDisplay" class="uid-badge"></div>
-    <button class="btn-primary" onclick="closeModalAndShowDash()">Go to Dashboard</button>
-  </div>
-</div>
-
 <script>
   const SUPABASE_URL = "https://dtnoscridxidckufaclr.supabase.co";
   const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR0bm9zY3JpZHhpZGNrdWZhY2xyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM1NjA1MzcsImV4cCI6MjEwOTEzNjUzN30.O3v64aJ5CD1eAqD_OP-ErLakzb96yR9wOrg1-PfC6pk";
   const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  let currentWorker = null;
-  let earnings = 0.00;
-  let completedCount = 0;
-
-  const sampleAudios = [
+  let currentUser = null, currentProfile = null, balance = 0.00, taskCount = 0;
+  const audioDataset = [
     { id: 101, text: "Hello, how can I help you today?", url: "https://actions.google.com/sounds/v1/speech/hello.ogg" },
-    { id: 102, text: "Thank you for reaching out to WorkNest support.", url: "https://actions.google.com/sounds/v1/speech/speech_thank_you.ogg" },
-    { id: 103, text: "Your account verification is completed successfully.", url: "https://actions.google.com/sounds/v1/speech/hello.ogg" }
+    { id: 102, text: "Thank you for contacting WorkNest support.", url: "https://actions.google.com/sounds/v1/speech/speech_thank_you.ogg" }
   ];
-  let taskIndex = 0;
+  let curIndex = 0;
 
   window.addEventListener('DOMContentLoaded', async () => {
     const { data: { session } } = await client.auth.getSession();
     if (session && session.user) {
-      verifyUserProfile(session.user);
+      currentUser = session.user;
+      loadWorkerProfile(session.user);
     }
   });
 
   async function loginWithGoogle() {
-    showStatus("Google login shuru ho raha hai...", "#38bdf8");
-    const { error } = await client.auth.signInWithOAuth({
+    document.getElementById("authStatus").innerText = "Redirecting...";
+    await client.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: window.location.origin + window.location.pathname }
     });
-    if (error) showStatus(error.message, "#ef4444");
   }
 
-  async function verifyUserProfile(user) {
-    document.getElementById("authSection").classList.add("hidden");
-    showStatus("Profile verify ho rahi hai...", "#38bdf8");
-
-    const { data } = await client
-      .from('profiles')
-      .select('*')
-      .eq('id', user.id)
-      .maybeSingle();
-
-    showStatus("");
-
+  async function loadWorkerProfile(user) {
+    document.getElementById("secAuth").classList.add("hidden");
+    const { data } = await client.from('profiles').select('*').eq('id', user.id).maybeSingle();
     if (data && data.full_name) {
-      currentWorker = data;
-      renderDashboard(data);
+      currentProfile = data;
+      setupWorkerEnvironment();
     } else {
-      document.getElementById("profileSection").classList.remove("hidden");
+      document.getElementById("secProfileForm").classList.remove("hidden");
       if (user.user_metadata && user.user_metadata.full_name) {
-        document.getElementById("fullName").value = user.user_metadata.full_name;
+        document.getElementById("regName").value = user.user_metadata.full_name;
       }
     }
   }
 
   async function submitProfile() {
-    const fullName = document.getElementById("fullName").value.trim();
-    const phone = document.getElementById("userPhone").value.trim().replace(/\D/g, '');
-    const govId = document.getElementById("govId").value.trim().toUpperCase().replace(/\s/g, '');
+    const name = document.getElementById("regName").value.trim();
+    const phone = document.getElementById("regPhone").value.trim().replace(/\D/g, '');
+    const govId = document.getElementById("regGovId").value.trim().toUpperCase().replace(/\s/g, '');
 
-    if (!fullName || phone.length < 10 || !govId) {
-      showStatus("Saari details bharna zaroori hai!", "#ef4444");
+    if (!name || phone.length < 10 || !govId) {
+      document.getElementById("regStatus").innerText = "Saari details bharna zaroori hai!";
       return;
     }
 
-    showStatus("Profile save ho rahi hai...", "#38bdf8");
-    const { data: { user } } = await client.auth.getUser();
-
     const { data, error } = await client.from('profiles').insert([
-      {
-        id: user.id,
-        full_name: fullName,
-        phone_number: phone,
-        government_id: govId,
-        is_verified: true
-      }
+      { id: currentUser.id, full_name: name, phone_number: phone, government_id: govId, is_verified: true }
     ]).select().single();
 
     if (error) {
-      showStatus(error.code === '23505' ? "Yeh Phone/ID pehle se registered hai!" : error.message, "#ef4444");
+      document.getElementById("regStatus").innerText = error.code === '23505' ? "Yeh Phone ya ID pehle se registered hai!" : error.message;
       return;
     }
 
-    currentWorker = data;
-    showStatus("");
-    document.getElementById("profileSection").classList.add("hidden");
-    
-    const workerUid = "WN-" + user.id.substring(0, 8).toUpperCase();
-    document.getElementById("modalUidDisplay").innerText = workerUid;
+    currentProfile = data;
+    document.getElementById("secProfileForm").classList.add("hidden");
+    document.getElementById("modalUidText").innerText = "WN-" + currentUser.id.substring(0, 8).toUpperCase();
     document.getElementById("uidModal").classList.remove("hidden");
   }
 
-  function closeModalAndShowDash() {
+  function closeUidModal() {
     document.getElementById("uidModal").classList.add("hidden");
-    renderDashboard(currentWorker);
+    setupWorkerEnvironment();
   }
 
-  function renderDashboard(data) {
-    document.getElementById("profileSection").classList.add("hidden");
-    document.getElementById("authSection").classList.add("hidden");
-    document.getElementById("dashboardSection").classList.remove("hidden");
-    document.getElementById("dashName").innerText = data.full_name;
-    document.getElementById("dashUid").innerText = "WN-" + data.id.substring(0, 8).toUpperCase();
+  function setupWorkerEnvironment() {
+    document.getElementById("appHeader").classList.remove("hidden");
+    document.getElementById("appNav").classList.remove("hidden");
+    const uid = "WN-" + currentProfile.id.substring(0, 8).toUpperCase();
+    const avatar = (currentUser.user_metadata && currentUser.user_metadata.avatar_url) ? currentUser.user_metadata.avatar_url : "https://via.placeholder.com/40";
+    document.getElementById("headAvatar").src = avatar;
+    document.getElementById("homeAvatar").src = avatar;
+    document.getElementById("homeName").innerText = currentProfile.full_name;
+    document.getElementById("homeUid").innerText = uid;
+    document.getElementById("profName").innerText = currentProfile.full_name;
+    document.getElementById("profUid").innerText = uid;
+    document.getElementById("profPhone").innerText = "+91 " + currentProfile.phone_number;
+    switchTab('home');
   }
 
-  function completeTask(action) {
-    if (action === 'Approved') {
-      earnings += 2.50;
+  function switchTab(tKey) {
+    ['home', 'task', 'withdraw', 'history', 'profile'].forEach(t => {
+      const el = document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1));
+      if (el) el.classList.add('hidden');
+    });
+    const cur = document.getElementById('tab' + tKey.charAt(0).toUpperCase() + tKey.slice(1));
+    if (cur) cur.classList.remove('hidden');
+
+    const tabs = ['home', 'task', 'withdraw', 'history', 'profile'];
+    document.querySelectorAll('.nav-item').forEach((b, i) => b.classList.toggle('active', tabs[i] === tKey));
+    if (tKey === 'withdraw') document.getElementById('withdrawBal').value = "₹" + balance.toFixed(2);
+  }
+
+  function processTask(act) {
+    if (act === 'Approved') {
+      balance += 2.50;
+      addRec("Task #" + audioDataset[curIndex].id + " Approved", "+ ₹2.50");
+    } else {
+      addRec("Task #" + audioDataset[curIndex].id + " Rejected", "₹0.00");
     }
-    completedCount++;
-    document.getElementById("statEarnings").innerText = "₹" + earnings.toFixed(2);
-    document.getElementById("statTasks").innerText = completedCount;
+    taskCount++;
+    document.getElementById("homeBalance").innerText = "₹" + balance.toFixed(2);
+    document.getElementById("homeTasks").innerText = taskCount;
+    curIndex = (curIndex + 1) % audioDataset.length;
+    document.getElementById("taskNumber").innerText = "Task #" + audioDataset[curIndex].id + " (Audio QC)";
+    document.getElementById("taskText").value = audioDataset[curIndex].text;
+    const p = document.getElementById("audioElement");
+    p.src = audioDataset[curIndex].url;
+    p.load();
+  }
 
-    // Load next audio task
-    taskIndex = (taskIndex + 1) % sampleAudios.length;
-    const next = sampleAudios[taskIndex];
-    document.getElementById("taskIdLabel").innerText = "Task #" + next.id + " (Audio QC)";
-    document.getElementById("taskTranscript").value = next.text;
-    const player = document.getElementById("audioPlayer");
-    player.src = next.url;
-    player.load();
-    showStatus("Task completed! Next audio loaded.", "#22c55e");
-    setTimeout(() => showStatus(""), 2000);
+  function submitWithdrawal() {
+    const d = document.getElementById("payoutDetails").value.trim();
+    const msg = document.getElementById("withdrawMsg");
+    if (balance < 50) { msg.style.color = "#ef4444"; msg.innerText = "Minimum ₹50.00 hona zaroori hai!"; return; }
+    if (!d) { msg.style.color = "#ef4444"; msg.innerText = "Payment details daaliye."; return; }
+    msg.style.color = "#22c55e"; msg.innerText = "Payout request submit ho gayi!";
+    addRec("Withdrawal (" + d + ")", "- ₹" + balance.toFixed(2));
+    balance = 0.00;
+    document.getElementById("homeBalance").innerText = "₹0.00";
+    document.getElementById("withdrawBal").value = "₹0.00";
+  }
+
+  function addRec(title, amt) {
+    const list = document.getElementById("historyList");
+    const d = document.createElement("div");
+    d.className = "list-item";
+    d.innerHTML = '<div><div style="font-weight:700;">' + title + '</div><div style="font-size:11px; color:#64748b;">Abhi</div></div><span class="badge badge-success">' + amt + '</span>';
+    list.prepend(d);
   }
 
   async function handleLogout() {
     await client.auth.signOut();
     location.reload();
   }
-
-  function showStatus(text, color) {
-    const el = document.getElementById("status");
-    el.innerText = text;
-    el.style.color = color || "white";
-  }
 </script>
-
 </body>
 </html>
