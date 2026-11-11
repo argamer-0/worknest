@@ -7,26 +7,42 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
-    body { background: #0b1329; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 15px; }
-    .card { background: #131c35; padding: 25px; border-radius: 14px; width: 100%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); border: 1px solid #1e293b; }
-    h2 { margin: 0 0 5px 0; color: #38bdf8; text-align: center; }
-    p.sub { font-size: 13px; color: #94a3b8; text-align: center; margin-bottom: 20px; }
+    body { background: #070d1e; color: #f8fafc; margin: 0; padding: 15px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+    .card { background: #0f172a; padding: 22px; border-radius: 16px; width: 100%; max-width: 420px; box-shadow: 0 12px 35px rgba(0,0,0,0.7); border: 1px solid #1e293b; }
+    h2 { margin: 0; color: #38bdf8; text-align: center; font-size: 24px; }
+    p.sub { font-size: 13px; color: #94a3b8; text-align: center; margin: 5px 0 20px 0; }
     label { font-size: 13px; color: #94a3b8; margin-top: 12px; display: block; font-weight: 500; }
-    input { width: 100%; padding: 12px; margin-top: 5px; margin-bottom: 12px; border-radius: 8px; border: 1px solid #334155; background: #090d1a; color: white; font-size: 14px; outline: none; }
-    .btn-google { width: 100%; padding: 12px; background: #ffffff; color: #0f172a; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 15px; }
-    .btn-primary { width: 100%; padding: 12px; background: #0284c7; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 15px; margin-top: 10px; }
+    input, textarea { width: 100%; padding: 12px; margin-top: 5px; margin-bottom: 12px; border-radius: 8px; border: 1px solid #334155; background: #020617; color: white; font-size: 14px; outline: none; }
+    input:focus, textarea:focus { border-color: #38bdf8; }
+    .btn-google { width: 100%; padding: 13px; background: #ffffff; color: #0f172a; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 15px; }
+    .btn-primary { width: 100%; padding: 12px; background: #0284c7; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 15px; }
+    .btn-success { background: #16a34a; color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; flex: 1; }
+    .btn-danger { background: #dc2626; color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; flex: 1; }
     .hidden { display: none; }
     .msg { font-size: 13px; margin-top: 12px; text-align: center; }
+    
+    /* Stats Bar */
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }
+    .stat-box { background: #020617; padding: 12px; border-radius: 10px; border: 1px solid #1e293b; text-align: center; }
+    .stat-val { font-size: 20px; font-weight: bold; color: #38bdf8; }
+    .stat-lbl { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+
+    /* Task Workspace */
+    .task-card { background: #020617; border: 1px solid #1e293b; border-radius: 12px; padding: 15px; margin-top: 15px; }
+    audio { width: 100%; margin: 10px 0; border-radius: 6px; }
+    .btn-row { display: flex; gap: 10px; margin-top: 12px; }
+
+    /* UID Modal */
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 100; }
-    .modal-content { background: #151f38; padding: 25px; border-radius: 12px; width: 100%; max-width: 340px; text-align: center; border: 1px solid #38bdf8; }
-    .uid-badge { background: #090d1a; padding: 12px; border-radius: 8px; font-size: 20px; font-weight: bold; color: #38bdf8; letter-spacing: 2px; margin: 15px 0; border: 1px dashed #38bdf8; }
+    .modal-content { background: #0f172a; padding: 25px; border-radius: 14px; width: 100%; max-width: 340px; text-align: center; border: 1px solid #38bdf8; }
+    .uid-badge { background: #020617; padding: 12px; border-radius: 8px; font-size: 20px; font-weight: bold; color: #38bdf8; letter-spacing: 2px; margin: 15px 0; border: 1px dashed #38bdf8; }
   </style>
 </head>
 <body>
 
 <div class="card">
   <h2>WorkNest</h2>
-  <p class="sub">Worker Authentication & Verification Portal</p>
+  <p class="sub">Worker Portal & Task Workspace</p>
 
   <!-- 1. GOOGLE LOGIN -->
   <div id="authSection">
@@ -39,7 +55,7 @@
   <!-- 2. MANDATORY PROFILE FORM -->
   <div id="profileSection" class="hidden">
     <h3 style="color:#38bdf8; font-size:16px; margin:0 0 5px 0;">Worker Profile Form</h3>
-    <p style="font-size:12px; color:#94a3b8; margin:0 0 10px 0;">Duplicate accounts ya details allow nahi hain.</p>
+    <p style="font-size:12px; color:#94a3b8; margin:0 0 10px 0;">Registration ke liye valid details bharein.</p>
 
     <label>Pura Naam</label>
     <input type="text" id="fullName" placeholder="Apna Poora Naam">
@@ -53,15 +69,48 @@
     <button class="btn-primary" onclick="submitProfile()">Save & Generate UID</button>
   </div>
 
-  <!-- 3. WORKER DASHBOARD -->
+  <!-- 3. WORKER DASHBOARD & TASK WORKSPACE -->
   <div id="dashboardSection" class="hidden">
-    <h3 style="color:#22c55e; margin:0 0 10px 0;">WorkNest Workspace</h3>
-    <div style="background:#090d1a; padding:15px; border-radius:8px; font-size:14px; line-height:1.7;">
-      <div><strong>Worker:</strong> <span id="dashName"></span></div>
-      <div><strong>Worker UID:</strong> <span id="dashUid" style="color:#38bdf8;"></span></div>
-      <div><strong>Status:</strong> <span style="color:#22c55e;">Active & Verified</span></div>
+    <!-- Header -->
+    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #1e293b; padding-bottom:10px;">
+      <div>
+        <div id="dashName" style="font-weight:bold; font-size:15px;"></div>
+        <div id="dashUid" style="color:#38bdf8; font-size:12px; font-weight:600;"></div>
+      </div>
+      <button onclick="handleLogout()" style="background:#ef4444; border:none; color:white; padding:6px 12px; border-radius:6px; font-size:12px; cursor:pointer;">Logout</button>
     </div>
-    <button class="btn-primary" style="background:#ef4444; margin-top:15px;" onclick="handleLogout()">Logout</button>
+
+    <!-- Earnings & Stats -->
+    <div class="stats-grid">
+      <div class="stat-box">
+        <div id="statEarnings" class="stat-val" style="color:#22c55e;">₹0.00</div>
+        <div class="stat-lbl">Today's Earnings</div>
+      </div>
+      <div class="stat-box">
+        <div id="statTasks" class="stat-val">0</div>
+        <div class="stat-lbl">Completed Tasks</div>
+      </div>
+    </div>
+
+    <!-- Live Task Section -->
+    <div class="task-card">
+      <div style="display:flex; justify-content:space-between; font-size:12px; color:#94a3b8;">
+        <span id="taskIdLabel">Task #101 (Audio QC)</span>
+        <span style="color:#22c55e; font-weight:bold;">Reward: ₹2.50</span>
+      </div>
+
+      <audio id="audioPlayer" controls style="display:block;">
+        <source src="https://actions.google.com/sounds/v1/speech/hello.ogg" type="audio/ogg">
+      </audio>
+
+      <label style="margin-top:5px;">Audio Transcription (Check / Correct)</label>
+      <textarea id="taskTranscript" rows="2">Hello, how can I help you today?</textarea>
+
+      <div class="btn-row">
+        <button class="btn-success" onclick="completeTask('Approved')">✔ Approve (₹2.50)</button>
+        <button class="btn-danger" onclick="completeTask('Rejected')">✖ Reject</button>
+      </div>
+    </div>
   </div>
 
   <div id="status" class="msg"></div>
@@ -82,7 +131,16 @@
   const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR0bm9zY3JpZHhpZGNrdWZhY2xyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM1NjA1MzcsImV4cCI6MjEwOTEzNjUzN30.O3v64aJ5CD1eAqD_OP-ErLakzb96yR9wOrg1-PfC6pk";
   const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  let currentWorkerData = null;
+  let currentWorker = null;
+  let earnings = 0.00;
+  let completedCount = 0;
+
+  const sampleAudios = [
+    { id: 101, text: "Hello, how can I help you today?", url: "https://actions.google.com/sounds/v1/speech/hello.ogg" },
+    { id: 102, text: "Thank you for reaching out to WorkNest support.", url: "https://actions.google.com/sounds/v1/speech/speech_thank_you.ogg" },
+    { id: 103, text: "Your account verification is completed successfully.", url: "https://actions.google.com/sounds/v1/speech/hello.ogg" }
+  ];
+  let taskIndex = 0;
 
   window.addEventListener('DOMContentLoaded', async () => {
     const { data: { session } } = await client.auth.getSession();
@@ -92,12 +150,10 @@
   });
 
   async function loginWithGoogle() {
-    showStatus("Google login khul raha hai...", "#38bdf8");
+    showStatus("Google login shuru ho raha hai...", "#38bdf8");
     const { error } = await client.auth.signInWithOAuth({
       provider: 'google',
-      options: {
-        redirectTo: window.location.origin + window.location.pathname
-      }
+      options: { redirectTo: window.location.origin + window.location.pathname }
     });
     if (error) showStatus(error.message, "#ef4444");
   }
@@ -115,7 +171,7 @@
     showStatus("");
 
     if (data && data.full_name) {
-      currentWorkerData = data;
+      currentWorker = data;
       renderDashboard(data);
     } else {
       document.getElementById("profileSection").classList.remove("hidden");
@@ -149,15 +205,11 @@
     ]).select().single();
 
     if (error) {
-      if (error.code === '23505') {
-        showStatus("Yeh Phone Number ya ID pehle se registered hai!", "#ef4444");
-      } else {
-        showStatus(error.message, "#ef4444");
-      }
+      showStatus(error.code === '23505' ? "Yeh Phone/ID pehle se registered hai!" : error.message, "#ef4444");
       return;
     }
 
-    currentWorkerData = data;
+    currentWorker = data;
     showStatus("");
     document.getElementById("profileSection").classList.add("hidden");
     
@@ -168,7 +220,7 @@
 
   function closeModalAndShowDash() {
     document.getElementById("uidModal").classList.add("hidden");
-    renderDashboard(currentWorkerData);
+    renderDashboard(currentWorker);
   }
 
   function renderDashboard(data) {
@@ -177,6 +229,26 @@
     document.getElementById("dashboardSection").classList.remove("hidden");
     document.getElementById("dashName").innerText = data.full_name;
     document.getElementById("dashUid").innerText = "WN-" + data.id.substring(0, 8).toUpperCase();
+  }
+
+  function completeTask(action) {
+    if (action === 'Approved') {
+      earnings += 2.50;
+    }
+    completedCount++;
+    document.getElementById("statEarnings").innerText = "₹" + earnings.toFixed(2);
+    document.getElementById("statTasks").innerText = completedCount;
+
+    // Load next audio task
+    taskIndex = (taskIndex + 1) % sampleAudios.length;
+    const next = sampleAudios[taskIndex];
+    document.getElementById("taskIdLabel").innerText = "Task #" + next.id + " (Audio QC)";
+    document.getElementById("taskTranscript").value = next.text;
+    const player = document.getElementById("audioPlayer");
+    player.src = next.url;
+    player.load();
+    showStatus("Task completed! Next audio loaded.", "#22c55e");
+    setTimeout(() => showStatus(""), 2000);
   }
 
   async function handleLogout() {
