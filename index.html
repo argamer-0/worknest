@@ -3,32 +3,33 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WorkNest India</title>
+  <title>WorkNest India - Worker Portal</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { background: #070d1e; color: #f8fafc; min-height: 100vh; padding-bottom: 75px; }
-    .header { background: #0b1329; border-bottom: 1px solid #1e293b; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; }
+    .header { background: #0b1329; border-bottom: 1px solid #1e293b; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; }
     .logo { font-size: 20px; font-weight: 800; color: #38bdf8; letter-spacing: 0.5px; }
     .avatar-btn { background: #1e293b; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #38bdf8; border: 1px solid #334155; }
     .container { max-width: 480px; margin: 0 auto; padding: 16px; }
     .card { background: #0f172a; border: 1px solid #1e293b; border-radius: 18px; padding: 18px; margin-bottom: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-    
     .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
     .stat-card { background: #0f172a; border: 1px solid #1e293b; border-radius: 14px; padding: 14px; text-align: center; }
     .stat-val { font-size: 22px; font-weight: 800; }
     .stat-sub { font-size: 11px; color: #94a3b8; margin-top: 4px; }
-    
-    .btn { display: block; width: 100%; border: none; border-radius: 12px; padding: 14px; font-size: 15px; font-weight: 700; cursor: pointer; text-align: center; transition: 0.2s; }
+    .btn { display: block; width: 100%; border: none; border-radius: 12px; padding: 14px; font-size: 15px; font-weight: 700; cursor: pointer; text-align: center; }
     .btn-blue { background: #0284c7; color: white; margin-bottom: 10px; }
     .btn-green { background: #16a34a; color: white; margin-bottom: 10px; }
     .btn-red { background: #dc2626; color: white; }
+    .btn-google { background: #ffffff; color: #1e293b; display: flex; align-items: center; justify-content: center; gap: 10px; font-weight: 700; margin-bottom: 16px; }
     .btn-play { background: #1e293b; border: 1px solid #38bdf8; color: #38bdf8; padding: 12px; border-radius: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; margin: 12px 0; }
-    
     .banner-box { background: rgba(234, 179, 8, 0.1); border: 1px solid #ca8a04; border-radius: 14px; padding: 14px; margin-bottom: 16px; font-size: 13px; color: #fde047; line-height: 1.5; }
     .feedback-box { display: none; padding: 12px; border-radius: 12px; margin-top: 14px; font-size: 13px; line-height: 1.4; text-align: left; }
     .feedback-success { background: rgba(34, 197, 94, 0.15); border: 1px solid #22c55e; color: #86efac; }
     .feedback-error { background: rgba(220, 38, 38, 0.15); border: 1px solid #dc2626; color: #fca5a5; }
-
+    .input-box { width: 100%; background: #070d1e; border: 1px solid #1e293b; border-radius: 10px; padding: 12px; color: white; font-size: 14px; margin-bottom: 12px; outline: none; }
+    .input-box:focus { border-color: #0284c7; }
+    #auth-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 999; padding: 16px; }
     .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #0b1329; border-top: 1px solid #1e293b; display: flex; justify-content: space-around; padding: 10px 0; z-index: 50; }
     .nav-btn { color: #64748b; font-size: 11px; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; text-decoration: none; }
     .nav-btn.active { color: #38bdf8; }
@@ -36,9 +37,37 @@
 </head>
 <body>
 
+  <!-- AUTH POPUP -->
+  <div id="auth-modal" style="display:none;">
+    <div class="card" style="width: 100%; max-width: 400px; margin: 0;">
+      <h2 style="color:#38bdf8; font-size: 18px; margin-bottom: 4px;">WorkNest Registration</h2>
+      <p style="color:#94a3b8; font-size: 12px; margin-bottom: 16px;">Verified worker profile create karein.</p>
+      
+      <button class="btn btn-google" onclick="signInWithGoogle()">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+        Sign in with Google
+      </button>
+
+      <div style="text-align:center; color:#64748b; font-size:12px; margin-bottom:12px;">— YA DIRECT FORM BHAREIN —</div>
+
+      <label style="font-size: 12px; color: #94a3b8;">Full Name</label>
+      <input type="text" id="reg-name" class="input-box" placeholder="Apna pura naam">
+
+      <label style="font-size: 12px; color: #94a3b8;">10-Digit Mobile Number</label>
+      <input type="tel" id="reg-phone" class="input-box" placeholder="Mobile Number" maxlength="10">
+
+      <label style="font-size: 12px; color: #94a3b8;">Government ID Number (Aadhaar / Voter / PAN)</label>
+      <input type="text" id="reg-govid" class="input-box" placeholder="Government ID number">
+
+      <div id="reg-err" style="color:#ef4444; font-size:12px; margin-bottom:10px; display:none;">Kripya sabhi details theek se bharein!</div>
+
+      <button class="btn btn-blue" onclick="handleDirectRegistration()">Generate UID & Continue</button>
+    </div>
+  </div>
+
   <div class="header">
     <div class="logo">WorkNest</div>
-    <div class="avatar-btn">A</div>
+    <div class="avatar-btn" id="avatar-initial">W</div>
   </div>
 
   <!-- HOME VIEW -->
@@ -46,8 +75,8 @@
     <div class="card">
       <div style="display:flex; justify-content:space-between; align-items:center;">
         <div>
-          <div style="font-weight:700; font-size:17px;">WorkNest Worker</div>
-          <div style="color:#94a3b8; font-size:12px; margin-top:2px;">UID: WN-99BEA0CD</div>
+          <div style="font-weight:700; font-size:17px;" id="user-name-disp">Worker</div>
+          <div style="color:#94a3b8; font-size:12px; margin-top:2px;" id="uid-disp">UID: Pending</div>
         </div>
         <span style="background:rgba(34,197,94,0.15); color:#22c55e; border:1px solid #22c55e; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700;">Verified Worker</span>
       </div>
@@ -75,7 +104,7 @@
   <div class="container" id="view-tasks" style="display:none;">
     <div class="banner-box">
       <b>🎯 WORKER SKILL TEST (20 TASKS)</b><br>
-      Audio sunkar transcript verify karein. Galti hone par turant solution dikhega.
+      Audio sunkar transcript verify karein. Galti hone par turant feedback milega.
     </div>
 
     <div class="card" id="task-box">
@@ -103,14 +132,14 @@
 
     <div class="card" id="finish-box" style="display:none; text-align:center;">
       <h2 style="color:#22c55e; margin-bottom:8px;">🎉 20 Tasks Poore Hue!</h2>
-      <p style="font-size:13px; color:#94a3b8; margin-bottom:14px;">Aapka performance scorecard submit ho gaya hai.</p>
+      <p style="font-size:13px; color:#94a3b8; margin-bottom:14px;">Aapka scorecard submit ho gaya hai.</p>
       <div class="stat-card" style="margin-bottom:14px;">
         <div class="stat-val" style="color:#38bdf8;" id="final-accuracy">0%</div>
         <div class="stat-sub">Accuracy Score</div>
       </div>
       <div class="banner-box" style="text-align:left;">
         <b>🚀 Live Paid Batches Coming Soon:</b><br>
-        Bhashini Hindi speech verified batches agle <b>3 se 4 dino</b> me live honge. Live hote hi aapko alert aayega.
+        Bhashini Hindi speech verified batches agle <b>3 se 4 dino</b> me live honge.
       </div>
     </div>
   </div>
@@ -125,7 +154,7 @@
       <div style="background:#070d1e; border:1px solid #1e293b; border-radius:10px; padding:12px; font-weight:700; margin-bottom:14px;">₹0.00</div>
 
       <div class="banner-box" style="text-align:left;">
-        ℹ️ Abhi aap Qualification Test mode me hain. Live paid tasks chalu hone ke baad ₹50 hote hi yahan se UPI me direct payout request lag sakti hai.
+        ℹ️ Abhi aap Qualification Test mode me hain. Live batches shuru hone ke baad ₹50 hote hi yahan se UPI me payout request lag sakti hai.
       </div>
     </div>
   </div>
@@ -143,10 +172,12 @@
     <div class="card">
       <div style="font-weight:700; font-size:15px; margin-bottom:12px; text-transform:uppercase;">Worker Profile Card</div>
       <div style="font-size:13px; line-height:1.8;">
-        <div><b>Worker Name:</b> WorkNest Worker</div>
-        <div><b>Permanent UID:</b> WN-99BEA0CD</div>
+        <div><b>Worker Name:</b> <span id="prof-name">Worker</span></div>
+        <div><b>Permanent UID:</b> <span id="prof-uid">WN-PENDING</span></div>
+        <div><b>Mobile:</b> <span id="prof-phone">--</span></div>
         <div><b>Verification:</b> <span style="color:#22c55e;">Verified</span></div>
       </div>
+      <button class="btn btn-red" style="margin-top:16px;" onclick="logout()">Sign Out</button>
     </div>
   </div>
 
@@ -158,7 +189,6 @@
     <div class="nav-btn" onclick="switchView('history')"><span>📋</span>History</div>
     <div class="nav-btn" onclick="switchView('profile')"><span>👤</span>Profile</div>
   </div>
-
   <script>
     const DATASET = [
       { id: 1, spoken: "भारत एक विशाल और सुंदर देश है", shown: "भारत एक विशाल और सुंदर देश है।", correct: "approve", why: "Audio aur transcript bilkul match hain." },
@@ -182,10 +212,67 @@
       { id: 19, spoken: "गर्मी के मौसम में अधिक ठंडा पानी पीना चाहिए", shown: "गर्मी के मौसम में अधिक पानी पीना चाहिए।", correct: "reject", why: "Audio me 'ठंडा पानी' tha par text me 'ठंडा' gayab tha." },
       { id: 20, spoken: "सत्य और ईमानदारी से किया गया कार्य सफल होता है", shown: "सत्य और ईमानदारी से किया गया कार्य सफल होता है।", correct: "approve", why: "Shuddh Hindi accurate sentence." }
     ];
+    const SUPABASE_URL = "https://aeqdknvfqyqrvfmsmshs.supabase.co";
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFlcWRrbnZmcXlxcnZmbXNtc2hzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI4Nzg4MTUsImV4cCI6MjA3ODQ1NDgxNX0.s7tXU8aRrydM0k8sWfKj2XQxTqWp5g8b4u3_89h6t_0";
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+    let user = JSON.parse(localStorage.getItem('wn_user') || 'null');
     let current = parseInt(localStorage.getItem('wn_cur') || '0');
     let corrects = parseInt(localStorage.getItem('wn_cor') || '0');
     let historyData = JSON.parse(localStorage.getItem('wn_hist') || '[]');
+
+    async function checkAuth() {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (session && session.user && !user) {
+        const u = session.user;
+        const genUID = "WN-" + u.id.substring(0, 6).toUpperCase();
+        user = { name: u.user_metadata.full_name || u.email.split('@')[0], phone: "Google Auth", uid: genUID };
+        localStorage.setItem('wn_user', JSON.stringify(user));
+      }
+
+      if (!user) {
+        document.getElementById('auth-modal').style.display = 'flex';
+      } else {
+        document.getElementById('auth-modal').style.display = 'none';
+        document.getElementById('user-name-disp').innerText = user.name;
+        document.getElementById('uid-disp').innerText = "UID: " + user.uid;
+        document.getElementById('avatar-initial').innerText = user.name.charAt(0).toUpperCase();
+        document.getElementById('prof-name').innerText = user.name;
+        document.getElementById('prof-uid').innerText = user.uid;
+        document.getElementById('prof-phone').innerText = user.phone;
+      }
+    }
+
+    async function signInWithGoogle() {
+      await supabaseClient.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: window.location.origin }
+      });
+    }
+
+    function handleDirectRegistration() {
+      const name = document.getElementById('reg-name').value.trim();
+      const phone = document.getElementById('reg-phone').value.trim();
+      const govid = document.getElementById('reg-govid').value.trim();
+
+      if (!name || phone.length !== 10 || !govid) {
+        document.getElementById('reg-err').style.display = 'block';
+        return;
+      }
+
+      const generatedUID = "WN-" + Math.floor(100000 + Math.random() * 900000);
+      user = { name: name, phone: phone, uid: generatedUID };
+      localStorage.setItem('wn_user', JSON.stringify(user));
+
+      checkAuth();
+      updateUI();
+    }
+
+    function logout() {
+      supabaseClient.auth.signOut();
+      localStorage.clear();
+      location.reload();
+    }
 
     function playCurrentAudio() {
       if (current >= DATASET.length) return;
@@ -222,12 +309,7 @@
       localStorage.setItem('wn_cur', current);
       localStorage.setItem('wn_cor', corrects);
 
-      historyData.unshift({
-        id: t.id,
-        isRight: isRight,
-        userAns: ans,
-        why: t.why
-      });
+      historyData.unshift({ id: t.id, isRight: isRight, userAns: ans, why: t.why });
       localStorage.setItem('wn_hist', JSON.stringify(historyData));
 
       const fb = document.getElementById('feedback-alert');
@@ -275,18 +357,15 @@
         const el = document.getElementById('view-' + v);
         if (el) el.style.display = (v === tab) ? 'block' : 'none';
       });
-      
       const navBtns = document.querySelectorAll('.nav-btn');
       navBtns.forEach((btn, idx) => {
         btn.classList.toggle('active', views[idx] === tab);
       });
-
-      if (tab === 'tasks') {
-        renderTask();
-      }
+      if (tab === 'tasks') renderTask();
       updateUI();
     }
 
+    checkAuth();
     updateUI();
     renderTask();
   </script>
