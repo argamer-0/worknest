@@ -3,234 +3,292 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WorkNest India - Worker Portal</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <title>WorkNest India</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background: #0b1120; color: #f8fafc; min-height: 100vh; padding-bottom: 70px; }
-    .header { background: #0f172a; border-bottom: 1px solid #1e293b; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; }
-    .logo { font-size: 20px; font-weight: 800; color: #38bdf8; }
-    .badge-icon { background: #1e293b; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #38bdf8; }
+    body { background: #070d1e; color: #f8fafc; min-height: 100vh; padding-bottom: 75px; }
+    .header { background: #0b1329; border-bottom: 1px solid #1e293b; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; }
+    .logo { font-size: 20px; font-weight: 800; color: #38bdf8; letter-spacing: 0.5px; }
+    .avatar-btn { background: #1e293b; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #38bdf8; border: 1px solid #334155; }
     .container { max-width: 480px; margin: 0 auto; padding: 16px; }
-    .card { background: #131d35; border: 1px solid #1e293b; border-radius: 16px; padding: 16px; margin-bottom: 16px; }
-    .btn { display: block; width: 100%; border: none; border-radius: 12px; padding: 14px; font-size: 15px; font-weight: 700; cursor: pointer; text-align: center; }
-    .btn-primary { background: #0284c7; color: white; margin-top: 10px; }
-    .btn-approve { background: #16a34a; color: white; margin-bottom: 8px; }
-    .btn-reject { background: #dc2626; color: white; }
-    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
-    .stat-box { background: #131d35; border: 1px solid #1e293b; border-radius: 12px; padding: 14px; text-align: center; }
-    .stat-val { font-size: 20px; font-weight: 800; }
-    .stat-lbl { font-size: 12px; color: #94a3b8; margin-top: 4px; }
-    .text-green { color: #22c55e; }
-    .text-blue { color: #38bdf8; }
-    .nav { position: fixed; bottom: 0; left: 0; right: 0; background: #0f172a; border-top: 1px solid #1e293b; display: flex; justify-content: space-around; padding: 10px 0; z-index: 50; }
-    .nav-item { color: #64748b; text-decoration: none; font-size: 11px; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-    .nav-item.active { color: #38bdf8; }
-    .feedback-box { display: none; padding: 12px; border-radius: 10px; margin-top: 14px; font-size: 13px; line-height: 1.4; }
+    .card { background: #0f172a; border: 1px solid #1e293b; border-radius: 18px; padding: 18px; margin-bottom: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+    
+    .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+    .stat-card { background: #0f172a; border: 1px solid #1e293b; border-radius: 14px; padding: 14px; text-align: center; }
+    .stat-val { font-size: 22px; font-weight: 800; }
+    .stat-sub { font-size: 11px; color: #94a3b8; margin-top: 4px; }
+    
+    .btn { display: block; width: 100%; border: none; border-radius: 12px; padding: 14px; font-size: 15px; font-weight: 700; cursor: pointer; text-align: center; transition: 0.2s; }
+    .btn-blue { background: #0284c7; color: white; margin-bottom: 10px; }
+    .btn-green { background: #16a34a; color: white; margin-bottom: 10px; }
+    .btn-red { background: #dc2626; color: white; }
+    .btn-play { background: #1e293b; border: 1px solid #38bdf8; color: #38bdf8; padding: 12px; border-radius: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; margin: 12px 0; }
+    
+    .banner-box { background: rgba(234, 179, 8, 0.1); border: 1px solid #ca8a04; border-radius: 14px; padding: 14px; margin-bottom: 16px; font-size: 13px; color: #fde047; line-height: 1.5; }
+    .feedback-box { display: none; padding: 12px; border-radius: 12px; margin-top: 14px; font-size: 13px; line-height: 1.4; text-align: left; }
     .feedback-success { background: rgba(34, 197, 94, 0.15); border: 1px solid #22c55e; color: #86efac; }
     .feedback-error { background: rgba(220, 38, 38, 0.15); border: 1px solid #dc2626; color: #fca5a5; }
-    audio { width: 100%; margin: 12px 0; }
-    .banner-warning { background: rgba(234, 179, 8, 0.12); border: 1px solid #eab308; border-radius: 10px; padding: 12px; margin-bottom: 16px; font-size: 12px; color: #fde047; text-align: center; line-height: 1.4; }
+
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #0b1329; border-top: 1px solid #1e293b; display: flex; justify-content: space-around; padding: 10px 0; z-index: 50; }
+    .nav-btn { color: #64748b; font-size: 11px; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; text-decoration: none; }
+    .nav-btn.active { color: #38bdf8; }
   </style>
 </head>
 <body>
 
   <div class="header">
     <div class="logo">WorkNest</div>
-    <div class="badge-icon">W</div>
+    <div class="avatar-btn">A</div>
   </div>
 
+  <!-- HOME VIEW -->
   <div class="container" id="view-home">
     <div class="card">
-      <div style="font-weight:700; font-size:18px;">Worker Profile</div>
-      <div style="color:#94a3b8; font-size:13px; margin: 4px 0 8px 0;" id="uid-display">UID: WN-99BEA0CD</div>
-      <span style="background: rgba(34,197,94,0.15); color:#22c55e; border:1px solid #22c55e; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:700;">Evaluation Mode</span>
-    </div>
-
-    <div class="stats-grid">
-      <div class="stat-box">
-        <div class="stat-val text-green" id="dash-accuracy">0%</div>
-        <div class="stat-lbl">Test Accuracy</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-val text-blue" id="dash-completed">0 / 20</div>
-        <div class="stat-lbl">Tasks Done</div>
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <div style="font-weight:700; font-size:17px;">WorkNest Worker</div>
+          <div style="color:#94a3b8; font-size:12px; margin-top:2px;">UID: WN-99BEA0CD</div>
+        </div>
+        <span style="background:rgba(34,197,94,0.15); color:#22c55e; border:1px solid #22c55e; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700;">Verified Worker</span>
       </div>
     </div>
 
-    <button class="btn btn-primary" onclick="showView('tasks')">🎧 Start Qualification Test</button>
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-val" style="color:#22c55e;">₹0.00</div>
+        <div class="stat-sub">Wallet Balance</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" style="color:#38bdf8;" id="dash-tasks">0 / 20</div>
+        <div class="stat-sub">Tasks Done</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="font-size:12px; color:#94a3b8; font-weight:700; margin-bottom:12px; text-transform:uppercase;">Quick Actions</div>
+      <button class="btn btn-blue" onclick="switchView('tasks')">🎧 Start Tasks</button>
+      <button class="btn btn-green" onclick="switchView('withdraw')">💳 Request Payout</button>
+    </div>
   </div>
 
+  <!-- TASKS VIEW -->
   <div class="container" id="view-tasks" style="display:none;">
-    <div class="banner-warning">
+    <div class="banner-box">
       <b>🎯 WORKER SKILL TEST (20 TASKS)</b><br>
-      Ye training batch hai. Audio sunkar sahi ya galat batayein. Galti hone par turant feedback milega.
+      Audio sunkar transcript verify karein. Galti hone par turant solution dikhega.
     </div>
 
-    <div class="card" id="task-card">
+    <div class="card" id="task-box">
       <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:700; margin-bottom:8px;">
-        <span class="text-blue" id="task-id-text">Task #1 (Audio QC)</span>
-        <span style="color:#eab308;">Zero Fee (Test)</span>
+        <span style="color:#38bdf8;" id="task-num">Task #1 (Audio QC)</span>
+        <span style="color:#eab308;">Test Mode</span>
       </div>
 
-      <audio id="audio-player" controls preload="metadata"></audio>
+      <button class="btn-play" onclick="playCurrentAudio()">
+        <span style="font-size:18px;">▶️</span> Audio Sunein (Play Voice)
+      </button>
 
-      <div style="font-size:12px; color:#94a3b8; margin: 8px 0 4px 0;">Transcription Text:</div>
-      <div id="transcript-box" style="background:#0b1120; border:1px solid #1e293b; border-radius:8px; padding:12px; font-size:14px; min-height:48px;"></div>
+      <div style="font-size:12px; color:#94a3b8; margin: 10px 0 4px 0;">Transcription Check & Edit:</div>
+      <div id="task-text" style="background:#070d1e; border:1px solid #1e293b; border-radius:10px; padding:14px; font-size:14px; line-height:1.5; min-height:48px;"></div>
 
-      <div id="feedback" class="feedback-box"></div>
+      <div id="feedback-alert" class="feedback-box"></div>
 
-      <div id="action-buttons" style="margin-top:16px;">
-        <button class="btn btn-approve" onclick="submitTask('approve')">✓ Sahi Hai (Approve)</button>
-        <button class="btn btn-reject" onclick="submitTask('reject')">✗ Galat Hai (Reject)</button>
+      <div id="button-group" style="margin-top:16px;">
+        <button class="btn btn-green" onclick="handleAnswer('approve')">✓ Sahi Hai (Approve)</button>
+        <button class="btn btn-red" onclick="handleAnswer('reject')">✗ Galat Hai (Reject)</button>
       </div>
 
-      <button id="next-btn" class="btn btn-primary" style="display:none; margin-top:12px;" onclick="nextTask()">Agla Task ➔</button>
+      <button id="next-task-btn" class="btn btn-blue" style="display:none; margin-top:12px;" onclick="goToNextTask()">Agla Task ➔</button>
     </div>
 
-    <div class="card" id="completed-card" style="display:none; text-align:center;">
-      <h2 style="color:#22c55e; margin-bottom:8px;">🎉 Test Poora Hua!</h2>
-      <p style="font-size:14px; color:#94a3b8; margin-bottom:16px;">Aapka qualification score record kar liya gaya hai.</p>
-      
-      <div class="stat-box" style="margin-bottom:16px;">
-        <div class="stat-val text-blue" id="final-score">0%</div>
-        <div class="stat-lbl">Final Accuracy Score</div>
+    <div class="card" id="finish-box" style="display:none; text-align:center;">
+      <h2 style="color:#22c55e; margin-bottom:8px;">🎉 20 Tasks Poore Hue!</h2>
+      <p style="font-size:13px; color:#94a3b8; margin-bottom:14px;">Aapka performance scorecard submit ho gaya hai.</p>
+      <div class="stat-card" style="margin-bottom:14px;">
+        <div class="stat-val" style="color:#38bdf8;" id="final-accuracy">0%</div>
+        <div class="stat-sub">Accuracy Score</div>
       </div>
-
-      <div class="banner-warning" style="text-align:left;">
+      <div class="banner-box" style="text-align:left;">
         <b>🚀 Live Paid Batches Coming Soon:</b><br>
-        Bhashini & Indian Speech AI verified paid batches agle <b>3 se 4 dino</b> me shuru honge. Aapke phone number par SMS/WhatsApp notification aayega.
+        Bhashini Hindi speech verified batches agle <b>3 se 4 dino</b> me live honge. Live hote hi aapko alert aayega.
       </div>
     </div>
   </div>
 
+  <!-- WITHDRAW VIEW -->
+  <div class="container" id="view-withdraw" style="display:none;">
+    <div class="card">
+      <div style="font-weight:700; font-size:15px; text-transform:uppercase; margin-bottom:4px;">Withdrawal Request</div>
+      <div style="font-size:12px; color:#94a3b8; margin-bottom:14px;">Minimum threshold is ₹50.00</div>
+      
+      <div style="font-size:12px; color:#94a3b8; margin-bottom:4px;">Available Balance</div>
+      <div style="background:#070d1e; border:1px solid #1e293b; border-radius:10px; padding:12px; font-weight:700; margin-bottom:14px;">₹0.00</div>
+
+      <div class="banner-box" style="text-align:left;">
+        ℹ️ Abhi aap Qualification Test mode me hain. Live paid tasks chalu hone ke baad ₹50 hote hi yahan se UPI me direct payout request lag sakti hai.
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTORY VIEW -->
   <div class="container" id="view-history" style="display:none;">
     <div class="card">
-      <h3 style="margin-bottom:12px;">Aapki Galtiyan Aur Report</h3>
-      <div id="history-list" style="font-size:13px; color:#94a3b8;">Abhi koi task submit nahi kiya.</div>
+      <div style="font-weight:700; font-size:15px; margin-bottom:12px; text-transform:uppercase;">Activity & Test History</div>
+      <div id="history-items" style="font-size:13px; color:#94a3b8;">Abhi koi task submit nahi kiya gaya.</div>
     </div>
   </div>
 
-  <div class="nav">
-    <div class="nav-item active" onclick="showView('home')"><span>🏠</span>Home</div>
-    <div class="nav-item" onclick="showView('tasks')"><span>🎧</span>Tasks</div>
-    <div class="nav-item" onclick="showView('history')"><span>📋</span>History</div>
+  <!-- PROFILE VIEW -->
+  <div class="container" id="view-profile" style="display:none;">
+    <div class="card">
+      <div style="font-weight:700; font-size:15px; margin-bottom:12px; text-transform:uppercase;">Worker Profile Card</div>
+      <div style="font-size:13px; line-height:1.8;">
+        <div><b>Worker Name:</b> WorkNest Worker</div>
+        <div><b>Permanent UID:</b> WN-99BEA0CD</div>
+        <div><b>Verification:</b> <span style="color:#22c55e;">Verified</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAVIGATION -->
+  <div class="bottom-nav">
+    <div class="nav-btn active" onclick="switchView('home')"><span>🏠</span>Home</div>
+    <div class="nav-btn" onclick="switchView('tasks')"><span>🎧</span>Tasks</div>
+    <div class="nav-btn" onclick="switchView('withdraw')"><span>💳</span>Withdraw</div>
+    <div class="nav-btn" onclick="switchView('history')"><span>📋</span>History</div>
+    <div class="nav-btn" onclick="switchView('profile')"><span>👤</span>Profile</div>
   </div>
 
   <script>
-    const TASKS = [
-      { id: 1, text: "भारत एक विशाल और सुंदर देश है।", audio: "https://actions.google.com/sounds/v1/speech/greeting_male_in.ogg", correct: "approve", exp: "Audio aur text bilkul match karte hain." },
-      { id: 2, text: "आज शाम को बहुत भारी वर्षा होगी।", audio: "https://actions.google.com/sounds/v1/speech/rain_female_in.ogg", correct: "reject", exp: "Text me 'वर्षा' likha hai jabki audio me 'बारिश' bola gaya tha." },
-      { id: 3, text: "कृपया अपना आधार और पहचान पत्र साथ लाएं।", audio: "https://actions.google.com/sounds/v1/speech/doc_male_in.ogg", correct: "approve", exp: "Shabdon ka uchcharan aur lekh bilkul sahi hai." },
-      { id: 4, text: "गाड़ी संख्या 12304 प्लेटफार्म नंबर 4 पर आएगी।", audio: "https://actions.google.com/sounds/v1/speech/train_announcement.ogg", correct: "reject", exp: "Plateform number galat tha (Audio me 2 bola gaya)." },
-      { id: 5, text: "किसान अपनी फसल को समय पर सुरक्षित करें।", audio: "https://actions.google.com/sounds/v1/speech/farmer_male_in.ogg", correct: "approve", exp: "Sentence bilkul sahi hai." },
-      { id: 6, text: "बैंक खाते से जुड़ी जानकारी किसी को न बताएं।", audio: "https://actions.google.com/sounds/v1/speech/bank_safety.ogg", correct: "approve", exp: "Shabd aur voice 100% accurate hain." },
-      { id: 7, text: "कल सुबह विद्यालय का समय आठ बजे का है।", audio: "https://actions.google.com/sounds/v1/speech/school_female.ogg", correct: "reject", exp: "Audio me 'स्कूल' bola tha par yahan 'विद्यालय' likha hai." },
-      { id: 8, text: "ताजा फल और हरी सब्जियां स्वास्थ्य के लिए लाभदायक हैं।", audio: "https://actions.google.com/sounds/v1/speech/health_tip.ogg", correct: "approve", exp: "Pura sentence sahi match hai." },
-      { id: 9, text: "सड़क सुरक्षा नियमों का हमेशा पालन करना चाहिए।", audio: "https://actions.google.com/sounds/v1/speech/road_safety.ogg", correct: "approve", exp: "Bina kisi truti ke transcript sahi hai." },
-      { id: 10, text: "मोबाइल फोन को गाड़ी चलाते समय उपयोग न करें।", audio: "https://actions.google.com/sounds/v1/speech/traffic_rule.ogg", correct: "approve", exp: "Bolchal shuddh Hindi me match hai." },
-      { id: 11, text: "बिजली का बिल भरने की अंतिम तिथि कल है।", audio: "https://actions.google.com/sounds/v1/speech/bill_reminder.ogg", correct: "reject", exp: "Audio me 'आज' bola tha par text me 'कल' tha." },
-      { id: 12, text: "स्वच्छ भारत अभियान में अपना योगदान अवश्य दें।", audio: "https://actions.google.com/sounds/v1/speech/swachh_bharat.ogg", correct: "approve", exp: "Sentence bilkul satik hai." },
-      { id: 13, text: "दुकानदार ने ग्राहक को सामान का सही मूल्य बताया।", audio: "https://actions.google.com/sounds/v1/speech/shop_talk.ogg", correct: "approve", exp: "Audio transcript sahi hai." },
-      { id: 14, text: "परीक्षा केंद्र पर मोबाइल और इलेक्ट्रॉनिक घड़ी वर्जित है।", audio: "https://actions.google.com/sounds/v1/speech/exam_rules.ogg", correct: "approve", exp: "Shabd aur niyam sahi likhe hain." },
-      { id: 15, text: "डॉक्टर ने मरीज को समय पर दवाई लेने की सलाह दी।", audio: "https://actions.google.com/sounds/v1/speech/hospital_talk.ogg", correct: "reject", exp: "Audio me 'दवा' bola tha jabki lekh me 'दवाई' hai." },
-      { id: 16, text: "नदी के किनारे ठंडी और सुहानी हवा चल रही है।", audio: "https://actions.google.com/sounds/v1/speech/nature_talk.ogg", correct: "approve", exp: "100% matched transcript." },
-      { id: 17, text: "कंप्यूटर और इंटरनेट ने शिक्षा को बहुत आसान बनाया है।", audio: "https://actions.google.com/sounds/v1/speech/tech_education.ogg", correct: "approve", exp: "Accurate transcript." },
-      { id: 18, text: "डाकघर में नई बचत योजना की शुरुआत की गई है।", audio: "https://actions.google.com/sounds/v1/speech/postoffice_scheme.ogg", correct: "approve", exp: "Bilkul sahi lekh." },
-      { id: 19, text: "गर्मी के मौसम में अधिक पानी पीना चाहिए।", audio: "https://actions.google.com/sounds/v1/speech/summer_care.ogg", correct: "reject", exp: "Audio me 'ठंडा पानी' bola tha, 'ठंडा' text me missing hai." },
-      { id: 20, text: "सत्य और ईमानदारी से किया गया कार्य सफल होता है।", audio: "https://actions.google.com/sounds/v1/speech/moral_quote.ogg", correct: "approve", exp: "Audio aur transcript sahi hain." }
+    const DATASET = [
+      { id: 1, spoken: "भारत एक विशाल और सुंदर देश है", shown: "भारत एक विशाल और सुंदर देश है।", correct: "approve", why: "Audio aur transcript bilkul match hain." },
+      { id: 2, spoken: "आज शाम को बहुत भारी बारिश होगी", shown: "आज शाम को बहुत भारी वर्षा होगी।", correct: "reject", why: "Audio me 'बारिश' bola tha jabki text me 'वर्षा' likha tha." },
+      { id: 3, spoken: "कृपया अपना पहचान पत्र साथ लाएं", shown: "कृपया अपना पहचान पत्र साथ लाएं।", correct: "approve", why: "Shabdon ka uchcharan aur lekh bilkul sahi hai." },
+      { id: 4, spoken: "गाड़ी संख्या 12304 प्लेटफार्म नंबर दो पर आएगी", shown: "गाड़ी संख्या 12304 प्लेटफार्म नंबर 4 पर आएगी।", correct: "reject", why: "Audio me 'प्लेटफार्म 2' bola tha par text me '4' likha tha." },
+      { id: 5, spoken: "किसान अपनी फसल को समय पर सुरक्षित करें", shown: "किसान अपनी फसल को समय पर सुरक्षित करें।", correct: "approve", why: "Pura sentence 100% sahi hai." },
+      { id: 6, spoken: "बैंक खाते से जुड़ी जानकारी किसी को न बताएं", shown: "बैंक खाते से जुड़ी जानकारी किसी को न बताएं।", correct: "approve", why: "Sentence aur audio match karta hai." },
+      { id: 7, spoken: "कल सुबह स्कूल का समय आठ बजे का है", shown: "कल सुबह विद्यालय का समय आठ बजे का है।", correct: "reject", why: "Audio me 'स्कूल' bola tha par yahan 'विद्यालय' likha hai." },
+      { id: 8, spoken: "ताजा फल और हरी सब्जियां स्वास्थ्य के लिए लाभदायक हैं", shown: "ताजा फल और हरी सब्जियां स्वास्थ्य के लिए लाभदायक हैं।", correct: "approve", why: "Bina kisi galti ke accurate hai." },
+      { id: 9, spoken: "सड़क सुरक्षा नियमों का हमेशा पालन करना चाहिए", shown: "सड़क सुरक्षा नियमों का हमेशा पालन करना चाहिए।", correct: "approve", why: "Transcript bilkul sahi hai." },
+      { id: 10, spoken: "मोबाइल फोन को गाड़ी चलाते समय उपयोग न करें", shown: "मोबाइल फोन को गाड़ी चलाते समय उपयोग न करें।", correct: "approve", why: "Shuddh Hindi sentence match hai." },
+      { id: 11, spoken: "बिजली का बिल भरने की अंतिम तिथि आज है", shown: "बिजली का बिल भरने की अंतिम तिथि कल है।", correct: "reject", why: "Audio me 'आज' bola tha par text me 'कल' tha." },
+      { id: 12, spoken: "स्वच्छ भारत अभियान में अपना योगदान अवश्य दें", shown: "स्वच्छ भारत अभियान में अपना योगदान अवश्य दें।", correct: "approve", why: "100% accurate match." },
+      { id: 13, spoken: "दुकानदार ने ग्राहक को सामान का सही मूल्य बताया", shown: "दुकानदार ने ग्राहक को सामान का सही मूल्य बताया।", correct: "approve", why: "Sentence sahi hai." },
+      { id: 14, spoken: "परीक्षा केंद्र पर मोबाइल और इलेक्ट्रॉनिक घड़ी वर्जित है", shown: "परीक्षा केंद्र पर मोबाइल और इलेक्ट्रॉनिक घड़ी वर्जित है।", correct: "approve", why: "Text match karta hai." },
+      { id: 15, spoken: "डॉक्टर ने मरीज को समय पर दवा लेने की सलाह दी", shown: "डॉक्टर ने मरीज को समय पर दवाई लेने की सलाह दी।", correct: "reject", why: "Audio me 'दवा' bola tha par yahan 'दवाई' likha hai." },
+      { id: 16, spoken: "नदी के किनारे ठंडी और सुहानी हवा चल रही है", shown: "नदी के किनारे ठंडी और सुहानी हवा चल रही है।", correct: "approve", why: "Bilkul sahi match." },
+      { id: 17, spoken: "कंप्यूटर और इंटरनेट ने शिक्षा को बहुत आसान बनाया है", shown: "कंप्यूटर और इंटरनेट ने शिक्षा को बहुत आसान बनाया है।", correct: "approve", why: "Voice aur text match hain." },
+      { id: 18, spoken: "डाकघर में नई बचत योजना की शुरुआत की गई है", shown: "डाकघर में नई बचत योजना की शुरुआत की गई है।", correct: "approve", why: "Accurate transcript." },
+      { id: 19, spoken: "गर्मी के मौसम में अधिक ठंडा पानी पीना चाहिए", shown: "गर्मी के मौसम में अधिक पानी पीना चाहिए।", correct: "reject", why: "Audio me 'ठंडा पानी' tha par text me 'ठंडा' gayab tha." },
+      { id: 20, spoken: "सत्य और ईमानदारी से किया गया कार्य सफल होता है", shown: "सत्य और ईमानदारी से किया गया कार्य सफल होता है।", correct: "approve", why: "Shuddh Hindi accurate sentence." }
     ];
 
-    let currentIdx = parseInt(localStorage.getItem('wn_idx') || '0');
-    let correctCount = parseInt(localStorage.getItem('wn_correct') || '0');
-    let history = JSON.parse(localStorage.getItem('wn_history') || '[]');
+    let current = parseInt(localStorage.getItem('wn_cur') || '0');
+    let corrects = parseInt(localStorage.getItem('wn_cor') || '0');
+    let historyData = JSON.parse(localStorage.getItem('wn_hist') || '[]');
 
-    function updateDashboard() {
-      document.getElementById('dash-completed').innerText = currentIdx + " / 20";
-      let acc = currentIdx > 0 ? Math.round((correctCount / currentIdx) * 100) : 0;
-      document.getElementById('dash-accuracy').innerText = acc + "%";
-      renderHistory();
+    function playCurrentAudio() {
+      if (current >= DATASET.length) return;
+      const textToSpeak = DATASET[current].spoken;
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(textToSpeak);
+      utterance.lang = 'hi-IN';
+      utterance.rate = 0.9;
+      window.speechSynthesis.speak(utterance);
     }
 
-    function loadTask() {
-      if (currentIdx >= TASKS.length) {
-        document.getElementById('task-card').style.display = 'none';
-        document.getElementById('completed-card').style.display = 'block';
-        let acc = Math.round((correctCount / TASKS.length) * 100);
-        document.getElementById('final-score').innerText = acc + "% (" + correctCount + "/20 Sahi)";
+    function renderTask() {
+      if (current >= DATASET.length) {
+        document.getElementById('task-box').style.display = 'none';
+        document.getElementById('finish-box').style.display = 'block';
+        let pct = Math.round((corrects / DATASET.length) * 100);
+        document.getElementById('final-accuracy').innerText = pct + "% (" + corrects + "/20 Sahi)";
         return;
       }
-      const task = TASKS[currentIdx];
-      document.getElementById('task-id-text').innerText = "Task #" + task.id + " (Audio QC)";
-      document.getElementById('transcript-box').innerText = task.text;
-      document.getElementById('audio-player').src = task.audio;
-      document.getElementById('feedback').style.display = 'none';
-      document.getElementById('action-buttons').style.display = 'block';
-      document.getElementById('next-btn').style.display = 'none';
+      const t = DATASET[current];
+      document.getElementById('task-num').innerText = "Task #" + t.id + " (Audio QC)";
+      document.getElementById('task-text').innerText = t.shown;
+      document.getElementById('feedback-alert').style.display = 'none';
+      document.getElementById('button-group').style.display = 'block';
+      document.getElementById('next-task-btn').style.display = 'none';
     }
 
-    function submitTask(choice) {
-      const task = TASKS[currentIdx];
-      const isCorrect = (choice === task.correct);
-      if (isCorrect) correctCount++;
-      currentIdx++;
+    function handleAnswer(ans) {
+      const t = DATASET[current];
+      const isRight = (ans === t.correct);
+      if (isRight) corrects++;
+      current++;
 
-      localStorage.setItem('wn_idx', currentIdx);
-      localStorage.setItem('wn_correct', correctCount);
+      localStorage.setItem('wn_cur', current);
+      localStorage.setItem('wn_cor', corrects);
 
-      history.unshift({
-        id: task.id,
-        isCorrect: isCorrect,
-        userChoice: choice,
-        correctChoice: task.correct,
-        exp: task.exp
+      historyData.unshift({
+        id: t.id,
+        isRight: isRight,
+        userAns: ans,
+        why: t.why
       });
-      localStorage.setItem('wn_history', JSON.stringify(history));
+      localStorage.setItem('wn_hist', JSON.stringify(historyData));
 
-      const fb = document.getElementById('feedback');
+      const fb = document.getElementById('feedback-alert');
       fb.style.display = 'block';
-      if (isCorrect) {
+      if (isRight) {
         fb.className = 'feedback-box feedback-success';
-        fb.innerHTML = '<b>✓ Bilkul Sahi Jawab!</b><br>' + task.exp;
+        fb.innerHTML = '<b>✓ Bilkul Sahi Jawab!</b><br>' + t.why;
       } else {
         fb.className = 'feedback-box feedback-error';
-        fb.innerHTML = '<b>✗ Galat Jawab!</b><br>' + task.exp;
+        fb.innerHTML = '<b>✗ Galat Jawab!</b><br>' + t.why;
       }
 
-      document.getElementById('action-buttons').style.display = 'none';
-      document.getElementById('next-btn').style.display = 'block';
-      updateDashboard();
+      document.getElementById('button-group').style.display = 'none';
+      document.getElementById('next-task-btn').style.display = 'block';
+      updateUI();
     }
 
-    function nextTask() {
-      loadTask();
+    function goToNextTask() {
+      renderTask();
+      playCurrentAudio();
     }
 
-    function renderHistory() {
-      if (history.length === 0) return;
+    function updateUI() {
+      document.getElementById('dash-tasks').innerText = current + " / 20";
+      renderHistoryList();
+    }
+
+    function renderHistoryList() {
+      if (historyData.length === 0) return;
       let html = '';
-      history.forEach(item => {
-        let col = item.isCorrect ? '#22c55e' : '#dc2626';
-        let icon = item.isCorrect ? '✓ Sahi' : '✗ Galat';
+      historyData.forEach(item => {
+        let col = item.isRight ? '#22c55e' : '#dc2626';
+        let tag = item.isRight ? '✓ Sahi' : '✗ Galat';
         html += `<div style="border-bottom:1px solid #1e293b; padding:10px 0;">
-          <div style="font-weight:700; color:${col};">Task #${item.id}: ${icon}</div>
-          <div style="font-size:12px; color:#cbd5e1; margin-top:2px;">${item.exp}</div>
+          <div style="font-weight:700; color:${col};">Task #${item.id}: ${tag}</div>
+          <div style="font-size:12px; color:#cbd5e1; margin-top:2px;">${item.why}</div>
         </div>`;
       });
-      document.getElementById('history-list').innerHTML = html;
+      document.getElementById('history-items').innerHTML = html;
     }
 
-    function showView(view) {
-      document.getElementById('view-home').style.display = (view === 'home') ? 'block' : 'none';
-      document.getElementById('view-tasks').style.display = (view === 'tasks') ? 'block' : 'none';
-      document.getElementById('view-history').style.display = (view === 'history') ? 'block' : 'none';
-      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-      if (view === 'tasks') loadTask();
-      updateDashboard();
+    function switchView(tab) {
+      const views = ['home', 'tasks', 'withdraw', 'history', 'profile'];
+      views.forEach(v => {
+        const el = document.getElementById('view-' + v);
+        if (el) el.style.display = (v === tab) ? 'block' : 'none';
+      });
+      
+      const navBtns = document.querySelectorAll('.nav-btn');
+      navBtns.forEach((btn, idx) => {
+        btn.classList.toggle('active', views[idx] === tab);
+      });
+
+      if (tab === 'tasks') {
+        renderTask();
+      }
+      updateUI();
     }
 
-    updateDashboard();
-    loadTask();
+    updateUI();
+    renderTask();
   </script>
 </body>
 </html>
