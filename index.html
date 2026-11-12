@@ -248,11 +248,19 @@
       authUser = session.user;
       document.getElementById('login-screen').style.display = 'none';
 
+      const cachedProf = JSON.parse(localStorage.getItem('wn_prof_' + authUser.id) || 'null');
+      if (cachedProf && cachedProf.phone) {
+        openDashboard(cachedProf);
+        return;
+      }
       const { data: profile } = await sb
         .from('profiles')
         .select('*')
         .eq('id', authUser.id)
         .maybeSingle();
+      if (profile && profile.phone) {
+        localStorage.setItem('wn_prof_' + authUser.id, JSON.stringify(profile));
+      }
 
       if (!profile || !profile.phone || !profile.full_name) {
         document.getElementById('setup-screen').style.display = 'flex';
@@ -310,7 +318,9 @@
         return;
       }
 
-      openDashboard(data || { full_name: name, phone: phone, gov_id: govid, uid_code: customUID });
+      const finalProf = data || { full_name: name, phone: phone, gov_id: govid, uid_code: customUID };
+      localStorage.setItem('wn_prof_' + authUser.id, JSON.stringify(finalProf));
+      openDashboard(finalProf);
     }
 
     function openDashboard(profile) {
