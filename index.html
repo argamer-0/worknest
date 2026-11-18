@@ -45,40 +45,41 @@
     .brand-title { font-weight: 700; font-size: 17px; letter-spacing: -0.02em; }
     .brand-tag { font-size: 11px; font-weight: 500; background: rgba(255,255,255,0.1); color: #93c5fd; padding: 2px 8px; border-radius: 99px; margin-left: 4px; }
     .nav-actions { display: flex; align-items: center; gap: 10px; }
-    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px; font-weight: 600; padding: 9px 16px; border-radius: var(--radius-md); border: 1px solid transparent; cursor: pointer; transition: 0.15s; text-decoration: none; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 9px; font-size: 14px; font-weight: 600; padding: 10px 18px; border-radius: var(--radius-md); border: 1px solid transparent; cursor: pointer; transition: 0.15s; text-decoration: none; }
     .btn:disabled { opacity: 0.6; cursor: not-allowed; }
     .btn-primary { background: var(--blue-600); color: var(--white); }
     .btn-primary:hover:not(:disabled) { background: var(--blue-700); }
+    .btn-google { background: var(--white); color: var(--slate-900); border-color: var(--slate-300); box-shadow: var(--shadow-sm); font-weight: 600; }
+    .btn-google:hover:not(:disabled) { background: var(--slate-100); }
     .btn-outline-light { background: transparent; border-color: rgba(255,255,255,0.25); color: var(--white); }
     .btn-outline-light:hover { background: rgba(255,255,255,0.08); }
     .btn-secondary { background: var(--white); border-color: var(--slate-300); color: var(--slate-700); }
-    .btn-sm { padding: 6px 12px; font-size: 13px; }
+    .btn-sm { padding: 7px 13px; font-size: 13px; }
     .btn-block { width: 100%; }
-    .container { max-width: 1140px; margin: 0 auto; padding: 32px 20px; }
-    .container-sm { max-width: 520px; margin: 0 auto; padding: 32px 20px; }
-    .container-md { max-width: 780px; margin: 0 auto; padding: 32px 20px; }
-    .hero { background: linear-gradient(180deg, var(--navy-900) 0%, var(--navy-800) 100%); color: var(--white); padding: 60px 20px 68px; border-bottom: 1px solid var(--slate-200); }
+    .hero { background: linear-gradient(180deg, var(--navy-900) 0%, var(--navy-800) 100%); color: var(--white); padding: 64px 20px 72px; border-bottom: 1px solid var(--slate-200); }
     .hero-inner { max-width: 820px; margin: 0 auto; text-align: center; }
     .hero-kicker { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #60a5fa; background: rgba(37,99,235,0.15); border: 1px solid rgba(96,165,250,0.25); padding: 5px 12px; border-radius: 99px; margin-bottom: 18px; }
     .hero h1 { font-size: clamp(26px, 4.5vw, 40px); font-weight: 700; letter-spacing: -0.025em; line-height: 1.2; margin-bottom: 14px; }
-    .hero p { font-size: 15px; color: #cbd5e1; max-width: 640px; margin: 0 auto 26px; }
+    .hero p { font-size: 15px; color: #cbd5e1; max-width: 640px; margin: 0 auto 28px; }
     .hero-cta { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+    .container { max-width: 1140px; margin: 0 auto; padding: 32px 20px; }
+    .container-md { max-width: 780px; margin: 0 auto; padding: 32px 20px; }
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
     .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 20px; }
     .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
-    .card { background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-lg); padding: 22px; box-shadow: var(--shadow-sm); }
+    .card { background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-sm); }
     .icon-box { width: 40px; height: 40px; border-radius: 8px; background: var(--blue-50); color: var(--blue-600); display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
     .card h3 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
     .card p { font-size: 14px; color: var(--slate-600); }
     .step-badge { display: inline-block; font-size: 11px; font-weight: 700; color: var(--blue-600); background: var(--blue-50); padding: 3px 10px; border-radius: 6px; margin-bottom: 10px; }
+    .uid-banner { background: var(--navy-900); color: var(--white); border-radius: var(--radius-md); padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; border: 1px solid rgba(96,165,250,0.3); }
+    .uid-code { font-family: monospace; font-size: 17px; font-weight: 700; color: #60a5fa; letter-spacing: 0.05em; }
     .form-group { margin-bottom: 15px; }
     .form-label { display: block; font-size: 13px; font-weight: 600; color: var(--slate-700); margin-bottom: 6px; }
     .form-control { width: 100%; padding: 10px 12px; font-size: 14px; border: 1px solid var(--slate-300); border-radius: var(--radius-md); outline: none; background: var(--white); }
     .form-control:focus { border-color: var(--blue-600); box-shadow: 0 0 0 3px rgba(37,99,235,0.12); }
     .form-hint { font-size: 12px; color: var(--slate-500); margin-top: 4px; }
-    .tabs-bar { display: flex; border-bottom: 1px solid var(--slate-200); margin-bottom: 18px; gap: 20px; }
-    .tab-btn { padding: 10px 4px; font-size: 14px; font-weight: 600; color: var(--slate-500); background: none; border: none; border-bottom: 2px solid transparent; cursor: pointer; }
-    .tab-btn.active { color: var(--blue-600); border-bottom-color: var(--blue-600); }
-    .alert { padding: 12px 14px; border-radius: var(--radius-md); font-size: 13px; margin-bottom: 16px; display: flex; align-items: flex-start; gap: 10px; border: 1px solid transparent; }
+    .alert { padding: 12px 14px; border-radius: var(--radius-md); font-size: 13px; margin-bottom: 16px; border: 1px solid transparent; }
     .alert-info { background: var(--blue-50); color: #1e40af; border-color: #bfdbfe; }
     .alert-warning { background: var(--amber-50); color: #92400e; border-color: #fde68a; }
     .alert-success { background: var(--emerald-50); color: #065f46; border-color: #a7f3d0; }
@@ -90,7 +91,6 @@
     .audio-panel { background: var(--navy-900); color: var(--white); border-radius: var(--radius-lg); padding: 18px; margin-bottom: 18px; }
     .audio-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px; }
     .timer-pill { background: rgba(255,255,255,0.12); padding: 6px 14px; border-radius: 99px; font-variant-numeric: tabular-nums; font-weight: 700; font-size: 15px; color: #93c5fd; }
-    .audio-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     .editor-area { width: 100%; min-height: 180px; padding: 14px; font-size: 15px; line-height: 1.6; border: 1px solid var(--slate-300); border-radius: var(--radius-md); resize: vertical; outline: none; }
     .editor-area:focus { border-color: var(--blue-600); box-shadow: 0 0 0 3px rgba(37,99,235,0.12); }
     .editor-meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--slate-500); margin-top: 8px; }
@@ -132,11 +132,13 @@
         </div>
       </div>
       <div id="navGuest" class="nav-actions">
-        <button class="btn btn-outline-light btn-sm" onclick="showAuth('login')">Sign In</button>
-        <button class="btn btn-primary btn-sm" onclick="showAuth('register')">Apply Now</button>
+        <button class="btn btn-google btn-sm" onclick="signInWithGoogle()">
+          <svg width="15" height="15" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17Z"/><path fill="#34A853" d="M12 24c3.3 0 6.08-1.09 8.1-2.96l-3.88-3.05c-1.1.74-2.51 1.18-4.22 1.18-3.25 0-6-2.19-6.98-5.14H1.01v3.14C3.05 21.2 7.24 24 12 24Z"/><path fill="#FBBC05" d="M5.02 14.03c-.25-.74-.39-1.54-.39-2.36 0-.82.14-1.62.39-2.36V6.17H1.01C.37 7.45 0 8.89 0 10.42s.37 2.97 1.01 4.25l4.01-3.14Z"/><path fill="#EA4335" d="M12 4.75c1.8 0 3.41.62 4.68 1.83l3.51-3.51C18.07 1.19 15.3 0 12 0 7.24 0 3.05 2.8 1.01 6.83l4.01 3.14c.98-2.95 3.73-5.22 6.98-5.22Z"/></svg>
+          Sign In
+        </button>
       </div>
       <div id="navUser" class="nav-actions hidden">
-        <span id="navUserName" style="font-size:13px; color:#cbd5e1; font-weight:500;"></span>
+        <span id="navUserUid" style="font-size:12px; background:rgba(37,99,235,0.25); color:#93c5fd; padding:3px 9px; border-radius:6px; font-family:monospace; font-weight:700;"></span>
         <button class="btn btn-outline-light btn-sm" onclick="logoutUser()">Sign Out</button>
       </div>
     </div>
@@ -147,16 +149,18 @@
       <div class="hero-inner">
         <div class="hero-kicker">Verified Remote Transcription Network</div>
         <h1>Hindi &amp; Hinglish Audio Transcription Portal</h1>
-        <p>Structured, task-based remote transcription work for qualified contributors across India. Work directly from your mobile or desktop browser with transparent per-minute payouts and zero onboarding fees.</p>
+        <p>Structured, task-based remote transcription work for qualified contributors across India. Sign in securely with your Google account to create your Contributor UID and complete your baseline assessment.</p>
         <div class="hero-cta">
-          <button class="btn btn-primary" onclick="showAuth('register')">Start Skill Assessment</button>
-          <button class="btn btn-outline-light" onclick="showAuth('login')">Contributor Login</button>
+          <button class="btn btn-google" style="padding:12px 24px; font-size:15px;" onclick="signInWithGoogle()">
+            <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17Z"/><path fill="#34A853" d="M12 24c3.3 0 6.08-1.09 8.1-2.96l-3.88-3.05c-1.1.74-2.51 1.18-4.22 1.18-3.25 0-6-2.19-6.98-5.14H1.01v3.14C3.05 21.2 7.24 24 12 24Z"/><path fill="#FBBC05" d="M5.02 14.03c-.25-.74-.39-1.54-.39-2.36 0-.82.14-1.62.39-2.36V6.17H1.01C.37 7.45 0 8.89 0 10.42s.37 2.97 1.01 4.25l4.01-3.14Z"/><path fill="#EA4335" d="M12 4.75c1.8 0 3.41.62 4.68 1.83l3.51-3.51C18.07 1.19 15.3 0 12 0 7.24 0 3.05 2.8 1.01 6.83l4.01 3.14c.98-2.95 3.73-5.22 6.98-5.22Z"/></svg>
+            Continue with Google
+          </button>
         </div>
       </div>
     </section>
 
     <section class="container">
-      <div class="grid-3" style="margin-bottom:40px;">
+      <div class="grid-3" style="margin-bottom:36px;">
         <div class="card">
           <div class="icon-box"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div>
           <h3>Per-Audio-Minute Payouts</h3>
@@ -164,87 +168,108 @@
         </div>
         <div class="card">
           <div class="icon-box"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div>
-          <h3>Browser-Based Workspace</h3>
-          <p>No external software installation required. Listen to assigned audio clips and type directly inside our cloud workspace from any smartphone or laptop.</p>
+          <h3>Persistent Cloud Profile</h3>
+          <p>Your Contributor UID, assessment score, assigned tasks, and earnings remain permanently linked to your Google account across all devices.</p>
         </div>
         <div class="card">
           <div class="icon-box"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
           <h3>Zero Registration Charges</h3>
-          <p>WorkNest India never charges any joining, training, or security deposit fees. Verified earnings are settled directly to your UPI ID or bank account.</p>
+          <p>WorkNest India never charges any joining, training, or security deposit fees. Verified earnings are settled directly to your UPI ID.</p>
         </div>
       </div>
 
       <div class="grid-3">
-        <div class="card"><span class="step-badge">STEP 01</span><h3>Create Contributor Profile</h3><p>Register with your active mobile number, email address, and preferred script (Hindi Devanagari or Hinglish).</p></div>
-        <div class="card"><span class="step-badge">STEP 02</span><h3>2-Minute Audio Assessment</h3><p>Complete a short baseline audio typing evaluation inside our anti-cheat workspace to verify accuracy and WPM speed.</p></div>
-        <div class="card"><span class="step-badge">STEP 03</span><h3>QA Approval &amp; Task Access</h3><p>Once reviewed by our quality assurance team, live transcription tasks and payout tracking unlock automatically.</p></div>
+        <div class="card"><span class="step-badge">STEP 01</span><h3>Google Verification</h3><p>Sign in with one click using your Google account—no separate passwords to remember.</p></div>
+        <div class="card"><span class="step-badge">STEP 02</span><h3>Complete Profile &amp; UID</h3><p>Submit your legal details, mobile number, and UPI ID to generate your official Contributor UID.</p></div>
+        <div class="card"><span class="step-badge">STEP 03</span><h3>2-Minute Audio Test</h3><p>Complete your baseline typing test inside the anti-cheat workspace to unlock live transcription batches.</p></div>
       </div>
     </section>
   </main>
-  <section id="viewAuth" class="container-sm hidden">
+  <section id="viewOnboarding" class="container-md hidden">
     <div class="card">
-      <div class="tabs-bar">
-        <button id="tabRegister" class="tab-btn active" onclick="switchAuthTab('register')">New Application</button>
-        <button id="tabLogin" class="tab-btn" onclick="switchAuthTab('login')">Contributor Login</button>
-      </div>
-      <div id="authAlert" class="alert alert-error hidden"></div>
+      <span class="step-badge">STEP 1 OF 2 &bull; CONTRIBUTOR REGISTRATION</span>
+      <h2 style="font-size:21px; font-weight:700; margin-bottom:4px;">Complete Your Contributor Profile</h2>
+      <p style="font-size:13px; color:var(--slate-500); margin-bottom:18px;">Fill in your accurate details below to generate your official Contributor UID and proceed to the 2-minute typing test.</p>
 
-      <form id="formRegister" onsubmit="handleRegister(event)">
-        <div class="form-group">
-          <label class="form-label">Full Legal Name *</label>
-          <input type="text" id="regName" class="form-control" placeholder="Enter your full name" required minlength="3" />
+      <div id="onboardAlert" class="alert alert-error hidden"></div>
+
+      <form onsubmit="handleProfileOnboarding(event)">
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">Full Legal Name *</label>
+            <input type="text" id="obName" class="form-control" placeholder="As per bank/UPI record" required minlength="3" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Google Email (Verified)</label>
+            <input type="email" id="obEmail" class="form-control" disabled style="background:var(--slate-100);" />
+          </div>
         </div>
-        <div class="form-group">
-          <label class="form-label">Mobile / WhatsApp Number *</label>
-          <input type="tel" id="regPhone" class="form-control" placeholder="10-digit Indian mobile number" required pattern="[6-9][0-9]{9}" maxlength="10" />
+
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">Mobile / WhatsApp Number *</label>
+            <input type="tel" id="obPhone" class="form-control" placeholder="10-digit mobile number" required pattern="[6-9][0-9]{9}" maxlength="10" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">City &amp; State *</label>
+            <input type="text" id="obCity" class="form-control" placeholder="e.g. Patna, Bihar" required minlength="3" />
+          </div>
         </div>
-        <div class="form-group">
-          <label class="form-label">Email Address *</label>
-          <input type="email" id="regEmail" class="form-control" placeholder="name@example.com" required />
+
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">Highest Education *</label>
+            <select id="obEducation" class="form-control" required>
+              <option value="10th Pass">10th Pass</option>
+              <option value="12th Pass" selected>12th Pass</option>
+              <option value="Undergraduate / Graduate">Undergraduate / Graduate</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Primary Device *</label>
+            <select id="obDevice" class="form-control" required>
+              <option value="Android / iOS Smartphone">Android / iOS Smartphone</option>
+              <option value="Laptop / Desktop PC">Laptop / Desktop PC</option>
+            </select>
+          </div>
         </div>
-        <div class="form-group">
-          <label class="form-label">Transcription Language Track *</label>
-          <select id="regLang" class="form-control" required>
-            <option value="Hindi & Hinglish">Both Hindi &amp; Hinglish (Recommended)</option>
-            <option value="Hinglish (Roman)">Hinglish (Roman Script)</option>
-            <option value="Hindi (Devanagari)">Hindi (Devanagari Script)</option>
-          </select>
+
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">Transcription Script Preference *</label>
+            <select id="obLang" class="form-control" required>
+              <option value="Hindi & Hinglish">Both Hindi &amp; Hinglish (Recommended)</option>
+              <option value="Hinglish (Roman)">Hinglish (Roman Script)</option>
+              <option value="Hindi (Devanagari)">Hindi (Devanagari Script)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">UPI ID for Direct Payouts *</label>
+            <input type="text" id="obUpi" class="form-control" placeholder="e.g. name@ybl or number@paytm" required minlength="5" />
+          </div>
         </div>
-        <div class="form-group">
-          <label class="form-label">Primary Device *</label>
-          <select id="regDevice" class="form-control" required>
-            <option value="Smartphone">Android / iOS Smartphone</option>
-            <option value="Laptop / Desktop">Laptop / Desktop PC</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Create Account Password *</label>
-          <input type="password" id="regPassword" class="form-control" placeholder="Minimum 6 characters" required minlength="6" />
-        </div>
-        <div class="form-group" style="display:flex; align-items:flex-start; gap:8px;">
-          <input type="checkbox" id="regTerms" required style="margin-top:4px;" />
-          <label for="regTerms" style="font-size:12px; color:var(--slate-600);">
-            I agree to the <a href="javascript:void(0)" onclick="openLegalModal('terms')" style="color:var(--blue-600);">Terms &amp; Conditions</a> and <a href="javascript:void(0)" onclick="openLegalModal('privacy')" style="color:var(--blue-600);">Privacy Policy</a>.
+
+        <div class="form-group" style="display:flex; align-items:flex-start; gap:8px; margin-top:6px;">
+          <input type="checkbox" id="obTerms" required style="margin-top:4px;" />
+          <label for="obTerms" style="font-size:12px; color:var(--slate-600);">
+            I confirm that the details above are accurate and agree to the <a href="javascript:void(0)" onclick="openLegalModal('terms')" style="color:var(--blue-600);">Contributor Terms &amp; Conditions</a> and <a href="javascript:void(0)" onclick="openLegalModal('privacy')" style="color:var(--blue-600);">Privacy Policy</a>.
           </label>
         </div>
-        <button type="submit" id="btnRegisterSubmit" class="btn btn-primary btn-block">Continue to 2-Minute Typing Test</button>
-      </form>
 
-      <form id="formLogin" class="hidden" onsubmit="handleLogin(event)">
-        <div class="form-group">
-          <label class="form-label">Registered Email Address *</label>
-          <input type="email" id="loginEmail" class="form-control" placeholder="name@example.com" required />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Password *</label>
-          <input type="password" id="loginPassword" class="form-control" placeholder="Enter your password" required />
-        </div>
-        <button type="submit" id="btnLoginSubmit" class="btn btn-primary btn-block">Access Contributor Dashboard</button>
+        <button type="submit" id="btnSaveOnboard" class="btn btn-primary btn-block">Generate UID &amp; Proceed to 2-Minute Test</button>
       </form>
     </div>
   </section>
 
   <section id="viewAssessment" class="container-md hidden">
+    <div class="uid-banner">
+      <div>
+        <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:#94a3b8;">Official Contributor UID Generated</div>
+        <div class="uid-code" id="testUidDisplay">WN-00000</div>
+      </div>
+      <div style="font-size:12px; color:#cbd5e1;">Profile Saved &bull; Step 2 of 2: Skill Assessment</div>
+    </div>
+
     <div class="card">
       <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:16px;">
         <div>
@@ -253,35 +278,30 @@
         </div>
         <div class="timer-pill" id="testTimer">02:00</div>
       </div>
+
       <div class="alert alert-warning">
-        <strong>Anti-Cheat Protection Active:</strong> Copy, paste, cut, and external text insertion are disabled. Listen carefully to the spoken prompt and type accurately.
+        <strong>Anti-Cheat Protection Active:</strong> Copy, paste, cut, and external text insertion are disabled. Play the audio clip below and type accurately in Hinglish or Hindi.
       </div>
+
       <div class="audio-panel">
-        <div class="audio-top">
-          <div>
-            <div style="font-size:12px; color:#93c5fd; font-weight:600;">SAMPLE AUDIO CLIP #WN-01</div>
-            <div style="font-size:14px; color:#e2e8f0; margin-top:2px;">Customer Support Verification Prompt</div>
-          </div>
-          <div class="audio-controls">
-            <button type="button" class="btn btn-primary btn-sm" onclick="toggleSampleAudio()">Play Audio</button>
-            <button type="button" class="btn btn-outline-light btn-sm" onclick="replaySampleAudio()">Replay</button>
-            <select id="sampleSpeed" class="btn btn-outline-light btn-sm" style="background:#0f172a;" onchange="changeSampleSpeed()">
-              <option value="1">1.0x Speed</option>
-              <option value="0.8">0.8x Slow</option>
-            </select>
-          </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
+          <div style="font-size:13px; font-weight:600; color:#93c5fd;">ASSESSMENT AUDIO SAMPLE #WN-01</div>
+          <div style="font-size:12px; color:#cbd5e1;">Use headphones for clear voice recognition</div>
         </div>
-        <div id="audioStatusText" style="font-size:12px; color:#94a3b8;">Click "Play Audio" to listen. Timer starts automatically when you play or begin typing.</div>
+        <audio id="assessmentAudioPlayer" controls preload="auto" style="width:100%; height:42px;" src="https://upload.wikimedia.org/wikipedia/commons/4/4e/Hindi-Namaste.ogg"></audio>
+        <div style="font-size:12px; color:#94a3b8; margin-top:8px;">Timer starts automatically when you press Play or begin typing below.</div>
       </div>
+
       <div class="form-group">
         <label class="form-label">Type Spoken Audio Below *</label>
-        <textarea id="testInput" class="editor-area" placeholder="Start typing what you hear in the audio..." autocomplete="off" autocorrect="off" spellcheck="false"></textarea>
+        <textarea id="testInput" class="editor-area" placeholder="Listen to the audio above and type what you hear..." autocomplete="off" autocorrect="off" spellcheck="false"></textarea>
         <div class="editor-meta">
           <span>Words Typed: <strong id="liveWordCount">0</strong> | Tab Switches: <strong id="tabSwitchCount">0</strong></span>
           <span>Live Speed: <strong id="liveWpm">0 WPM</strong></span>
         </div>
       </div>
-      <button type="button" id="btnSubmitAssessment" class="btn btn-primary btn-block" onclick="submitAssessment()">Submit Assessment for QA Review</button>
+
+      <button type="button" id="btnSubmitAssessment" class="btn btn-primary btn-block" onclick="submitAssessment()">Submit Assessment &amp; Open Dashboard</button>
     </div>
   </section>
   <div id="viewDashboard" class="hidden">
@@ -297,26 +317,32 @@
 
     <main class="container">
       <div id="dashTabOverview">
-        <div class="card" style="margin-bottom:20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;">
+        <div class="uid-banner">
           <div>
-            <div style="font-size:13px; color:var(--slate-500);">Contributor ID: <strong id="ovContributorId">WN-0000</strong></div>
-            <h2 id="ovWelcomeName" style="font-size:20px; font-weight:700; margin-top:2px;">Welcome</h2>
+            <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:#94a3b8;">Official Contributor UID</div>
+            <div class="uid-code" id="ovContributorId">WN-00000</div>
           </div>
           <div id="ovStatusBadge"></div>
         </div>
-        <div id="ovStatusNotice" class="alert alert-info"></div>
+
+        <div class="card" style="margin-bottom:20px;">
+          <h2 id="ovWelcomeName" style="font-size:19px; font-weight:700; margin-bottom:6px;">Welcome</h2>
+          <div id="ovStatusNotice" class="alert alert-info" style="margin-bottom:0;"></div>
+        </div>
+
         <div class="grid-4" style="margin-bottom:24px;">
           <div class="stat-card"><div class="stat-label">Assessment Speed</div><div class="stat-value" id="statWpm">0 WPM</div></div>
           <div class="stat-card"><div class="stat-label">Active Tasks</div><div class="stat-value" id="statActiveTasks">0</div></div>
           <div class="stat-card"><div class="stat-label">Verified Minutes</div><div class="stat-value" id="statMinutes">0 min</div></div>
           <div class="stat-card"><div class="stat-label">Approved Earnings</div><div class="stat-value" id="statEarnings">₹0.00</div></div>
         </div>
+
         <div class="card">
           <h3 style="margin-bottom:8px;">Quality &amp; Formatting Guidelines</h3>
           <ul style="padding-left:18px; font-size:14px; color:var(--slate-600); line-height:1.8;">
-            <li>Transcribe spoken audio verbatim without adding personal commentary or skipping words.</li>
+            <li>Transcribe spoken audio verbatim without skipping words or adding personal notes.</li>
             <li>Use proper punctuation marks (full stops, commas, question marks) for clean readability.</li>
-            <li>Submissions with machine translation or copy-pasted text are automatically rejected by QA.</li>
+            <li>Submissions with copy-pasted or machine-generated text are rejected during QA review.</li>
             <li>Approved task payouts are transferred directly to your registered UPI ID within 24 to 48 hours.</li>
           </ul>
         </div>
@@ -324,8 +350,8 @@
 
       <div id="dashTabTasks" class="hidden">
         <div id="tasksLockedBox" class="card hidden">
-          <h3 style="margin-bottom:6px;">Task Queue Locked Pending Verification</h3>
-          <p>Your 2-minute typing assessment has been recorded and is under QA review. Live audio transcription tasks will appear here once your profile status changes to Verified Contributor.</p>
+          <h3 style="margin-bottom:6px;">Task Queue Locked Pending QA Verification</h3>
+          <p>Your profile (UID: <strong id="lockedUidText"></strong>) and 2-minute typing assessment are currently under QA review. Live audio tasks will unlock here automatically once approved.</p>
         </div>
         <div id="tasksListContainer"></div>
         <div id="taskWorkspaceBox" class="card hidden" style="margin-top:20px;">
@@ -345,7 +371,7 @@
             <textarea id="wsTranscriptInput" class="editor-area" placeholder="Listen to the audio file above and type the complete transcript here..."></textarea>
             <div class="editor-meta">
               <span>Word Count: <strong id="wsWordCount">0</strong></span>
-              <span id="wsDraftStatus">Draft saved automatically</span>
+              <span>Draft saved automatically</span>
             </div>
           </div>
           <button type="button" id="btnSubmitTaskWork" class="btn btn-primary" onclick="submitTaskWork()">Submit Completed Transcript</button>
@@ -381,12 +407,16 @@
         </div>
       </div>
       <div id="dashTabProfile" class="hidden">
-        <div class="grid-3" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
+        <div class="grid-2" style="align-items:start;">
           <div class="card">
-            <h3 style="margin-bottom:14px;">Contributor &amp; Payout Details</h3>
+            <h3 style="margin-bottom:14px;">Contributor &amp; Payout Profile</h3>
             <form onsubmit="saveProfileDetails(event)">
               <div class="form-group">
-                <label class="form-label">Full Name</label>
+                <label class="form-label">Official Contributor UID</label>
+                <input type="text" id="profUid" class="form-control" disabled style="background:var(--slate-100); font-family:monospace; font-weight:700; color:var(--blue-600);" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Full Legal Name</label>
                 <input type="text" id="profName" class="form-control" required />
               </div>
               <div class="form-group">
@@ -394,22 +424,25 @@
                 <input type="tel" id="profPhone" class="form-control" required pattern="[6-9][0-9]{9}" maxlength="10" />
               </div>
               <div class="form-group">
-                <label class="form-label">Registered Email</label>
+                <label class="form-label">City &amp; State</label>
+                <input type="text" id="profCity" class="form-control" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Verified Google Email</label>
                 <input type="email" id="profEmail" class="form-control" disabled style="background:var(--slate-100);" />
               </div>
               <div class="form-group">
                 <label class="form-label">UPI ID for Direct Payouts *</label>
-                <input type="text" id="profUpi" class="form-control" placeholder="e.g. yourname@ybl or 9876543210@paytm" />
-                <div class="form-hint">Ensure your UPI ID is active and matches your legal name.</div>
+                <input type="text" id="profUpi" class="form-control" placeholder="e.g. yourname@ybl or 9876543210@paytm" required />
               </div>
-              <button type="submit" id="btnSaveProfile" class="btn btn-primary">Save Profile &amp; UPI</button>
+              <button type="submit" id="btnSaveProfile" class="btn btn-primary">Update Profile &amp; UPI</button>
             </form>
           </div>
 
           <div style="display:flex; flex-direction:column; gap:20px;">
             <div class="card">
               <h3>Direct Support Desk</h3>
-              <p style="margin-bottom:12px;">Need assistance with task review or payouts? Tap below to message directly inside the app:</p>
+              <p style="margin-bottom:12px;">Need help with QA verification or payouts? Tap below to open directly inside the app:</p>
               <div class="support-grid">
                 <a href="https://ig.me/m/worknest_in" target="_blank" rel="noopener noreferrer" class="support-link-card">
                   <div class="icon-box" style="margin-bottom:0; background:#fdf2f8; color:#db2777;">
@@ -453,7 +486,7 @@
       <div class="footer-links">
         <a onclick="openLegalModal('privacy')">Privacy Policy</a>
         <a onclick="openLegalModal('terms')">Terms &amp; Conditions</a>
-        <a href="https://ig.me/m/worknest_in" target="_blank" rel="noopener noreferrer">Instagram Support</a>
+        <a href="https://ig.me/m/worknest_in" target="_blank" rel="noopener noreferrer">Instagram DM</a>
         <a href="mailto:worknestindia9@gmail.com">Gmail Support</a>
       </div>
     </div>
@@ -491,127 +524,41 @@
     }
 
     function hideAllViews() {
-      ["viewLanding", "viewAuth", "viewAssessment", "viewDashboard"].forEach(id => {
+      ["viewLanding", "viewOnboarding", "viewAssessment", "viewDashboard"].forEach(id => {
         document.getElementById(id).classList.add("hidden");
       });
     }
 
     function navigateHome() {
-      if (currentUser && userProfile) {
-        if (!userProfile.assessment_completed) {
-          hideAllViews();
-          document.getElementById("viewAssessment").classList.remove("hidden");
-        } else {
-          renderDashboard();
-        }
-      } else {
+      if (!currentUser) {
         hideAllViews();
         document.getElementById("viewLanding").classList.remove("hidden");
+        return;
       }
-    }
-
-    function showAuth(mode) {
-      hideAllViews();
-      document.getElementById("viewAuth").classList.remove("hidden");
-      switchAuthTab(mode);
-    }
-
-    function switchAuthTab(mode) {
-      document.getElementById("authAlert").classList.add("hidden");
-      const isReg = mode === "register";
-      document.getElementById("tabRegister").classList.toggle("active", isReg);
-      document.getElementById("tabLogin").classList.toggle("active", !isReg);
-      document.getElementById("formRegister").classList.toggle("hidden", !isReg);
-      document.getElementById("formLogin").classList.toggle("hidden", isReg);
-    }
-
-    function showAuthError(msg) {
-      const box = document.getElementById("authAlert");
-      box.textContent = msg;
-      box.classList.remove("hidden");
+      if (!userProfile) {
+        showOnboardingScreen();
+      } else if (!userProfile.assessment_completed) {
+        startAssessmentScreen();
+      } else {
+        renderDashboard();
+      }
     }
 
     function updateNavForUser(loggedIn) {
       document.getElementById("navGuest").classList.toggle("hidden", loggedIn);
       document.getElementById("navUser").classList.toggle("hidden", !loggedIn);
-      if (loggedIn && userProfile) {
-        document.getElementById("navUserName").textContent = userProfile.name;
+      if (loggedIn) {
+        document.getElementById("navUserUid").textContent = userProfile?.contributor_code || currentUser.email;
       }
     }
 
-    async function handleRegister(e) {
-      e.preventDefault();
-      const name = sanitize(document.getElementById("regName").value);
-      const phone = sanitize(document.getElementById("regPhone").value);
-      const email = sanitize(document.getElementById("regEmail").value).toLowerCase();
-      const language_track = sanitize(document.getElementById("regLang").value);
-      const device = sanitize(document.getElementById("regDevice").value);
-      const password = document.getElementById("regPassword").value;
-
-      const btn = document.getElementById("btnRegisterSubmit");
-      btn.disabled = true;
-      btn.textContent = "Creating Account...";
-
-      try {
-        const { data: existingPhone } = await sb.from("contributors").select("id").eq("phone", phone).maybeSingle();
-        if (existingPhone) throw new Error("This mobile number is already registered. Please sign in.");
-
-        const { data, error } = await sb.auth.signUp({ email, password });
-        if (error) throw error;
-        if (!data.user) throw new Error("Registration failed. Please verify your email or try again.");
-
-        const contributor_code = "WN-" + Math.floor(10000 + Math.random() * 90000);
-        const profileData = {
-          id: data.user.id,
-          contributor_code,
-          name,
-          phone,
-          email,
-          language_track,
-          device,
-          upi_id: "",
-          status: "pending_review",
-          assessment_completed: false,
-          assessment_text: "",
-          assessment_wpm: 0,
-          tab_switches: 0,
-          verified_minutes: 0,
-          approved_earnings: 0
-        };
-
-        const { error: dbErr } = await sb.from("contributors").insert([profileData]);
-        if (dbErr) throw dbErr;
-
-        currentUser = data.user;
-        userProfile = profileData;
-        updateNavForUser(true);
-        startAssessmentScreen();
-      } catch (err) {
-        showAuthError(err.message || "Registration failed.");
-      } finally {
-        btn.disabled = false;
-        btn.textContent = "Continue to 2-Minute Typing Test";
-      }
-    }
-
-    async function handleLogin(e) {
-      e.preventDefault();
-      const email = sanitize(document.getElementById("loginEmail").value).toLowerCase();
-      const password = document.getElementById("loginPassword").value;
-      const btn = document.getElementById("btnLoginSubmit");
-      btn.disabled = true;
-      btn.textContent = "Signing In...";
-
-      try {
-        const { data, error } = await sb.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        await loadUserSession(data.user);
-      } catch (err) {
-        showAuthError("Invalid email or password. Please check your credentials.");
-      } finally {
-        btn.disabled = false;
-        btn.textContent = "Access Contributor Dashboard";
-      }
+    // Direct Google OAuth Login / Sign Up
+    async function signInWithGoogle() {
+      const { error } = await sb.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo: window.location.origin + window.location.pathname }
+      });
+      if (error) showToast("Google sign-in failed: " + error.message);
     }
 
     async function logoutUser() {
@@ -624,10 +571,14 @@
       showToast("Signed out securely.");
     }
 
-    async function loadUserSession(user) {
+    async function routeAuthenticatedUser(user) {
       currentUser = user;
-      const { data, error } = await sb.from("contributors").select("*").eq("id", user.id).single();
-      if (data && !error) {
+      const { data } = await sb.from("contributors").select("*").eq("id", user.id).maybeSingle();
+      if (!data) {
+        userProfile = null;
+        updateNavForUser(true);
+        showOnboardingScreen();
+      } else {
         userProfile = data;
         updateNavForUser(true);
         if (!userProfile.assessment_completed) {
@@ -638,30 +589,77 @@
       }
     }
 
-    // Assessment Engine
+    function showOnboardingScreen() {
+      hideAllViews();
+      document.getElementById("viewOnboarding").classList.remove("hidden");
+      document.getElementById("obEmail").value = currentUser.email || "";
+      const metaName = currentUser.user_metadata?.full_name || currentUser.user_metadata?.name || "";
+      if (metaName) document.getElementById("obName").value = metaName;
+    }
+
+    async function handleProfileOnboarding(e) {
+      e.preventDefault();
+      const name = sanitize(document.getElementById("obName").value);
+      const phone = sanitize(document.getElementById("obPhone").value);
+      const city = sanitize(document.getElementById("obCity").value);
+      const education = sanitize(document.getElementById("obEducation").value);
+      const device = sanitize(document.getElementById("obDevice").value);
+      const language_track = sanitize(document.getElementById("obLang").value);
+      const upi_id = sanitize(document.getElementById("obUpi").value);
+
+      const alertBox = document.getElementById("onboardAlert");
+      alertBox.classList.add("hidden");
+
+      const btn = document.getElementById("btnSaveOnboard");
+      btn.disabled = true;
+      btn.textContent = "Generating Contributor UID...";
+
+      try {
+        const { data: existingPhone } = await sb.from("contributors").select("id").eq("phone", phone).maybeSingle();
+        if (existingPhone) throw new Error("This mobile number is already registered with another Google account.");
+
+        const contributor_code = "WN-" + Math.floor(10000 + Math.random() * 90000);
+        const profileData = {
+          id: currentUser.id,
+          contributor_code,
+          name,
+          phone,
+          email: currentUser.email,
+          city,
+          education,
+          device,
+          language_track,
+          upi_id,
+          status: "pending_review",
+          assessment_completed: false,
+          assessment_text: "",
+          assessment_wpm: 0,
+          tab_switches: 0,
+          verified_minutes: 0,
+          approved_earnings: 0
+        };
+
+        const { error } = await sb.from("contributors").insert([profileData]);
+        if (error) throw error;
+
+        userProfile = profileData;
+        updateNavForUser(true);
+        showToast("Official UID Generated: " + contributor_code);
+        startAssessmentScreen();
+      } catch (err) {
+        alertBox.textContent = err.message || "Unable to save profile.";
+        alertBox.classList.remove("hidden");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Generate UID & Proceed to 2-Minute Test";
+      }
+    }
+
+    // 2-Minute Anti-Cheat Assessment
     let testSecondsLeft = 120;
     let testTimerInterval = null;
     let testStarted = false;
     let tabSwitches = 0;
-    const SAMPLE_SCRIPT_TEXT = "Namaste, WorkNest India mein aapka swagat hai. Kripya apna order number confirm karein taaki hum aapki request ko jaldi process kar sakein. Dhanyavaad.";
-
-    function toggleSampleAudio() {
-      startTestTimerOnce();
-      if (!("speechSynthesis" in window)) {
-        document.getElementById("audioStatusText").textContent = "Prompt: Namaste, WorkNest India mein aapka swagat hai. Kripya apna order number confirm karein.";
-        return;
-      }
-      window.speechSynthesis.cancel();
-      const utter = new SpeechSynthesisUtterance(SAMPLE_SCRIPT_TEXT);
-      utter.lang = "hi-IN";
-      utter.rate = parseFloat(document.getElementById("sampleSpeed").value || "1");
-      utter.onstart = () => { document.getElementById("audioStatusText").textContent = "Playing audio prompt... Listen carefully and type below."; };
-      utter.onend = () => { document.getElementById("audioStatusText").textContent = "Audio finished. Click Replay to listen again."; };
-      window.speechSynthesis.speak(utter);
-    }
-
-    function replaySampleAudio() { toggleSampleAudio(); }
-    function changeSampleSpeed() { if (window.speechSynthesis && window.speechSynthesis.speaking) toggleSampleAudio(); }
 
     function startTestTimerOnce() {
       if (testStarted) return;
@@ -692,6 +690,11 @@
     function startAssessmentScreen() {
       hideAllViews();
       document.getElementById("viewAssessment").classList.remove("hidden");
+      document.getElementById("testUidDisplay").textContent = userProfile.contributor_code || "WN-PENDING";
+
+      const audioEl = document.getElementById("assessmentAudioPlayer");
+      audioEl.addEventListener("play", startTestTimerOnce);
+
       const input = document.getElementById("testInput");
       ["paste", "copy", "cut", "drop", "contextmenu"].forEach(evt => {
         input.addEventListener(evt, (e) => {
@@ -710,12 +713,12 @@
 
     async function submitAssessment(auto = false) {
       const rawText = sanitize(document.getElementById("testInput").value);
-      if (!auto && rawText.length < 15) {
-        showToast("Please listen to the audio and type the complete sentence before submitting.");
+      if (!auto && rawText.length < 5) {
+        showToast("Please listen to the audio and type your transcript before submitting.");
         return;
       }
       clearInterval(testTimerInterval);
-      if (window.speechSynthesis) window.speechSynthesis.cancel();
+      document.getElementById("assessmentAudioPlayer").pause();
       const { wpm } = updateLiveMetrics();
       const btn = document.getElementById("btnSubmitAssessment");
       btn.disabled = true;
@@ -733,25 +736,29 @@
         userProfile.assessment_completed = true;
         userProfile.assessment_text = rawText;
         userProfile.assessment_wpm = wpm;
-        showToast("Assessment submitted successfully.");
+        showToast("Assessment saved to your UID.");
         renderDashboard();
       } catch (err) {
-        showToast("Error submitting assessment. Please check your connection.");
+        showToast("Error saving assessment. Please check your connection.");
         btn.disabled = false;
-        btn.textContent = "Submit Assessment for QA Review";
+        btn.textContent = "Submit Assessment & Open Dashboard";
       }
     }
     async function renderDashboard() {
       hideAllViews();
       document.getElementById("viewDashboard").classList.remove("hidden");
-      document.getElementById("ovContributorId").textContent = userProfile.contributor_code || "WN-ACTIVE";
+      const uidStr = userProfile.contributor_code || "WN-ACTIVE";
+      document.getElementById("ovContributorId").textContent = uidStr;
+      document.getElementById("lockedUidText").textContent = uidStr;
       document.getElementById("ovWelcomeName").textContent = userProfile.name;
       document.getElementById("statWpm").textContent = `${userProfile.assessment_wpm || 0} WPM`;
       document.getElementById("statMinutes").textContent = `${userProfile.verified_minutes || 0} min`;
       document.getElementById("statEarnings").textContent = `₹${Number(userProfile.approved_earnings || 0).toFixed(2)}`;
 
+      document.getElementById("profUid").value = uidStr;
       document.getElementById("profName").value = userProfile.name || "";
       document.getElementById("profPhone").value = userProfile.phone || "";
+      document.getElementById("profCity").value = userProfile.city || "";
       document.getElementById("profEmail").value = userProfile.email || "";
       document.getElementById("profUpi").value = userProfile.upi_id || "";
 
@@ -761,18 +768,18 @@
       if (userProfile.status === "approved") {
         badgeEl.innerHTML = `<span class="badge badge-active">Verified Contributor</span>`;
         noticeEl.className = "alert alert-success";
-        noticeEl.textContent = "Your profile is active. Open 'Assigned Tasks' to start transcribing audio clips.";
+        noticeEl.textContent = "Your Contributor UID is verified and active. Open 'Assigned Tasks' to start transcribing audio batches.";
         document.getElementById("tasksLockedBox").classList.add("hidden");
         await loadAssignedTasks();
       } else if (userProfile.status === "rejected") {
         badgeEl.innerHTML = `<span class="badge badge-rejected">Qualification Not Met</span>`;
         noticeEl.className = "alert alert-error";
-        noticeEl.textContent = "Your baseline assessment did not meet our accuracy threshold. Contact support for re-evaluation.";
+        noticeEl.textContent = "Your baseline assessment did not meet our quality threshold. Contact support via Profile & Support.";
         document.getElementById("tasksLockedBox").classList.remove("hidden");
       } else {
         badgeEl.innerHTML = `<span class="badge badge-pending">Assessment Under Review</span>`;
         noticeEl.className = "alert alert-info";
-        noticeEl.textContent = "Our QA team is reviewing your 2-minute typing test. Update your UPI ID in 'Profile & Support' while waiting.";
+        noticeEl.textContent = "Our QA team is reviewing your baseline typing test. Your UID and data are saved permanently—log in anytime with Google to check status.";
         document.getElementById("tasksLockedBox").classList.remove("hidden");
       }
       await loadSubmissionsAndPayouts();
@@ -809,7 +816,7 @@
         }
       });
       document.getElementById("statActiveTasks").textContent = count;
-      if (count === 0) container.innerHTML = `<div class="card"><p>No open audio batches right now. New batches are assigned daily.</p></div>`;
+      if (count === 0) container.innerHTML = `<div class="card"><p>No open audio batches available right now. New batches are assigned daily.</p></div>`;
     }
 
     function openTaskWorkspace(task) {
@@ -915,40 +922,41 @@
       e.preventDefault();
       const name = sanitize(document.getElementById("profName").value);
       const phone = sanitize(document.getElementById("profPhone").value);
+      const city = sanitize(document.getElementById("profCity").value);
       const upi_id = sanitize(document.getElementById("profUpi").value);
       const btn = document.getElementById("btnSaveProfile");
       btn.disabled = true;
       btn.textContent = "Saving...";
 
       try {
-        const { error } = await sb.from("contributors").update({ name, phone, upi_id }).eq("id", currentUser.id);
+        const { error } = await sb.from("contributors").update({ name, phone, city, upi_id }).eq("id", currentUser.id);
         if (error) throw error;
         userProfile.name = name;
         userProfile.phone = phone;
+        userProfile.city = city;
         userProfile.upi_id = upi_id;
-        document.getElementById("navUserName").textContent = name;
         document.getElementById("ovWelcomeName").textContent = name;
         showToast("Profile and UPI details updated.");
       } catch (err) {
         showToast("Failed to update profile.");
       } finally {
         btn.disabled = false;
-        btn.textContent = "Save Profile & UPI";
+        btn.textContent = "Update Profile & UPI";
       }
     }
 
     const LEGAL_DOCS = {
       privacy: {
         title: "Privacy Policy & Data Protection",
-        html: `<h4>1. Information Collected</h4><p>WorkNest India collects your name, mobile number, email, device type, and UPI ID strictly for contributor verification and payout processing.</p><h4>2. Data Protection</h4><p>Your personal details are never shared with third-party advertisers. Contact worknestindia9@gmail.com for data requests.</p>`
+        html: `<h4>1. Information Collected</h4><p>WorkNest India collects your Google-verified email, legal name, mobile number, city, device type, and UPI ID strictly for contributor UID verification and payout settlement.</p><h4>2. Data Protection</h4><p>Your personal records are never sold or shared with third-party advertisers. Contact worknestindia9@gmail.com for data inquiries.</p>`
       },
       terms: {
         title: "Contributor Terms & Conditions",
-        html: `<h4>1. Task-Based Operations</h4><p>Contributors work on flexible remote tasks with zero registration or security fees.</p><h4>2. Quality & Payouts</h4><p>Payouts (₹8–₹9/audio min) apply to transcripts passing QA review. Copy-pasted or automated text results in rejection.</p>`
+        html: `<h4>1. Task-Based Operations</h4><p>Contributors operate on flexible remote tasks with zero registration or onboarding fees.</p><h4>2. Quality & Payouts</h4><p>Payouts (₹8–₹9/audio min) apply strictly to transcripts passing manual QA verification. Copy-pasted or machine-generated text is rejected.</p>`
       },
       nda: {
         title: "Audio Confidentiality & QA Policy",
-        html: `<h4>1. Confidentiality</h4><p>All audio clips inside the workspace are confidential. Downloading, recording, or sharing audio outside the portal is strictly prohibited.</p>`
+        html: `<h4>1. Non-Disclosure</h4><p>All audio clips inside the workspace are confidential. Downloading, recording, or redistributing audio outside the portal is strictly prohibited.</p>`
       }
     };
 
@@ -962,13 +970,12 @@
 
     function closeLegalModal() { document.getElementById("legalModal").classList.add("hidden"); }
 
-    // Auto-restore active session
-    (async () => {
-      const { data } = await sb.auth.getSession();
-      if (data && data.session && data.session.user) {
-        await loadUserSession(data.session.user);
+    // Persistent Google Session Listener
+    sb.auth.onAuthStateChange(async (event, session) => {
+      if (session && session.user) {
+        await routeAuthenticatedUser(session.user);
       }
-    })();
+    });
   </script>
 </body>
 </html>
