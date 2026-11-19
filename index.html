@@ -125,7 +125,11 @@
       <div id="navGuest">
         <button class="btn btn-google btn-sm" onclick="signInWithGoogle()">Sign In</button>
       </div>
-      <div id="navUser" class="hidden" style="display:flex; align-items:center; gap:8px;">
+      <div id="navUser" class="hidden" style="display:flex; align-items:center; gap:10px;">
+        <button type="button" onclick="openNotifModal()" style="position:relative; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.18); color:#fff; width:36px; height:36px; border-radius:9px; display:flex; align-items:center; justify-content:center; cursor:pointer;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span id="notifDot" class="hidden" style="position:absolute; top:6px; right:6px; width:8px; height:8px; background:#ef4444; border-radius:50%;"></span>
+        </button>
         <span id="navUserUid" style="font-size:12px; background:rgba(37,99,235,0.28); color:#93c5fd; padding:4px 9px; border-radius:7px; font-family:monospace; font-weight:700;"></span>
       </div>
     </div>
@@ -358,16 +362,22 @@
         </div>
 
         <div class="card">
-          <h3>Verified Identity (Locked)</h3>
-          <p style="margin-bottom:12px;">Name, Mobile Number, and Email are locked to prevent account tampering. Contact support for legal corrections.</p>
-          <div class="grid-2">
-            <div class="form-group"><label class="form-label"><span>Full Legal Name</span><span class="lock-tag">Locked</span></label><input type="text" id="profName" class="form-control" disabled /></div>
-            <div class="form-group"><label class="form-label"><span>Mobile Number</span><span class="lock-tag">Locked</span></label><input type="text" id="profPhone" class="form-control" disabled /></div>
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:6px;">
+            <h3 id="idCardHeading" style="margin:0;">Verified Identity (Locked)</h3>
+            <span id="unlockTimerBadge" class="badge badge-table-active hidden">Unlocked</span>
           </div>
-          <div class="grid-2">
-            <div class="form-group"><label class="form-label"><span>Google Email</span><span class="lock-tag">Locked</span></label><input type="text" id="profEmail" class="form-control" disabled /></div>
-            <div class="form-group"><label class="form-label"><span>City &amp; State</span><span class="lock-tag">Locked</span></label><input type="text" id="profCity" class="form-control" disabled /></div>
-          </div>
+          <p id="idCardSubtext" style="margin-bottom:12px;">Name, Mobile Number, and Email are locked to prevent account tampering. Contact support for corrections.</p>
+          <form onsubmit="saveUnlockedIdentity(event)">
+            <div class="grid-2">
+              <div class="form-group"><label class="form-label"><span>Full Legal Name</span><span class="lock-tag id-lock-tag">Locked</span></label><input type="text" id="profName" class="form-control" disabled required minlength="3" /></div>
+              <div class="form-group"><label class="form-label"><span>Mobile Number</span><span class="lock-tag id-lock-tag">Locked</span></label><input type="tel" id="profPhone" class="form-control" disabled required pattern="[6-9][0-9]{9}" maxlength="10" /></div>
+            </div>
+            <div class="grid-2">
+              <div class="form-group"><label class="form-label"><span>Google Email</span><span class="lock-tag">Locked</span></label><input type="text" id="profEmail" class="form-control" disabled /></div>
+              <div class="form-group"><label class="form-label"><span>City &amp; State</span><span class="lock-tag id-lock-tag">Locked</span></label><input type="text" id="profCity" class="form-control" disabled required minlength="3" /></div>
+            </div>
+            <button type="submit" id="btnSaveUnlockedId" class="btn btn-primary btn-block hidden">Save Corrected Identity Details</button>
+          </form>
         </div>
 
         <div class="card">
@@ -414,6 +424,17 @@
 
   <div id="legalModal" class="modal-backdrop hidden" onclick="if(event.target===this) closeLegalModal()">
     <div class="modal-box"><div class="modal-header"><h3 id="legalModalTitle" style="font-size:16px; font-weight:700;">Policy</h3><button class="btn btn-secondary btn-sm" onclick="closeLegalModal()">Close</button></div><div id="legalModalBody" class="modal-body"></div></div>
+  </div>
+  <div id="notifModal" class="modal-backdrop hidden" onclick="if(event.target===this) closeNotifModal()">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 style="font-size:16px; font-weight:700;">Notifications &amp; Admin Alerts</h3>
+        <button class="btn btn-secondary btn-sm" onclick="closeNotifModal()">Close</button>
+      </div>
+      <div id="notifModalBody" class="modal-body">
+        <p style="color:var(--slate-500); text-align:center;">No notifications yet.</p>
+      </div>
+    </div>
   </div>
   <div id="toastBox" class="toast hidden"></div>
   <script>
@@ -895,6 +916,119 @@
       document.getElementById("legalModal").classList.remove("hidden");
     }
     function closeLegalModal() { document.getElementById("legalModal").classList.add("hidden"); }
+
+    let unlockCountdownInterval = null;
+    function checkIdentityUnlockState() {
+      clearInterval(unlockCountdownInterval);
+      const untilStr = userProfile?.profile_unlocked_until;
+      const untilMs = untilStr ? new Date(untilStr).getTime() : 0;
+      const isUnlocked = untilMs > Date.now();
+
+      ["profName", "profPhone", "profCity"].forEach(id => {
+        document.getElementById(id).disabled = !isUnlocked;
+      });
+      document.querySelectorAll(".id-lock-tag").forEach(el => {
+        el.textContent = isUnlocked ? "Editable" : "Locked";
+        el.style.background = isUnlocked ? "#dcfce7" : "";
+        el.style.color = isUnlocked ? "#166534" : "";
+      });
+      document.getElementById("btnSaveUnlockedId").classList.toggle("hidden", !isUnlocked);
+      const badge = document.getElementById("unlockTimerBadge");
+
+      if (isUnlocked) {
+        document.getElementById("idCardHeading").textContent = "Identity Temporarily Unlocked";
+        document.getElementById("idCardSubtext").textContent = "Admin has unlocked your identity for correction. Save changes before the timer expires.";
+        badge.classList.remove("hidden");
+        const updateTick = () => {
+          const left = Math.max(0, Math.floor((untilMs - Date.now()) / 1000));
+          if (left <= 0) {
+            clearInterval(unlockCountdownInterval);
+            userProfile.profile_unlocked_until = null;
+            checkIdentityUnlockState();
+            showToast("Identity edit window expired and re-locked.");
+            return;
+          }
+          const m = Math.floor(left / 60);
+          const s = String(left % 60).padStart(2, "0");
+          badge.textContent = `Time Left: ${m}m ${s}s`;
+        };
+        updateTick();
+        unlockCountdownInterval = setInterval(updateTick, 1000);
+      } else {
+        document.getElementById("idCardHeading").textContent = "Verified Identity (Locked)";
+        document.getElementById("idCardSubtext").textContent = "Name, Mobile Number, and Email are locked to prevent account tampering. Contact support for corrections.";
+        badge.classList.add("hidden");
+      }
+    }
+
+    async function saveUnlockedIdentity(e) {
+      e.preventDefault();
+      const name = sanitize(document.getElementById("profName").value);
+      const phone = sanitize(document.getElementById("profPhone").value);
+      const city = sanitize(document.getElementById("profCity").value);
+      if (!isValidIndianPhone(phone)) { showToast("Enter a valid 10-digit Indian mobile number."); return; }
+      const btn = document.getElementById("btnSaveUnlockedId");
+      btn.disabled = true; btn.textContent = "Saving & Re-Locking...";
+      try {
+        const { error } = await sb.from("contributors").update({
+          name, phone, city, profile_unlocked_until: null
+        }).eq("id", currentUser.id);
+        if (error) throw error;
+        userProfile.name = name; userProfile.phone = phone; userProfile.city = city;
+        userProfile.profile_unlocked_until = null;
+        showToast("Identity updated and securely locked!");
+        renderDashboard();
+      } catch (err) {
+        showToast("Update failed: " + (err.message || "Number may already exist."));
+      } finally {
+        btn.disabled = false; btn.textContent = "Save Corrected Identity Details";
+      }
+    }
+
+    async function loadUserNotifications() {
+      const uidCode = (userProfile?.contributor_code || "").toUpperCase();
+      const { data: list } = await sb.from("notifications").select("*").order("created_at", { ascending: false }).limit(25);
+      const relevant = (list || []).filter(n => {
+        const t = (n.target_uid || "all").trim().toUpperCase();
+        return t === "ALL" || t === uidCode || t === currentUser.id.toUpperCase();
+      });
+      const body = document.getElementById("notifModalBody");
+      const dot = document.getElementById("notifDot");
+      if (relevant.length === 0) {
+        dot.classList.add("hidden");
+        body.innerHTML = `<p style="color:var(--slate-500); text-align:center;">No notifications right now.</p>`;
+        return;
+      }
+      const lastSeen = localStorage.getItem("wn_last_notif_" + currentUser.id) || "";
+      if (relevant[0].id !== lastSeen) dot.classList.remove("hidden");
+      window._latestNotifId = relevant[0].id;
+
+      body.innerHTML = relevant.map(n => {
+        const dt = n.created_at ? new Date(n.created_at).toLocaleString("en-IN", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }) : "";
+        const tag = (n.target_uid || "all").toLowerCase() === "all" ? "Announcement" : "Direct Message";
+        return `<div style="padding:12px; border:1px solid var(--slate-200); border-radius:10px; margin-bottom:10px; background:var(--slate-50);">
+          <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--blue-600); font-weight:700; margin-bottom:4px;"><span>${tag}</span><span style="color:var(--slate-500); font-weight:500;">${dt}</span></div>
+          <div style="font-size:14px; font-weight:700; color:var(--slate-900); margin-bottom:3px;">${sanitize(n.title)}</div>
+          <div style="font-size:13px; color:var(--slate-700);">${sanitize(n.message)}</div>
+        </div>`;
+      }).join("");
+    }
+
+    function openNotifModal() {
+      document.getElementById("notifModal").classList.remove("hidden");
+      document.getElementById("notifDot").classList.add("hidden");
+      if (window._latestNotifId && currentUser) {
+        localStorage.setItem("wn_last_notif_" + currentUser.id, window._latestNotifId);
+      }
+    }
+    function closeNotifModal() { document.getElementById("notifModal").classList.add("hidden"); }
+
+    const _origRenderDashboard = renderDashboard;
+    renderDashboard = async function () {
+      await _origRenderDashboard();
+      checkIdentityUnlockState();
+      await loadUserNotifications();
+    };
 
     sb.auth.onAuthStateChange(async (event, session) => {
       if (session && session.user) await routeAuthenticatedUser(session.user);
