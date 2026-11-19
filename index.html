@@ -10,7 +10,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
-      --navy-950: #060d1f;
       --navy-900: #0a192f;
       --navy-800: #112240;
       --blue-600: #2563eb;
@@ -37,7 +36,7 @@
     body { background: var(--slate-50); color: var(--slate-900); line-height: 1.5; padding-bottom: 76px; }
     .hidden { display: none !important; }
     @keyframes fadeSlide { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-    .smooth-view { animation: fadeSlide 0.24s cubic-bezier(0.16, 1, 0.3, 1); }
+    .smooth-view { animation: fadeSlide 0.22s cubic-bezier(0.16, 1, 0.3, 1); }
     .navbar { background: var(--navy-900); color: var(--white); border-bottom: 1px solid rgba(255,255,255,0.08); position: sticky; top: 0; z-index: 40; }
     .nav-container { max-width: 1080px; margin: 0 auto; padding: 0 18px; height: 60px; display: flex; align-items: center; justify-content: space-between; }
     .brand { display: flex; align-items: center; gap: 10px; color: var(--white); cursor: pointer; }
@@ -73,13 +72,15 @@
     .card h3 { font-size: 16px; font-weight: 700; margin-bottom: 6px; color: var(--slate-900); }
     .card p { font-size: 13px; color: var(--slate-600); }
     .step-badge { display: inline-block; font-size: 11px; font-weight: 700; color: var(--blue-600); background: var(--blue-50); padding: 3px 10px; border-radius: 6px; margin-bottom: 8px; }
-    .profile-hero-card { background: linear-gradient(135deg, var(--navy-900) 0%, #172554 100%); color: var(--white); border-radius: 16px; padding: 22px 20px; margin-bottom: 16px; position: relative; overflow: hidden; }
+    .profile-hero-card { background: linear-gradient(135deg, var(--navy-900) 0%, #172554 100%); color: var(--white); border-radius: 16px; padding: 22px 20px; margin-bottom: 16px; }
     .avatar-circle { width: 52px; height: 52px; border-radius: 14px; background: linear-gradient(135deg, #3b82f6, #06b6d4); display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; color: var(--white); flex-shrink: 0; }
     .uid-pill { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); padding: 6px 12px; border-radius: 8px; font-family: monospace; font-size: 14px; font-weight: 700; color: #93c5fd; cursor: pointer; margin-top: 12px; }
     .form-group { margin-bottom: 14px; }
-    .form-label { display: block; font-size: 12px; font-weight: 600; color: var(--slate-700); margin-bottom: 5px; }
-    .form-control { width: 100%; padding: 11px 12px; font-size: 14px; border: 1px solid var(--slate-300); border-radius: 10px; outline: none; background: var(--white); transition: border-color 0.15s; }
-    .form-control:focus { border-color: var(--blue-600); box-shadow: 0 0 0 3px rgba(37,99,235,0.12); }
+    .form-label { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 600; color: var(--slate-700); margin-bottom: 5px; }
+    .lock-tag { font-size: 10px; font-weight: 700; color: var(--slate-500); background: var(--slate-200); padding: 2px 7px; border-radius: 4px; text-transform: uppercase; }
+    .form-control { width: 100%; padding: 11px 12px; font-size: 14px; border: 1px solid var(--slate-300); border-radius: 10px; outline: none; background: var(--white); }
+    .form-control:disabled { background: var(--slate-100); color: var(--slate-600); cursor: not-allowed; }
+    .form-control:focus:not(:disabled) { border-color: var(--blue-600); box-shadow: 0 0 0 3px rgba(37,99,235,0.12); }
     .alert { padding: 12px 14px; border-radius: 10px; font-size: 13px; margin-bottom: 14px; border: 1px solid transparent; }
     .alert-info { background: var(--blue-50); color: #1e40af; border-color: #bfdbfe; }
     .alert-warning { background: var(--amber-50); color: #92400e; border-color: #fde68a; }
@@ -95,23 +96,20 @@
     .audio-panel { background: var(--navy-900); color: var(--white); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
     .timer-pill { background: rgba(255,255,255,0.12); padding: 5px 12px; border-radius: 99px; font-variant-numeric: tabular-nums; font-weight: 700; font-size: 14px; color: #93c5fd; }
     .editor-area { width: 100%; min-height: 160px; padding: 12px; font-size: 15px; line-height: 1.6; border: 1px solid var(--slate-300); border-radius: 10px; resize: vertical; outline: none; }
-    .editor-area:focus { border-color: var(--blue-600); box-shadow: 0 0 0 3px rgba(37,99,235,0.12); }
     .editor-meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--slate-500); margin-top: 6px; }
     .stat-card { background: var(--white); border: 1px solid var(--slate-200); border-radius: 12px; padding: 14px; }
     .stat-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; color: var(--slate-500); }
     .stat-value { font-size: 20px; font-weight: 700; color: var(--slate-900); margin-top: 4px; }
-    .app-row-btn { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 14px; background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: 11px; text-decoration: none; color: var(--slate-900); font-size: 14px; font-weight: 600; cursor: pointer; margin-bottom: 10px; transition: 0.15s; }
-    .app-row-btn:hover { background: var(--blue-50); border-color: var(--blue-600); }
+    .app-row-btn { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 14px; background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: 11px; text-decoration: none; color: var(--slate-900); font-size: 14px; font-weight: 600; cursor: pointer; margin-bottom: 10px; }
     .table-wrap { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
     th { background: var(--slate-50); color: var(--slate-600); font-weight: 600; padding: 10px 12px; border-bottom: 1px solid var(--slate-200); }
     td { padding: 11px 12px; border-bottom: 1px solid var(--slate-200); }
     .modal-backdrop { position: fixed; inset: 0; background: rgba(15,23,42,0.65); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 60; }
-    .modal-box { background: var(--white); border-radius: 16px; max-width: 580px; width: 100%; max-height: 82vh; display: flex; flex-direction: column; box-shadow: var(--shadow-lg); }
+    .modal-box { background: var(--white); border-radius: 16px; max-width: 580px; width: 100%; max-height: 82vh; display: flex; flex-direction: column; }
     .modal-header { padding: 16px 20px; border-bottom: 1px solid var(--slate-200); display: flex; justify-content: space-between; align-items: center; }
     .modal-body { padding: 20px; overflow-y: auto; font-size: 14px; color: var(--slate-700); }
-    .modal-body h4 { color: var(--slate-900); margin: 12px 0 6px; font-size: 15px; }
-    .toast { position: fixed; top: 72px; left: 50%; transform: translateX(-50%); background: var(--slate-900); color: var(--white); padding: 10px 18px; border-radius: 99px; font-size: 13px; font-weight: 500; box-shadow: var(--shadow-lg); z-index: 70; white-space: nowrap; }
+    .toast { position: fixed; top: 72px; left: 50%; transform: translateX(-50%); background: var(--slate-900); color: var(--white); padding: 10px 18px; border-radius: 99px; font-size: 13px; font-weight: 500; z-index: 70; white-space: nowrap; }
   </style>
 </head>
 <body>
@@ -133,6 +131,20 @@
     </div>
   </header>
 
+  <!-- BLOCKED ACCOUNT SCREEN -->
+  <section id="viewBlocked" class="container-md hidden smooth-view">
+    <div class="card" style="border-color:#fecaca; text-align:center; padding:32px 20px;">
+      <span class="badge badge-table-rejected" style="margin-bottom:12px;">ACCOUNT SUSPENDED</span>
+      <h2 style="font-size:20px; font-weight:700; color:var(--red-600); margin-bottom:8px;">Contributor Access Restricted</h2>
+      <p id="blockedReasonText" style="margin-bottom:18px;">Your account has been suspended by Operations Administration due to policy violation.</p>
+      <div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap;">
+        <a href="https://ig.me/m/worknest_in" target="_blank" class="btn btn-primary btn-sm">Contact Admin on Instagram</a>
+        <button class="btn btn-secondary btn-sm" onclick="logoutUser()">Sign Out</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- LANDING -->
   <main id="viewLanding" class="smooth-view">
     <section class="hero">
       <div class="hero-inner">
@@ -145,44 +157,44 @@
         </button>
       </div>
     </section>
-
     <section class="container">
       <div class="grid-3">
         <div class="card"><h3>Per-Minute Payouts</h3><p>Earn ₹8.00 to ₹9.00 per verified audio minute transcribed. Typical 2–3 hour sessions yield up to ₹300.</p></div>
-        <div class="card"><h3>Persistent Cloud UID</h3><p>Your Contributor UID, test records, tasks, and earnings stay permanently saved to your Google account.</p></div>
-        <div class="card"><h3>Zero Onboarding Fees</h3><p>No joining charges or deposits. Approved earnings settle directly to your registered UPI ID.</p></div>
+        <div class="card"><h3>Direct UPI &amp; Bank Payouts</h3><p>Save your verified UPI ID or bank account and submit withdrawal requests directly from your wallet.</p></div>
+        <div class="card"><h3>Zero Onboarding Fees</h3><p>No joining charges or security deposits. Your UID and earnings stay permanently linked to your Google account.</p></div>
       </div>
     </section>
   </main>
 
+  <!-- ONBOARDING -->
   <section id="viewOnboarding" class="container-md hidden smooth-view">
     <div class="card">
-      <span class="step-badge">STEP 1 OF 2 &bull; CONTRIBUTOR ONBOARDING</span>
-      <h2 style="font-size:20px; font-weight:700; margin-bottom:4px;">Complete Your Profile</h2>
-      <p style="font-size:13px; color:var(--slate-500); margin-bottom:16px;">Enter accurate details to generate your official Contributor UID.</p>
+      <span class="step-badge">STEP 1 OF 2 &bull; IDENTITY VERIFICATION</span>
+      <h2 style="font-size:20px; font-weight:700; margin-bottom:4px;">Complete Contributor Profile</h2>
+      <p style="font-size:13px; color:var(--slate-500); margin-bottom:16px;">Note: Legal Name and Mobile Number are permanently locked after registration for payout security.</p>
       <div id="onboardAlert" class="alert alert-error hidden"></div>
       <form onsubmit="handleProfileOnboarding(event)">
         <div class="grid-2">
           <div class="form-group"><label class="form-label">Full Legal Name *</label><input type="text" id="obName" class="form-control" required minlength="3" /></div>
-          <div class="form-group"><label class="form-label">Google Email</label><input type="email" id="obEmail" class="form-control" disabled style="background:var(--slate-100);" /></div>
+          <div class="form-group"><label class="form-label">Google Email</label><input type="email" id="obEmail" class="form-control" disabled /></div>
         </div>
         <div class="grid-2">
-          <div class="form-group"><label class="form-label">Mobile / WhatsApp Number *</label><input type="tel" id="obPhone" class="form-control" placeholder="10-digit number" required pattern="[6-9][0-9]{9}" maxlength="10" /></div>
-          <div class="form-group"><label class="form-label">City &amp; State *</label><input type="text" id="obCity" class="form-control" placeholder="e.g. Rohtas, Bihar" required minlength="3" /></div>
+          <div class="form-group"><label class="form-label">Real 10-Digit Mobile Number *</label><input type="tel" id="obPhone" class="form-control" placeholder="Starts with 6, 7, 8, or 9" required pattern="[6-9][0-9]{9}" maxlength="10" /></div>
+          <div class="form-group"><label class="form-label">City &amp; State *</label><input type="text" id="obCity" class="form-control" placeholder="e.g. Patna, Bihar" required minlength="3" /></div>
         </div>
         <div class="grid-2">
-          <div class="form-group"><label class="form-label">Education *</label><select id="obEducation" class="form-control"><option value="10th Pass">10th Pass</option><option value="12th Pass" selected>12th Pass</option><option value="Graduate">Undergraduate / Graduate</option></select></div>
-          <div class="form-group"><label class="form-label">Primary Device *</label><select id="obDevice" class="form-control"><option value="Smartphone">Android / iOS Smartphone</option><option value="Laptop / PC">Laptop / Desktop PC</option></select></div>
+          <div class="form-group"><label class="form-label">Education *</label><select id="obEducation" class="form-control"><option value="10th Pass">10th Pass</option><option value="12th Pass" selected>12th Pass</option><option value="Graduate">Graduate</option></select></div>
+          <div class="form-group"><label class="form-label">Primary Device *</label><select id="obDevice" class="form-control"><option value="Smartphone">Smartphone</option><option value="Laptop / PC">Laptop / PC</option></select></div>
         </div>
         <div class="grid-2">
           <div class="form-group"><label class="form-label">Language Track *</label><select id="obLang" class="form-control"><option value="Hindi & Hinglish">Both Hindi &amp; Hinglish</option><option value="Hinglish">Hinglish (Roman)</option><option value="Hindi">Hindi (Devanagari)</option></select></div>
-          <div class="form-group"><label class="form-label">UPI ID for Payouts (Optional now)</label><input type="text" id="obUpi" class="form-control" placeholder="e.g. name@ybl (or add later)" /></div>
+          <div class="form-group"><label class="form-label">Real UPI ID (Optional now)</label><input type="text" id="obUpi" class="form-control" placeholder="e.g. name@ybl or 9876543210@paytm" /></div>
         </div>
         <div class="form-group" style="display:flex; align-items:flex-start; gap:8px;">
           <input type="checkbox" id="obTerms" required style="margin-top:4px;" />
-          <label for="obTerms" style="font-size:12px; color:var(--slate-600);">I agree to the <a href="javascript:void(0)" onclick="openLegalModal('terms')" style="color:var(--blue-600);">Terms &amp; Conditions</a> and <a href="javascript:void(0)" onclick="openLegalModal('privacy')" style="color:var(--blue-600);">Privacy Policy</a>.</label>
+          <label for="obTerms" style="font-size:12px; color:var(--slate-600);">I confirm my name &amp; mobile number are genuine and agree to the <a href="javascript:void(0)" onclick="openLegalModal('terms')" style="color:var(--blue-600);">Terms</a> and <a href="javascript:void(0)" onclick="openLegalModal('privacy')" style="color:var(--blue-600);">Privacy Policy</a>.</label>
         </div>
-        <button type="submit" id="btnSaveOnboard" class="btn btn-primary btn-block">Generate UID &amp; Start Typing Test</button>
+        <button type="submit" id="btnSaveOnboard" class="btn btn-primary btn-block">Lock Identity &amp; Start 2-Minute Test</button>
       </form>
     </div>
   </section>
@@ -192,51 +204,33 @@
       <div style="font-family:monospace; font-size:20px; font-weight:700; margin-top:2px;" id="testUidDisplay">WN-00000</div>
       <div style="font-size:12px; color:#cbd5e1; margin-top:4px;">Step 2 of 2: Complete the 2-Minute Baseline Audio Assessment</div>
     </div>
-
     <div class="card">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-        <div>
-          <span class="step-badge">ANTI-CHEAT WORKSPACE</span>
-          <h2 style="font-size:18px; font-weight:700;">Audio Typing Evaluation</h2>
-        </div>
+        <div><span class="step-badge">ANTI-CHEAT WORKSPACE</span><h2 style="font-size:18px; font-weight:700;">Audio Typing Evaluation</h2></div>
         <div class="timer-pill" id="testTimer">02:00</div>
       </div>
-
-      <div class="alert alert-warning">
-        Copy, paste, and external text insertion are blocked. Press <strong>Play Audio</strong> below, listen carefully to the spoken Hindi/Hinglish sentence, and type it accurately.
-      </div>
-
+      <div class="alert alert-warning">Copy and paste are disabled. Press <strong>Play Audio</strong>, listen carefully, and type the spoken sentence accurately.</div>
       <div class="audio-panel">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-          <div>
-            <div style="font-size:12px; font-weight:700; color:#93c5fd;">TEST AUDIO CLIP #WN-01</div>
-            <div id="audioPromptHint" style="font-size:13px; color:#e2e8f0; margin-top:3px;">Press Play to listen to the audio prompt</div>
-          </div>
+          <div><div style="font-size:12px; font-weight:700; color:#93c5fd;">TEST AUDIO CLIP #WN-01</div><div id="audioPromptHint" style="font-size:13px; color:#e2e8f0; margin-top:3px;">Press Play to listen to the spoken prompt</div></div>
           <div style="display:flex; gap:8px;">
             <button type="button" class="btn btn-primary btn-sm" id="btnPlayTestAudio" onclick="playBuiltInTestAudio()">Play Audio</button>
             <button type="button" class="btn btn-outline-light btn-sm" onclick="playBuiltInTestAudio()">Replay</button>
           </div>
         </div>
-        <audio id="realTestAudio" class="hidden"></audio>
       </div>
-
       <div class="form-group">
         <label class="form-label">Type What You Hear Below *</label>
         <textarea id="testInput" class="editor-area" placeholder="Type the spoken Hindi/Hinglish text here..." autocomplete="off" autocorrect="off" spellcheck="false"></textarea>
-        <div class="editor-meta">
-          <span>Words: <strong id="liveWordCount">0</strong> | Tab Switches: <strong id="tabSwitchCount">0</strong></span>
-          <span>Speed: <strong id="liveWpm">0 WPM</strong></span>
-        </div>
+        <div class="editor-meta"><span>Words: <strong id="liveWordCount">0</strong> | Tab Switches: <strong id="tabSwitchCount">0</strong></span><span>Speed: <strong id="liveWpm">0 WPM</strong></span></div>
       </div>
-
       <button type="button" id="btnSubmitAssessment" class="btn btn-primary btn-block" onclick="submitAssessment()">Submit Assessment</button>
     </div>
   </section>
 
-  <!-- AUTHENTICATED SMOOTH APP SHELL -->
   <div id="viewDashboard" class="hidden">
     <main class="container">
-      <!-- TAB 1: HOME OVERVIEW -->
+      <!-- HOME TAB -->
       <div id="dashTabOverview" class="smooth-view">
         <div class="profile-hero-card">
           <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
@@ -254,39 +248,33 @@
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
           </div>
         </div>
-
         <div id="ovStatusNotice" class="alert alert-info"></div>
-
         <div class="grid-4" style="margin-bottom:16px;">
-          <div class="stat-card"><div class="stat-label">Test Speed</div><div class="stat-value" id="statWpm">0 WPM</div></div>
+          <div class="stat-card"><div class="stat-label">Wallet Balance</div><div class="stat-value" style="color:var(--emerald-600);" id="statWallet">₹0.00</div></div>
           <div class="stat-card"><div class="stat-label">Open Tasks</div><div class="stat-value" id="statActiveTasks">0</div></div>
           <div class="stat-card"><div class="stat-label">Verified Mins</div><div class="stat-value" id="statMinutes">0 min</div></div>
-          <div class="stat-card"><div class="stat-label">Earnings</div><div class="stat-value" id="statEarnings">₹0.00</div></div>
+          <div class="stat-card"><div class="stat-label">Test Speed</div><div class="stat-value" id="statWpm">0 WPM</div></div>
         </div>
-
         <div class="card">
           <h3>Transcription Standards</h3>
           <ul style="padding-left:18px; font-size:13px; color:var(--slate-600); line-height:1.8; margin-top:6px;">
             <li>Type spoken audio accurately without skipping words or adding personal notes.</li>
             <li>Use proper punctuation marks for clean readability.</li>
-            <li>Approved payouts are transferred directly to your UPI ID within 24–48 hours.</li>
+            <li>Minimum withdrawal threshold is ₹100.00 directly to your verified UPI ID or Bank Account.</li>
           </ul>
         </div>
       </div>
 
-      <!-- TAB 2: TASKS -->
+      <!-- TASKS TAB -->
       <div id="dashTabTasks" class="hidden smooth-view">
         <div id="tasksLockedBox" class="card hidden">
           <h3>Task Queue Pending Verification</h3>
-          <p style="margin-top:4px;">Your profile (<strong id="lockedUidText"></strong>) is currently under QA review. Assigned audio tasks will appear here automatically once approved.</p>
+          <p style="margin-top:4px;">Your profile (<strong id="lockedUidText"></strong>) is under QA review. Assigned audio tasks will appear here once approved.</p>
         </div>
         <div id="tasksListContainer"></div>
         <div id="taskWorkspaceBox" class="card hidden">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-            <div>
-              <span class="step-badge" id="wsTaskId">TASK</span>
-              <h3 id="wsTaskTitle">Audio Task</h3>
-            </div>
+            <div><span class="step-badge" id="wsTaskId">TASK</span><h3 id="wsTaskTitle">Audio Task</h3></div>
             <button class="btn btn-secondary btn-sm" onclick="closeTaskWorkspace()">Back</button>
           </div>
           <div class="audio-panel">
@@ -302,10 +290,10 @@
         </div>
       </div>
 
-      <!-- TAB 3: SUBMISSIONS -->
+      <!-- HISTORY TAB -->
       <div id="dashTabSubmissions" class="hidden smooth-view">
         <div class="card">
-          <h3 style="margin-bottom:12px;">Submission History</h3>
+          <h3 style="margin-bottom:12px;">Work Submission History</h3>
           <div class="table-wrap">
             <table>
               <thead><tr><th>Task</th><th>Date</th><th>Words</th><th>Payout</th><th>Status</th></tr></thead>
@@ -314,25 +302,47 @@
           </div>
         </div>
       </div>
-
-      <!-- TAB 4: PAYOUTS -->
+      <!-- PAYOUTS & WITHDRAWAL TAB -->
       <div id="dashTabPayouts" class="hidden smooth-view">
-        <div class="grid-3" style="margin-bottom:16px;">
-          <div class="stat-card"><div class="stat-label">Approved</div><div class="stat-value" id="payTotalApproved">₹0.00</div></div>
-          <div class="stat-card"><div class="stat-label">In QA Review</div><div class="stat-value" id="payPending">₹0.00</div></div>
-          <div class="stat-card"><div class="stat-label">Paid Out</div><div class="stat-value" id="paySettled">₹0.00</div></div>
+        <div class="profile-hero-card">
+          <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:#93c5fd;">Available Withdrawable Balance</div>
+          <div style="font-size:30px; font-weight:700; margin:4px 0;" id="payAvailableWallet">₹0.00</div>
+          <div style="font-size:12px; color:#cbd5e1;" id="payMethodPreview">Payout Method: Not Set</div>
         </div>
+
         <div class="card">
-          <h3 style="margin-bottom:12px;">Settlement Ledger</h3>
+          <h3>Request Payout Withdrawal</h3>
+          <p style="margin-bottom:14px;">Minimum withdrawal amount is <strong>₹100.00</strong>. Funds are credited within 24–48 hours after verification.</p>
+          <form onsubmit="requestWithdrawal(event)">
+            <div class="grid-2">
+              <div class="form-group">
+                <label class="form-label">Withdrawal Amount (₹) *</label>
+                <input type="number" id="wdAmount" class="form-control" min="100" step="1" placeholder="Enter amount (Min ₹100)" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Select Payout Destination *</label>
+                <select id="wdMethod" class="form-control" required>
+                  <option value="UPI">UPI ID Transfer</option>
+                  <option value="Bank">Bank Account (IMPS/NEFT)</option>
+                </select>
+              </div>
+            </div>
+            <button type="submit" id="btnRequestWithdraw" class="btn btn-primary btn-block">Submit Withdrawal Request</button>
+          </form>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-bottom:12px;">Withdrawal &amp; Credit History</h3>
           <div class="table-wrap">
             <table>
-              <thead><tr><th>Task</th><th>Date</th><th>Amount</th><th>UPI</th><th>Status</th></tr></thead>
-              <tbody id="payoutsTableBody"><tr><td colspan="5" style="text-align:center; color:var(--slate-500);">No payouts settled yet.</td></tr></tbody>
+              <thead><tr><th>Date</th><th>Amount</th><th>Method</th><th>UTR / Note</th><th>Status</th></tr></thead>
+              <tbody id="withdrawalsTableBody"><tr><td colspan="5" style="text-align:center; color:var(--slate-500);">No withdrawal requests yet.</td></tr></tbody>
             </table>
           </div>
         </div>
       </div>
-      <!-- TAB 5: APP-STYLE PROFILE PAGE -->
+
+      <!-- PROFILE TAB (IDENTITY LOCKED + REAL UPI & BANK DETAILS) -->
       <div id="dashTabProfile" class="hidden smooth-view">
         <div class="profile-hero-card">
           <div style="display:flex; align-items:center; gap:14px;">
@@ -348,82 +358,62 @@
         </div>
 
         <div class="card">
-          <h3 style="margin-bottom:12px;">Account &amp; UPI Payout Settings</h3>
-          <form onsubmit="saveProfileDetails(event)">
-            <div class="grid-2">
-              <div class="form-group"><label class="form-label">Full Legal Name</label><input type="text" id="profName" class="form-control" required /></div>
-              <div class="form-group"><label class="form-label">Mobile / WhatsApp</label><input type="tel" id="profPhone" class="form-control" required pattern="[6-9][0-9]{9}" maxlength="10" /></div>
+          <h3>Verified Identity (Locked)</h3>
+          <p style="margin-bottom:12px;">Name, Mobile Number, and Email are locked to prevent account tampering. Contact support for legal corrections.</p>
+          <div class="grid-2">
+            <div class="form-group"><label class="form-label"><span>Full Legal Name</span><span class="lock-tag">Locked</span></label><input type="text" id="profName" class="form-control" disabled /></div>
+            <div class="form-group"><label class="form-label"><span>Mobile Number</span><span class="lock-tag">Locked</span></label><input type="text" id="profPhone" class="form-control" disabled /></div>
+          </div>
+          <div class="grid-2">
+            <div class="form-group"><label class="form-label"><span>Google Email</span><span class="lock-tag">Locked</span></label><input type="text" id="profEmail" class="form-control" disabled /></div>
+            <div class="form-group"><label class="form-label"><span>City &amp; State</span><span class="lock-tag">Locked</span></label><input type="text" id="profCity" class="form-control" disabled /></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Payout Destination (UPI ID &amp; Bank Account)</h3>
+          <p style="margin-bottom:12px;">Enter a valid UPI ID (e.g. <code>name@ybl</code>) or Bank Account details for receiving withdrawals.</p>
+          <form onsubmit="savePayoutSettings(event)">
+            <div class="form-group">
+              <label class="form-label">Real UPI ID (PhonePe / GPay / Paytm / BHIM)</label>
+              <input type="text" id="profUpi" class="form-control" placeholder="e.g. ankitrajak@ybl or 9123233633@paytm" />
             </div>
-            <div class="grid-2">
-              <div class="form-group"><label class="form-label">City &amp; State</label><input type="text" id="profCity" class="form-control" required /></div>
-              <div class="form-group"><label class="form-label">UPI ID for Payouts</label><input type="text" id="profUpi" class="form-control" placeholder="e.g. yourname@ybl" /></div>
+            <div class="grid-3">
+              <div class="form-group"><label class="form-label">Bank Name</label><input type="text" id="profBankName" class="form-control" placeholder="e.g. State Bank of India" /></div>
+              <div class="form-group"><label class="form-label">Account Number</label><input type="text" id="profAccNum" class="form-control" placeholder="9 to 18 digits" pattern="[0-9]{9,18}" /></div>
+              <div class="form-group"><label class="form-label">IFSC Code</label><input type="text" id="profIfsc" class="form-control" placeholder="e.g. SBIN0001234" maxlength="11" style="text-transform:uppercase;" /></div>
             </div>
-            <button type="submit" id="btnSaveProfile" class="btn btn-primary btn-block">Save Profile Changes</button>
+            <button type="submit" id="btnSaveProfile" class="btn btn-primary btn-block">Save Verified Payout Details</button>
           </form>
         </div>
 
         <div class="card">
-          <h3 style="margin-bottom:10px;">Direct App Support</h3>
+          <h3 style="margin-bottom:10px;">Direct App Support &amp; Policies</h3>
           <a href="https://ig.me/m/worknest_in" target="_blank" rel="noopener noreferrer" class="app-row-btn">
-            <span>Instagram Direct Message (@worknest_in)</span>
-            <span style="color:var(--blue-600); font-size:12px;">Open App &rsaquo;</span>
+            <span>Instagram Direct DM (@worknest_in)</span><span style="color:var(--blue-600); font-size:12px;">Open App &rsaquo;</span>
           </a>
-          <a href="mailto:worknestindia9@gmail.com?subject=WorkNest%20Contributor%20Support" class="app-row-btn" style="margin-bottom:0;">
-            <span>Gmail Support (worknestindia9@gmail.com)</span>
-            <span style="color:var(--blue-600); font-size:12px;">Open App &rsaquo;</span>
+          <a href="mailto:worknestindia9@gmail.com?subject=WorkNest%20Contributor%20Support" class="app-row-btn">
+            <span>Official Gmail (worknestindia9@gmail.com)</span><span style="color:var(--blue-600); font-size:12px;">Open App &rsaquo;</span>
           </a>
-        </div>
-
-        <div class="card">
-          <h3 style="margin-bottom:10px;">Legal &amp; Compliance</h3>
-          <button type="button" class="app-row-btn" onclick="openLegalModal('privacy')">
-            <span>Privacy Policy &amp; Data Protection</span><span>&rsaquo;</span>
-          </button>
-          <button type="button" class="app-row-btn" onclick="openLegalModal('terms')">
-            <span>Contributor Terms &amp; Conditions</span><span>&rsaquo;</span>
-          </button>
-          <button type="button" class="app-row-btn" style="margin-bottom:0;" onclick="openLegalModal('nda')">
-            <span>Audio Confidentiality &amp; QA Policy</span><span>&rsaquo;</span>
-          </button>
+          <button type="button" class="app-row-btn" onclick="openLegalModal('privacy')"><span>Privacy Policy &amp; Data Protection</span><span>&rsaquo;</span></button>
+          <button type="button" class="app-row-btn" style="margin-bottom:0;" onclick="openLegalModal('terms')"><span>Contributor Terms &amp; Payout Rules</span><span>&rsaquo;</span></button>
         </div>
 
         <button type="button" class="btn btn-secondary btn-block" style="color:var(--red-600); border-color:#fecaca; margin-bottom:16px;" onclick="logoutUser()">Sign Out of Account</button>
       </div>
     </main>
 
-    <!-- FIXED APP BOTTOM NAVIGATION BAR -->
     <nav class="bottom-nav">
-      <button class="bnav-item active" data-tab="overview" onclick="switchDashTab('overview')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-        <span>Home</span>
-      </button>
-      <button class="bnav-item" data-tab="tasks" onclick="switchDashTab('tasks')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
-        <span>Tasks</span>
-      </button>
-      <button class="bnav-item" data-tab="submissions" onclick="switchDashTab('submissions')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        <span>History</span>
-      </button>
-      <button class="bnav-item" data-tab="payouts" onclick="switchDashTab('payouts')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-        <span>Payouts</span>
-      </button>
-      <button class="bnav-item" data-tab="profile" onclick="switchDashTab('profile')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        <span>Profile</span>
-      </button>
+      <button class="bnav-item active" data-tab="overview" onclick="switchDashTab('overview')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Home</span></button>
+      <button class="bnav-item" data-tab="tasks" onclick="switchDashTab('tasks')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg><span>Tasks</span></button>
+      <button class="bnav-item" data-tab="submissions" onclick="switchDashTab('submissions')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>History</span></button>
+      <button class="bnav-item" data-tab="payouts" onclick="switchDashTab('payouts')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg><span>Payouts</span></button>
+      <button class="bnav-item" data-tab="profile" onclick="switchDashTab('profile')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profile</span></button>
     </nav>
   </div>
 
   <div id="legalModal" class="modal-backdrop hidden" onclick="if(event.target===this) closeLegalModal()">
-    <div class="modal-box">
-      <div class="modal-header">
-        <h3 id="legalModalTitle" style="font-size:16px; font-weight:700;">Policy</h3>
-        <button class="btn btn-secondary btn-sm" onclick="closeLegalModal()">Close</button>
-      </div>
-      <div id="legalModalBody" class="modal-body"></div>
-    </div>
+    <div class="modal-box"><div class="modal-header"><h3 id="legalModalTitle" style="font-size:16px; font-weight:700;">Policy</h3><button class="btn btn-secondary btn-sm" onclick="closeLegalModal()">Close</button></div><div id="legalModalBody" class="modal-body"></div></div>
   </div>
   <div id="toastBox" class="toast hidden"></div>
   <script>
@@ -436,31 +426,31 @@
     let activeTaskObj = null;
 
     function sanitize(str) { return str ? String(str).replace(/[<>]/g, "").trim() : ""; }
+    function isValidIndianPhone(p) { return /^[6-9]\d{9}$/.test(p) && !/^(\d)\1{9}$/.test(p); }
+    function isValidUpi(u) { return /^[a-zA-Z0-9.\-_]{2,256}@[a-zA-Z]{2,64}$/.test(u); }
 
     function showToast(msg) {
       const el = document.getElementById("toastBox");
       el.textContent = msg;
       el.classList.remove("hidden");
       clearTimeout(window._toastTimer);
-      window._toastTimer = setTimeout(() => el.classList.add("hidden"), 3000);
+      window._toastTimer = setTimeout(() => el.classList.add("hidden"), 3200);
     }
 
     function copyUidText() {
       const uid = userProfile?.contributor_code || "";
-      if (uid && navigator.clipboard) {
-        navigator.clipboard.writeText(uid);
-        showToast("Copied UID: " + uid);
-      }
+      if (uid && navigator.clipboard) { navigator.clipboard.writeText(uid); showToast("Copied UID: " + uid); }
     }
 
     function hideAllViews() {
-      ["viewLanding", "viewOnboarding", "viewAssessment", "viewDashboard"].forEach(id => {
+      ["viewLanding", "viewOnboarding", "viewAssessment", "viewDashboard", "viewBlocked"].forEach(id => {
         document.getElementById(id).classList.add("hidden");
       });
     }
 
     function navigateHome() {
       if (!currentUser) { hideAllViews(); document.getElementById("viewLanding").classList.remove("hidden"); return; }
+      if (userProfile?.is_blocked) { showBlockedScreen(); return; }
       if (!userProfile) showOnboardingScreen();
       else if (!userProfile.assessment_completed) startAssessmentScreen();
       else renderDashboard();
@@ -469,9 +459,7 @@
     function updateNavForUser(loggedIn) {
       document.getElementById("navGuest").classList.toggle("hidden", loggedIn);
       document.getElementById("navUser").classList.toggle("hidden", !loggedIn);
-      if (loggedIn) {
-        document.getElementById("navUserUid").textContent = userProfile?.contributor_code || currentUser.email;
-      }
+      if (loggedIn) document.getElementById("navUserUid").textContent = userProfile?.contributor_code || currentUser.email;
     }
 
     async function signInWithGoogle() {
@@ -484,24 +472,28 @@
 
     async function logoutUser() {
       await sb.auth.signOut();
-      currentUser = null;
-      userProfile = null;
-      updateNavForUser(false);
-      hideAllViews();
+      currentUser = null; userProfile = null;
+      updateNavForUser(false); hideAllViews();
       document.getElementById("viewLanding").classList.remove("hidden");
       showToast("Signed out.");
+    }
+
+    function showBlockedScreen() {
+      hideAllViews();
+      document.getElementById("viewBlocked").classList.remove("hidden");
+      if (userProfile?.block_reason) {
+        document.getElementById("blockedReasonText").textContent = "Reason: " + userProfile.block_reason;
+      }
     }
 
     async function routeAuthenticatedUser(user) {
       currentUser = user;
       const { data } = await sb.from("contributors").select("*").eq("id", user.id).maybeSingle();
       if (!data) {
-        userProfile = null;
-        updateNavForUser(true);
-        showOnboardingScreen();
+        userProfile = null; updateNavForUser(true); showOnboardingScreen();
       } else {
-        userProfile = data;
-        updateNavForUser(true);
+        userProfile = data; updateNavForUser(true);
+        if (userProfile.is_blocked) { showBlockedScreen(); return; }
         if (!userProfile.assessment_completed) startAssessmentScreen();
         else renderDashboard();
       }
@@ -527,9 +519,18 @@
 
       const alertBox = document.getElementById("onboardAlert");
       alertBox.classList.add("hidden");
+
+      if (!isValidIndianPhone(phone)) {
+        alertBox.textContent = "Please enter a valid 10-digit Indian mobile number.";
+        alertBox.classList.remove("hidden"); return;
+      }
+      if (upi_id && !isValidUpi(upi_id)) {
+        alertBox.textContent = "Invalid UPI ID format. Example: yourname@ybl or 9876543210@paytm";
+        alertBox.classList.remove("hidden"); return;
+      }
+
       const btn = document.getElementById("btnSaveOnboard");
-      btn.disabled = true;
-      btn.textContent = "Creating UID...";
+      btn.disabled = true; btn.textContent = "Locking Profile...";
 
       try {
         const { data: existingPhone } = await sb.from("contributors").select("id").eq("phone", phone).maybeSingle();
@@ -538,53 +539,40 @@
         const contributor_code = "WN-" + Math.floor(10000 + Math.random() * 90000);
         const profileData = {
           id: currentUser.id, contributor_code, name, phone, email: currentUser.email,
-          city, education, device, language_track, upi_id,
-          status: "pending_review", assessment_completed: false, assessment_text: "",
-          assessment_wpm: 0, tab_switches: 0, verified_minutes: 0, approved_earnings: 0
+          city, education, device, language_track, upi_id, status: "pending_review",
+          assessment_completed: false, assessment_text: "", assessment_wpm: 0,
+          tab_switches: 0, verified_minutes: 0, approved_earnings: 0, wallet_balance: 0, is_blocked: false
         };
 
         const { error } = await sb.from("contributors").insert([profileData]);
         if (error) throw error;
-
-        userProfile = profileData;
-        updateNavForUser(true);
+        userProfile = profileData; updateNavForUser(true);
         showToast("UID Created: " + contributor_code);
         startAssessmentScreen();
       } catch (err) {
         alertBox.textContent = err.message || "Error saving profile.";
         alertBox.classList.remove("hidden");
       } finally {
-        btn.disabled = false;
-        btn.textContent = "Generate UID & Start Typing Test";
+        btn.disabled = false; btn.textContent = "Lock Identity & Start 2-Minute Test";
       }
     }
 
-    // 100% Working Test Audio + Real WPM Engine (No 2113 WPM bug)
-    let testStartTime = null;
-    let testSecondsLeft = 120;
-    let testTimerInterval = null;
-    let tabSwitches = 0;
+    let testStartTime = null, testSecondsLeft = 120, testTimerInterval = null, tabSwitches = 0;
 
     function playBuiltInTestAudio() {
       startTestTimerOnce();
       const hintEl = document.getElementById("audioPromptHint");
       const btn = document.getElementById("btnPlayTestAudio");
-
-      // Reliable Speech + AudioContext fallback so it ALWAYS works on mobile Chrome
       if ("speechSynthesis" in window) {
         window.speechSynthesis.cancel();
         const msg = new SpeechSynthesisUtterance("Namaste, WorkNest India mein aapka swagat hai. Kripya apna order number confirm karein.");
-        msg.lang = "hi-IN";
-        msg.rate = 0.92;
+        msg.lang = "hi-IN"; msg.rate = 0.92;
         msg.onstart = () => { btn.textContent = "Playing..."; hintEl.textContent = "Listening... Type the spoken Hindi/Hinglish sentence below."; };
         msg.onend = () => { btn.textContent = "Play Audio"; hintEl.textContent = "Audio finished. Tap Replay to listen again."; };
-        msg.onerror = () => {
-          btn.textContent = "Play Audio";
-          hintEl.textContent = "Spoken Prompt: Namaste, WorkNest India mein aapka swagat hai. Kripya apna order number confirm karein.";
-        };
+        msg.onerror = () => { btn.textContent = "Play Audio"; hintEl.textContent = "Prompt: Namaste, WorkNest India mein aapka swagat hai. Kripya apna order number confirm karein."; };
         window.speechSynthesis.speak(msg);
       } else {
-        hintEl.textContent = "Spoken Prompt: Namaste, WorkNest India mein aapka swagat hai. Kripya apna order number confirm karein.";
+        hintEl.textContent = "Prompt: Namaste, WorkNest India mein aapka swagat hai. Kripya apna order number confirm karein.";
       }
     }
 
@@ -593,14 +581,9 @@
       testStartTime = Date.now();
       testTimerInterval = setInterval(() => {
         testSecondsLeft--;
-        const mins = String(Math.floor(testSecondsLeft / 60)).padStart(2, "0");
-        const secs = String(testSecondsLeft % 60).padStart(2, "0");
-        document.getElementById("testTimer").textContent = `${mins}:${secs}`;
+        document.getElementById("testTimer").textContent = `${String(Math.floor(testSecondsLeft / 60)).padStart(2, "0")}:${String(testSecondsLeft % 60).padStart(2, "0")}`;
         updateLiveMetrics();
-        if (testSecondsLeft <= 0) {
-          clearInterval(testTimerInterval);
-          submitAssessment(true);
-        }
+        if (testSecondsLeft <= 0) { clearInterval(testTimerInterval); submitAssessment(true); }
       }, 1000);
     }
 
@@ -608,12 +591,9 @@
       const text = document.getElementById("testInput").value.trim();
       const words = text ? text.split(/\s+/).length : 0;
       document.getElementById("liveWordCount").textContent = words;
-      if (!testStartTime || words === 0) {
-        document.getElementById("liveWpm").textContent = "0 WPM";
-        return { words: 0, wpm: 0, elapsedSecs: 0 };
-      }
+      if (!testStartTime || words === 0) { document.getElementById("liveWpm").textContent = "0 WPM"; return { words: 0, wpm: 0, elapsedSecs: 0 }; }
       const elapsedSecs = Math.max(Math.floor((Date.now() - testStartTime) / 1000), 10);
-      const wpm = Math.min(Math.round((words / elapsedSecs) * 60), 140);
+      const wpm = Math.min(Math.round((words / elapsedSecs) * 60), 120);
       document.getElementById("liveWpm").textContent = `${wpm} WPM`;
       return { words, wpm, elapsedSecs };
     }
@@ -622,19 +602,14 @@
       hideAllViews();
       document.getElementById("viewAssessment").classList.remove("hidden");
       document.getElementById("testUidDisplay").textContent = userProfile.contributor_code || "WN-PENDING";
-
       const input = document.getElementById("testInput");
       ["paste", "copy", "cut", "drop", "contextmenu"].forEach(evt => {
-        input.addEventListener(evt, (e) => {
-          e.preventDefault();
-          showToast("Copy/Paste is disabled during test.");
-        });
+        input.addEventListener(evt, (e) => { e.preventDefault(); showToast("Copy/Paste is disabled."); });
       });
       input.addEventListener("input", () => { startTestTimerOnce(); updateLiveMetrics(); });
       document.addEventListener("visibilitychange", () => {
         if (document.hidden && !document.getElementById("viewAssessment").classList.contains("hidden")) {
-          tabSwitches++;
-          document.getElementById("tabSwitchCount").textContent = tabSwitches;
+          tabSwitches++; document.getElementById("tabSwitchCount").textContent = tabSwitches;
         }
       });
     }
@@ -642,35 +617,20 @@
     async function submitAssessment(auto = false) {
       const rawText = sanitize(document.getElementById("testInput").value);
       const { words, wpm, elapsedSecs } = updateLiveMetrics();
-      if (!auto && (words < 5 || elapsedSecs < 10)) {
-        showToast("Please listen to the audio and type the complete sentence (min 10s).");
-        return;
-      }
+      if (!auto && (words < 5 || elapsedSecs < 10)) { showToast("Please listen to the audio and type the complete sentence."); return; }
       clearInterval(testTimerInterval);
       if (window.speechSynthesis) window.speechSynthesis.cancel();
-
       const btn = document.getElementById("btnSubmitAssessment");
-      btn.disabled = true;
-      btn.textContent = "Saving Assessment...";
-
+      btn.disabled = true; btn.textContent = "Saving Assessment...";
       try {
         const { error } = await sb.from("contributors").update({
-          assessment_completed: true,
-          assessment_text: rawText,
-          assessment_wpm: wpm,
-          tab_switches: tabSwitches
+          assessment_completed: true, assessment_text: rawText, assessment_wpm: wpm, tab_switches: tabSwitches
         }).eq("id", currentUser.id);
         if (error) throw error;
-
-        userProfile.assessment_completed = true;
-        userProfile.assessment_text = rawText;
-        userProfile.assessment_wpm = wpm;
-        showToast("Assessment saved!");
-        renderDashboard();
+        userProfile.assessment_completed = true; userProfile.assessment_text = rawText; userProfile.assessment_wpm = wpm;
+        showToast("Assessment saved!"); renderDashboard();
       } catch (err) {
-        showToast("Failed to save assessment.");
-        btn.disabled = false;
-        btn.textContent = "Submit Assessment";
+        showToast("Failed to save assessment."); btn.disabled = false; btn.textContent = "Submit Assessment";
       }
     }
     async function renderDashboard() {
@@ -678,6 +638,8 @@
       document.getElementById("viewDashboard").classList.remove("hidden");
       const uidStr = userProfile.contributor_code || "WN-ACTIVE";
       const initial = (userProfile.name || "C").charAt(0).toUpperCase();
+      const safeWpm = Math.min(Number(userProfile.assessment_wpm || 0), 120);
+      const walletBal = Number(userProfile.wallet_balance || userProfile.approved_earnings || 0);
 
       document.getElementById("ovAvatar").textContent = initial;
       document.getElementById("profAvatar").textContent = initial;
@@ -689,14 +651,25 @@
       document.getElementById("profHeroEmail").textContent = userProfile.email;
       document.getElementById("ovSubCity").textContent = `${userProfile.city || "India"} • ${userProfile.language_track || "Hindi/Hinglish"}`;
 
-      document.getElementById("statWpm").textContent = `${userProfile.assessment_wpm || 0} WPM`;
+      document.getElementById("statWallet").textContent = `₹${walletBal.toFixed(2)}`;
+      document.getElementById("payAvailableWallet").textContent = `₹${walletBal.toFixed(2)}`;
       document.getElementById("statMinutes").textContent = `${userProfile.verified_minutes || 0} min`;
-      document.getElementById("statEarnings").textContent = `₹${Number(userProfile.approved_earnings || 0).toFixed(2)}`;
+      document.getElementById("statWpm").textContent = `${safeWpm} WPM`;
 
+      // Locked Identity Fields
       document.getElementById("profName").value = userProfile.name || "";
       document.getElementById("profPhone").value = userProfile.phone || "";
+      document.getElementById("profEmail").value = userProfile.email || "";
       document.getElementById("profCity").value = userProfile.city || "";
-      document.getElementById("profUpi").value = userProfile.upi_id || "";
+
+      // Editable Payout Fields
+      document.getElementById("profUpi").value = isValidUpi(userProfile.upi_id) ? userProfile.upi_id : "";
+      document.getElementById("profBankName").value = userProfile.bank_name || "";
+      document.getElementById("profAccNum").value = userProfile.account_number || "";
+      document.getElementById("profIfsc").value = userProfile.ifsc_code || "";
+
+      const methodStr = isValidUpi(userProfile.upi_id) ? `UPI: ${userProfile.upi_id}` : (userProfile.account_number ? `Bank: ${userProfile.bank_name} (****${userProfile.account_number.slice(-4)})` : "Not Configured (Add in Profile)");
+      document.getElementById("payMethodPreview").textContent = "Payout Destination: " + methodStr;
 
       const badgeEl = document.getElementById("ovStatusBadge");
       const noticeEl = document.getElementById("ovStatusNotice");
@@ -704,7 +677,7 @@
       if (userProfile.status === "approved") {
         badgeEl.innerHTML = `<span class="badge badge-active">Verified</span>`;
         noticeEl.className = "alert alert-success";
-        noticeEl.textContent = "Your Contributor UID is verified. Tap 'Tasks' below to start transcribing.";
+        noticeEl.textContent = "Your Contributor UID is verified. Tap 'Tasks' below to work on assigned audio clips.";
         document.getElementById("tasksLockedBox").classList.add("hidden");
         await loadAssignedTasks();
       } else if (userProfile.status === "rejected") {
@@ -718,7 +691,7 @@
         noticeEl.textContent = "Our QA team is reviewing your baseline test. Your UID and progress are permanently saved.";
         document.getElementById("tasksLockedBox").classList.remove("hidden");
       }
-      await loadSubmissionsAndPayouts();
+      await loadSubmissionsAndWithdrawals();
     }
 
     function switchDashTab(tabName) {
@@ -733,10 +706,11 @@
     async function loadAssignedTasks() {
       const container = document.getElementById("tasksListContainer");
       container.innerHTML = "";
-      const { data: tasks } = await sb.from("tasks").select("*").eq("status", "open");
+      const { data: tasks } = await sb.from("tasks").select("*").eq("status", "open").order("created_at", { ascending: false });
       let count = 0;
       (tasks || []).forEach(t => {
-        if (!t.assigned_to || t.assigned_to === "all" || t.assigned_to === currentUser.id) {
+        const target = (t.assigned_to || "all").trim();
+        if (target === "all" || target === currentUser.id || target.toUpperCase() === (userProfile.contributor_code || "").toUpperCase()) {
           count++;
           const div = document.createElement("div");
           div.className = "card";
@@ -745,7 +719,7 @@
               <div>
                 <div style="font-size:11px; font-weight:700; color:var(--blue-600);">${sanitize(t.task_code || t.id)}</div>
                 <div style="font-size:15px; font-weight:700; margin:2px 0;">${sanitize(t.title)}</div>
-                <div style="font-size:12px; color:var(--slate-500);">${t.duration_mins || 5} mins &bull; ₹${t.rate_per_min || 8.5}/min</div>
+                <div style="font-size:12px; color:var(--slate-500);">${t.duration_mins || 5} mins &bull; ₹${t.rate_per_min || 8.5}/min &bull; Est: ₹${((t.duration_mins || 5) * (t.rate_per_min || 8.5)).toFixed(2)}</div>
               </div>
               <button class="btn btn-primary btn-sm">Start</button>
             </div>
@@ -755,7 +729,7 @@
         }
       });
       document.getElementById("statActiveTasks").textContent = count;
-      if (count === 0) container.innerHTML = `<div class="card"><p>No open audio batches available right now. Check back shortly.</p></div>`;
+      if (count === 0) container.innerHTML = `<div class="card"><p>No audio batches assigned to your UID right now. Check back shortly.</p></div>`;
     }
 
     function openTaskWorkspace(task) {
@@ -788,11 +762,8 @@
       if (!activeTaskObj) return;
       const transcript = sanitize(document.getElementById("wsTranscriptInput").value);
       if (transcript.length < 15) { showToast("Please complete the transcription first."); return; }
-
       const btn = document.getElementById("btnSubmitTaskWork");
-      btn.disabled = true;
-      btn.textContent = "Submitting...";
-
+      btn.disabled = true; btn.textContent = "Submitting...";
       try {
         const words = transcript.split(/\s+/).length;
         const estPayout = Number(((activeTaskObj.duration_mins || 5) * (activeTaskObj.rate_per_min || 8.5)).toFixed(2));
@@ -802,92 +773,123 @@
           transcript_text: transcript, word_count: words, estimated_payout: estPayout, qa_status: "in_review"
         }]);
         if (error) throw error;
-
         localStorage.removeItem(`wn_draft_${currentUser.id}_${activeTaskObj.id}`);
-        showToast("Transcript submitted!");
+        showToast("Transcript submitted to QA!");
         closeTaskWorkspace();
-        await loadSubmissionsAndPayouts();
+        await loadSubmissionsAndWithdrawals();
         switchDashTab("submissions");
       } catch (err) {
         showToast("Submission failed.");
       } finally {
-        btn.disabled = false;
-        btn.textContent = "Submit Completed Transcript";
+        btn.disabled = false; btn.textContent = "Submit Completed Transcript";
       }
     }
 
-    async function loadSubmissionsAndPayouts() {
-      const { data: subs } = await sb.from("submissions").select("*").eq("user_id", currentUser.id).order("created_at", { ascending: false });
-      const tbody = document.getElementById("submissionsTableBody");
-      const payBody = document.getElementById("payoutsTableBody");
-      if (!subs || subs.length === 0) return;
+    async function savePayoutSettings(e) {
+      e.preventDefault();
+      const upi_id = sanitize(document.getElementById("profUpi").value);
+      const bank_name = sanitize(document.getElementById("profBankName").value);
+      const account_number = sanitize(document.getElementById("profAccNum").value);
+      const ifsc_code = sanitize(document.getElementById("profIfsc").value).toUpperCase();
 
-      tbody.innerHTML = "";
-      payBody.innerHTML = "";
-      let approvedTotal = 0, pendingTotal = 0, paidTotal = 0;
+      if (!upi_id && !account_number) { showToast("Enter a valid UPI ID or Bank Account Number."); return; }
+      if (upi_id && !isValidUpi(upi_id)) { showToast("Invalid UPI ID! Use format like name@ybl or number@paytm"); return; }
+      if (account_number && (!bank_name || !/^[A-Z]{4}0[A-Z0-9]{6}$/.test(ifsc_code))) {
+        showToast("Enter valid Bank Name and 11-character IFSC Code."); return;
+      }
 
-      subs.forEach(s => {
-        const dateStr = s.created_at ? new Date(s.created_at).toLocaleDateString("en-IN") : "Recent";
-        const amt = Number(s.estimated_payout || 0);
-        let badgeHtml = `<span class="badge badge-table-pending">In Review</span>`;
-        if (s.qa_status === "approved" || s.qa_status === "paid") {
-          badgeHtml = `<span class="badge badge-table-active">Approved</span>`;
-          approvedTotal += amt;
-        } else if (s.qa_status === "rejected") {
-          badgeHtml = `<span class="badge badge-table-rejected">Rejected</span>`;
-        } else {
-          pendingTotal += amt;
-        }
-        if (s.qa_status === "paid") paidTotal += amt;
-
-        tbody.innerHTML += `<tr><td><strong>${sanitize(s.task_code)}</strong></td><td>${dateStr}</td><td>${s.word_count || 0}</td><td>₹${amt.toFixed(2)}</td><td>${badgeHtml}</td></tr>`;
-        if (s.qa_status === "approved" || s.qa_status === "paid") {
-          payBody.innerHTML += `<tr><td><strong>${sanitize(s.task_code)}</strong></td><td>${dateStr}</td><td>₹${amt.toFixed(2)}</td><td>${sanitize(userProfile.upi_id || "Pending")}</td><td>${s.qa_status === "paid" ? '<span class="badge badge-table-active">Paid</span>' : '<span class="badge badge-table-pending">Scheduled</span>'}</td></tr>`;
-        }
-      });
-
-      document.getElementById("payTotalApproved").textContent = `₹${approvedTotal.toFixed(2)}`;
-      document.getElementById("payPending").textContent = `₹${pendingTotal.toFixed(2)}`;
-      document.getElementById("paySettled").textContent = `₹${paidTotal.toFixed(2)}`;
+      const btn = document.getElementById("btnSaveProfile");
+      btn.disabled = true; btn.textContent = "Saving...";
+      try {
+        const { error } = await sb.from("contributors").update({ upi_id, bank_name, account_number, ifsc_code }).eq("id", currentUser.id);
+        if (error) throw error;
+        userProfile.upi_id = upi_id; userProfile.bank_name = bank_name;
+        userProfile.account_number = account_number; userProfile.ifsc_code = ifsc_code;
+        showToast("Real payout details saved!");
+        renderDashboard();
+      } catch (err) {
+        showToast("Failed to save payout details.");
+      } finally {
+        btn.disabled = false; btn.textContent = "Save Verified Payout Details";
+      }
     }
 
-    async function saveProfileDetails(e) {
+    async function requestWithdrawal(e) {
       e.preventDefault();
-      const name = sanitize(document.getElementById("profName").value);
-      const phone = sanitize(document.getElementById("profPhone").value);
-      const city = sanitize(document.getElementById("profCity").value);
-      const upi_id = sanitize(document.getElementById("profUpi").value);
-      const btn = document.getElementById("btnSaveProfile");
-      btn.disabled = true;
-      btn.textContent = "Saving...";
+      const amount = Number(document.getElementById("wdAmount").value);
+      const method = document.getElementById("wdMethod").value;
+      const walletBal = Number(userProfile.wallet_balance || userProfile.approved_earnings || 0);
 
+      if (amount < 100) { showToast("Minimum withdrawal amount is ₹100."); return; }
+      if (amount > walletBal) { showToast("Insufficient wallet balance."); return; }
+
+      let dest = "";
+      if (method === "UPI") {
+        if (!isValidUpi(userProfile.upi_id)) { showToast("Please save a valid UPI ID in Profile first."); switchDashTab("profile"); return; }
+        dest = userProfile.upi_id;
+      } else {
+        if (!userProfile.account_number || !userProfile.ifsc_code) { showToast("Please save Bank Account & IFSC in Profile first."); switchDashTab("profile"); return; }
+        dest = `${userProfile.bank_name} | A/C: ${userProfile.account_number} | IFSC: ${userProfile.ifsc_code}`;
+      }
+
+      const btn = document.getElementById("btnRequestWithdraw");
+      btn.disabled = true; btn.textContent = "Processing Request...";
       try {
-        const { error } = await sb.from("contributors").update({ name, phone, city, upi_id }).eq("id", currentUser.id);
-        if (error) throw error;
-        userProfile.name = name;
-        userProfile.phone = phone;
-        userProfile.city = city;
-        userProfile.upi_id = upi_id;
-        document.getElementById("ovWelcomeName").textContent = name;
-        document.getElementById("profHeroName").textContent = name;
-        showToast("Profile updated!");
+        const newBal = Number((walletBal - amount).toFixed(2));
+        const { error: wdErr } = await sb.from("withdrawals").insert([{
+          user_id: currentUser.id, contributor_code: userProfile.contributor_code,
+          contributor_name: userProfile.name, amount, payout_method: method,
+          payout_details: dest, status: "pending"
+        }]);
+        if (wdErr) throw wdErr;
+
+        await sb.from("contributors").update({ wallet_balance: newBal }).eq("id", currentUser.id);
+        userProfile.wallet_balance = newBal;
+        document.getElementById("wdAmount").value = "";
+        showToast("Withdrawal request submitted!");
+        renderDashboard();
       } catch (err) {
-        showToast("Update failed.");
+        showToast("Withdrawal request failed.");
       } finally {
-        btn.disabled = false;
-        btn.textContent = "Save Profile Changes";
+        btn.disabled = false; btn.textContent = "Submit Withdrawal Request";
+      }
+    }
+
+    async function loadSubmissionsAndWithdrawals() {
+      const { data: subs } = await sb.from("submissions").select("*").eq("user_id", currentUser.id).order("created_at", { ascending: false });
+      const tbody = document.getElementById("submissionsTableBody");
+      if (subs && subs.length > 0) {
+        tbody.innerHTML = "";
+        subs.forEach(s => {
+          const dateStr = s.created_at ? new Date(s.created_at).toLocaleDateString("en-IN") : "Recent";
+          const amt = Number(s.estimated_payout || 0);
+          let badgeHtml = `<span class="badge badge-table-pending">In Review</span>`;
+          if (s.qa_status === "approved" || s.qa_status === "paid") badgeHtml = `<span class="badge badge-table-active">Approved</span>`;
+          else if (s.qa_status === "rejected") badgeHtml = `<span class="badge badge-table-rejected">Rejected</span>`;
+          tbody.innerHTML += `<tr><td><strong>${sanitize(s.task_code)}</strong></td><td>${dateStr}</td><td>${s.word_count || 0}</td><td>₹${amt.toFixed(2)}</td><td>${badgeHtml}</td></tr>`;
+        });
+      }
+
+      const { data: wds } = await sb.from("withdrawals").select("*").eq("user_id", currentUser.id).order("created_at", { ascending: false });
+      const wdBody = document.getElementById("withdrawalsTableBody");
+      if (wds && wds.length > 0) {
+        wdBody.innerHTML = "";
+        wds.forEach(w => {
+          const dateStr = w.created_at ? new Date(w.created_at).toLocaleDateString("en-IN") : "Recent";
+          let badgeHtml = `<span class="badge badge-table-pending">Pending</span>`;
+          if (w.status === "paid") badgeHtml = `<span class="badge badge-table-active">Paid</span>`;
+          else if (w.status === "rejected") badgeHtml = `<span class="badge badge-table-rejected">Rejected</span>`;
+          wdBody.innerHTML += `<tr><td>${dateStr}</td><td><strong>₹${Number(w.amount).toFixed(2)}</strong></td><td>${sanitize(w.payout_method)}</td><td>${sanitize(w.utr_reference || w.admin_note || "-")}</td><td>${badgeHtml}</td></tr>`;
+        });
       }
     }
 
     const LEGAL_DOCS = {
-      privacy: { title: "Privacy Policy", html: `<h4>1. Data Collection</h4><p>We collect your verified email, legal name, mobile number, city, and UPI ID strictly for contributor UID verification and payouts.</p><h4>2. Security</h4><p>Your records are never sold to third parties. Contact worknestindia9@gmail.com for support.</p>` },
-      terms: { title: "Terms & Conditions", html: `<h4>1. Operations</h4><p>Contributors work on flexible remote tasks with zero registration or deposit fees.</p><h4>2. Payouts</h4><p>Rates (₹8–₹9/audio min) apply to transcripts verified by QA.</p>` },
-      nda: { title: "Audio Confidentiality", html: `<h4>1. Non-Disclosure</h4><p>All audio files inside WorkNest India are strictly confidential and may not be downloaded or shared.</p>` }
+      privacy: { title: "Privacy Policy", html: `<h4>1. Identity & Data</h4><p>Legal name, mobile number, and Google email are locked upon onboarding to ensure payout security and prevent duplicate accounts.</p>` },
+      terms: { title: "Terms & Payout Rules", html: `<h4>1. Withdrawals</h4><p>Minimum withdrawal is ₹100. Funds are transferred to your verified UPI ID or Bank Account within 24–48 hours.</p>` }
     };
-
     function openLegalModal(type) {
-      const d = LEGAL_DOCS[type];
-      if (!d) return;
+      const d = LEGAL_DOCS[type]; if (!d) return;
       document.getElementById("legalModalTitle").textContent = d.title;
       document.getElementById("legalModalBody").innerHTML = d.html;
       document.getElementById("legalModal").classList.remove("hidden");
