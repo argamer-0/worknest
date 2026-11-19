@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#060d1f" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>WorkNest Operations Vault</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --bg-dark: #060d1f;
+      --navy-900: #0a192f;
+      --navy-800: #112240;
+      --blue-600: #2563eb;
+      --blue-700: #1d4ed8;
+      --blue-50: #eff6ff;
+      --slate-900: #0f172a;
+      --slate-700: #334155;
+      --slate-600: #475569;
+      --slate-500: #64748b;
+      --slate-300: #cbd5e1;
+      --slate-200: #e2e8f0;
+      --slate-100: #f1f5f9;
+      --slate-50: #f8fafc;
+      --white: #ffffff;
+      --emerald-600: #059669;
+      --emerald-50: #ecfdf5;
+      --amber-600: #d97706;
+      --amber-50: #fffbeb;
+      --red-600: #dc2626;
+      --red-50: #fef2f2;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background: var(--slate-100); color: var(--slate-900); line-height: 1.5; padding-bottom: 78px; }
+    .hidden { display: none !important; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    .anim { animation: fadeUp 0.2s ease-out; }
+    .vault-lock-wrap { min-height: 100vh; background: linear-gradient(160deg, #060d1f 0%, #0f172a 100%); color: var(--white); display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .vault-card { background: rgba(17, 34, 64, 0.92); border: 1px solid rgba(96, 165, 250, 0.25); border-radius: 18px; padding: 28px 22px; max-width: 400px; width: 100%; text-align: center; box-shadow: 0 20px 35px rgba(0,0,0,0.4); }
+    .pin-input { width: 100%; padding: 14px; font-size: 24px; font-weight: 700; letter-spacing: 0.45em; text-align: center; background: #060d1f; border: 1px solid #334155; color: #60a5fa; border-radius: 12px; outline: none; margin: 16px 0; }
+    .pin-input:focus { border-color: #3b82f6; }
+    .navbar { background: var(--bg-dark); color: var(--white); position: sticky; top: 0; z-index: 40; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .nav-inner { max-width: 1140px; margin: 0 auto; padding: 0 16px; height: 58px; display: flex; align-items: center; justify-content: space-between; }
+    .brand { display: flex; align-items: center; gap: 9px; font-weight: 700; font-size: 15px; }
+    .brand-badge { background: #dc2626; color: #fff; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 5px; letter-spacing: 0.04em; }
+    .container { max-width: 1100px; margin: 0 auto; padding: 18px 14px; }
+    .card { background: var(--white); border: 1px solid var(--slate-200); border-radius: 14px; padding: 18px; margin-bottom: 14px; box-shadow: 0 1px 2px rgba(15,23,42,0.04); }
+    .card h3 { font-size: 15px; font-weight: 700; margin-bottom: 8px; color: var(--slate-900); }
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 14px; }
+    @media (min-width: 768px) { .grid-4 { grid-template-columns: repeat(4, 1fr); } }
+    .stat-box { background: var(--white); border: 1px solid var(--slate-200); border-radius: 12px; padding: 14px; }
+    .stat-lbl { font-size: 11px; font-weight: 600; color: var(--slate-500); text-transform: uppercase; }
+    .stat-val { font-size: 20px; font-weight: 700; color: var(--slate-900); margin-top: 3px; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-size: 13px; font-weight: 600; padding: 9px 14px; border-radius: 9px; border: 1px solid transparent; cursor: pointer; transition: 0.12s; }
+    .btn:active { transform: scale(0.97); }
+    .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+    .btn-primary { background: var(--blue-600); color: var(--white); }
+    .btn-success { background: var(--emerald-600); color: var(--white); }
+    .btn-danger { background: var(--red-600); color: var(--white); }
+    .btn-warning { background: var(--amber-600); color: var(--white); }
+    .btn-secondary { background: var(--white); border-color: var(--slate-300); color: var(--slate-700); }
+    .btn-sm { padding: 6px 10px; font-size: 12px; }
+    .btn-block { width: 100%; }
+    .form-group { margin-bottom: 12px; }
+    .form-label { display: block; font-size: 12px; font-weight: 600; color: var(--slate-700); margin-bottom: 4px; }
+    .form-control { width: 100%; padding: 10px 12px; font-size: 14px; border: 1px solid var(--slate-300); border-radius: 9px; outline: none; background: var(--white); }
+    .form-control:focus { border-color: var(--blue-600); }
+    .search-bar { width: 100%; padding: 12px 14px; font-size: 14px; border: 1.5px solid var(--blue-600); border-radius: 12px; background: var(--white); margin-bottom: 14px; outline: none; box-shadow: 0 2px 8px rgba(37,99,235,0.08); }
+    .badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 99px; }
+    .b-pending { background: var(--amber-50); color: var(--amber-600); border: 1px solid #fde68a; }
+    .b-active { background: var(--emerald-50); color: var(--emerald-600); border: 1px solid #a7f3d0; }
+    .b-danger { background: var(--red-50); color: var(--red-600); border: 1px solid #fecaca; }
+    .user-row { border: 1px solid var(--slate-200); border-radius: 12px; padding: 14px; margin-bottom: 10px; background: var(--white); display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 64px; background: var(--bg-dark); border-top: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-around; align-items: center; z-index: 45; }
+    .bnav-btn { flex: 1; background: none; border: none; color: #94a3b8; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 10px; font-weight: 600; cursor: pointer; padding: 6px 0; }
+    .bnav-btn.active { color: #60a5fa; }
+    .bnav-btn svg { width: 19px; height: 19px; stroke-width: 2; }
+    .modal-bg { position: fixed; inset: 0; background: rgba(6,13,31,0.75); display: flex; align-items: center; justify-content: center; padding: 14px; z-index: 60; }
+    .modal-card { background: var(--white); border-radius: 16px; max-width: 600px; width: 100%; max-height: 88vh; display: flex; flex-direction: column; overflow: hidden; }
+    .modal-head { padding: 14px 18px; background: var(--bg-dark); color: var(--white); display: flex; justify-content: space-between; align-items: center; }
+    .modal-body { padding: 18px; overflow-y: auto; }
+    .toast { position: fixed; top: 68px; left: 50%; transform: translateX(-50%); background: #0f172a; color: #fff; padding: 9px 16px; border-radius: 99px; font-size: 12px; font-weight: 600; z-index: 80; white-space: nowrap; box-shadow: 0 8px 20px rgba(0,0,0,0.25); }
+  </style>
+</head>
+<body>
+  <!-- LAYER 1 & 2 SECURITY GATE -->
+  <div id="vaultGate" class="vault-lock-wrap">
+    <div class="vault-card">
+      <div style="width:48px; height:48px; background:rgba(37,99,235,0.2); border:1px solid #3b82f6; border-radius:14px; display:flex; align-items:center; justify-content:center; margin:0 auto 14px; color:#60a5fa;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </div>
+      <h2 style="font-size:19px; font-weight:700;">WorkNest Operations Vault</h2>
+      <p id="gateSubText" style="font-size:13px; color:#94a3b8; margin-top:4px;">Restricted Administration Access</p>
+
+      <div id="gateGoogleStep" style="margin-top:20px;">
+        <button class="btn btn-primary btn-block" onclick="adminGoogleLogin()">Verify Admin Google Account</button>
+      </div>
+
+      <form id="gatePinStep" class="hidden" onsubmit="verifyPinSubmit(event)">
+        <div style="font-size:12px; color:#6ee7b7; margin-top:10px;" id="gateVerifiedEmail"></div>
+        <input type="password" id="vaultPinInput" class="pin-input" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="••••••" required />
+        <div id="gateError" style="font-size:12px; color:#fca5a5; margin-bottom:10px;" class="hidden"></div>
+        <button type="submit" id="btnUnlockVault" class="btn btn-primary btn-block">Unlock Command Center</button>
+        <button type="button" class="btn btn-secondary btn-sm" style="margin-top:10px; background:transparent; color:#94a3b8; border-color:#334155;" onclick="adminLogout()">Switch Account</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MAIN ADMIN COMMAND CENTER -->
+  <div id="adminApp" class="hidden">
+    <header class="navbar">
+      <div class="nav-inner">
+        <div class="brand">
+          <span>WorkNest Command</span>
+          <span class="brand-badge">ROOT</span>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button class="btn btn-secondary btn-sm" onclick="refreshAllAdminData()">Refresh</button>
+          <button class="btn btn-danger btn-sm" onclick="lockVaultNow()">Lock</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      <!-- STATS OVERVIEW -->
+      <div class="grid-4">
+        <div class="stat-box"><div class="stat-lbl">Contributors</div><div class="stat-val" id="stUsers">0</div></div>
+        <div class="stat-box"><div class="stat-lbl">Pending QA</div><div class="stat-val" style="color:var(--amber-600);" id="stPending">0</div></div>
+        <div class="stat-box"><div class="stat-lbl">Work Queue</div><div class="stat-val" style="color:var(--blue-600);" id="stSubs">0</div></div>
+        <div class="stat-box"><div class="stat-lbl">Withdrawals</div><div class="stat-val" style="color:var(--emerald-600);" id="stPayouts">0</div></div>
+      </div>
+      <!-- TAB 1: USERS & 360 CONTROL -->
+      <div id="admTabUsers" class="anim">
+        <input type="text" id="userSearchInput" class="search-bar" placeholder="Search by UID (WN-33057), Name, Mobile Number, or Email..." oninput="renderUsersList()" />
+        <div style="display:flex; gap:8px; margin-bottom:12px; overflow-x:auto;">
+          <button class="btn btn-secondary btn-sm filter-btn active" onclick="setUserFilter('all', this)">All Users</button>
+          <button class="btn btn-secondary btn-sm filter-btn" onclick="setUserFilter('pending_review', this)">Pending Review</button>
+          <button class="btn btn-secondary btn-sm filter-btn" onclick="setUserFilter('approved', this)">Verified</button>
+          <button class="btn btn-secondary btn-sm filter-btn" onclick="setUserFilter('blocked', this)">Blocked</button>
+        </div>
+        <div id="usersListBox"></div>
+      </div>
+
+      <!-- TAB 2: TASKS PUBLISHER -->
+      <div id="admTabTasks" class="hidden anim">
+        <div class="card">
+          <h3>Publish Audio Transcription Task</h3>
+          <form onsubmit="createAudioTask(event)">
+            <div class="grid-2">
+              <div class="form-group"><label class="form-label">Task Title *</label><input type="text" id="tkTitle" class="form-control" placeholder="e.g. Hindi Customer Support Batch #04" required /></div>
+              <div class="form-group"><label class="form-label">Assign To (UID or 'all') *</label><input type="text" id="tkAssign" class="form-control" value="all" placeholder="all OR WN-33057" required /></div>
+            </div>
+            <div class="form-group"><label class="form-label">Direct Audio File URL (MP3 / WAV / OGG) *</label><input type="url" id="tkUrl" class="form-control" placeholder="https://..." required /></div>
+            <div class="grid-2">
+              <div class="form-group"><label class="form-label">Audio Duration (Minutes) *</label><input type="number" id="tkMins" class="form-control" value="5" min="1" step="0.5" required /></div>
+              <div class="form-group"><label class="form-label">Payout Rate (₹ per min) *</label><input type="number" id="tkRate" class="form-control" value="8.5" min="1" step="0.5" required /></div>
+            </div>
+            <button type="submit" id="btnCreateTask" class="btn btn-primary btn-block">Publish Task Live</button>
+          </form>
+        </div>
+        <div class="card">
+          <h3>Active &amp; Past Tasks</h3>
+          <div id="adminTasksList"></div>
+        </div>
+      </div>
+
+      <!-- TAB 3: QA SUBMISSIONS -->
+      <div id="admTabSubs" class="hidden anim">
+        <div id="adminSubsList"></div>
+      </div>
+
+      <!-- TAB 4: WITHDRAWALS & PAYOUTS -->
+      <div id="admTabPayouts" class="hidden anim">
+        <div id="adminWithdrawalsList"></div>
+      </div>
+
+      <!-- TAB 5: NOTIFICATIONS & SECURITY PIN -->
+      <div id="admTabSystem" class="hidden anim">
+        <div class="card">
+          <h3>Send App Notification (Personal or All Users)</h3>
+          <form onsubmit="sendAdminNotification(event)">
+            <div class="form-group">
+              <label class="form-label">Target Recipient ('all' for Everyone OR specific UID like WN-33057) *</label>
+              <input type="text" id="ntTarget" class="form-control" value="all" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Notification Title *</label>
+              <input type="text" id="ntTitle" class="form-control" placeholder="e.g. New Audio Batch Available" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Message Body *</label>
+              <textarea id="ntMessage" class="form-control" rows="3" placeholder="Write clear instructions or message..." required></textarea>
+            </div>
+            <button type="submit" id="btnSendNotif" class="btn btn-primary btn-block">Send Notification Now</button>
+          </form>
+        </div>
+
+        <div class="card">
+          <h3>Change Master Admin PIN (Server Encrypted)</h3>
+          <p style="font-size:12px; color:var(--slate-500); margin-bottom:12px;">Your PIN is stored as a SHA-256 hash on the server and never exposed in code.</p>
+          <form onsubmit="handleChangePin(event)">
+            <div class="grid-2">
+              <div class="form-group"><label class="form-label">Current 6-Digit PIN *</label><input type="password" id="oldPin" class="form-control" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required /></div>
+              <div class="form-group"><label class="form-label">New 6-Digit PIN *</label><input type="password" id="newPin" class="form-control" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required /></div>
+            </div>
+            <button type="submit" id="btnChangePin" class="btn btn-warning btn-block">Update Encrypted Admin PIN</button>
+          </form>
+        </div>
+      </div>
+    </main>
+
+    <!-- BOTTOM NAVIGATION -->
+    <nav class="bottom-nav">
+      <button class="bnav-btn active" data-tab="Users" onclick="switchAdmTab('Users')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Users</span></button>
+      <button class="bnav-btn" data-tab="Tasks" onclick="switchAdmTab('Tasks')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg><span>Tasks</span></button>
+      <button class="bnav-btn" data-tab="Subs" onclick="switchAdmTab('Subs')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><span>QA Work</span></button>
+      <button class="bnav-btn" data-tab="Payouts" onclick="switchAdmTab('Payouts')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg><span>Payouts</span></button>
+      <button class="bnav-btn" data-tab="System" onclick="switchAdmTab('System')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span>Alerts/PIN</span></button>
+    </nav>
+  </div>
+  <!-- 360 USER CONTROL MODAL -->
+  <div id="userControlModal" class="modal-bg hidden" onclick="if(event.target===this) closeUserModal()">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div>
+          <div style="font-family:monospace; font-size:13px; color:#60a5fa; font-weight:700;" id="ucUid">WN-00000</div>
+          <div style="font-size:16px; font-weight:700;" id="ucName">Contributor Name</div>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="closeUserModal()">Close</button>
+      </div>
+      <div class="modal-body" id="ucBody"></div>
+    </div>
+  </div>
+
+  <div id="toastBox" class="toast hidden"></div>
+  <script>
+    const SUPABASE_URL = "https://dtnoscridxidckufaclr.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_OXVT_08Aba7ARIhNzMgUvQ_S51UMD0w";
+    const ADMIN_EMAIL = "worknestindia9@gmail.com";
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let allUsers = [];
+    let allTasks = [];
+    let allSubs = [];
+    let allWithdrawals = [];
+    let currentUserFilter = "all";
+    let isVaultUnlocked = false;
+
+    function esc(s) { return s ? String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;") : ""; }
+
+    function showToast(msg) {
+      const el = document.getElementById("toastBox");
+      el.textContent = msg;
+      el.classList.remove("hidden");
+      clearTimeout(window._tt);
+      window._tt = setTimeout(() => el.classList.add("hidden"), 3000);
+    }
+
+    async function adminGoogleLogin() {
+      const { error } = await sb.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo: window.location.origin + window.location.pathname }
+      });
+      if (error) showToast(error.message);
+    }
+
+    async function adminLogout() {
+      await sb.auth.signOut();
+      isVaultUnlocked = false;
+      location.reload();
+    }
+
+    function lockVaultNow() {
+      isVaultUnlocked = false;
+      sessionStorage.removeItem("wn_vault_unlocked");
+      document.getElementById("adminApp").classList.add("hidden");
+      document.getElementById("vaultGate").classList.remove("hidden");
+      document.getElementById("vaultPinInput").value = "";
+    }
+
+    sb.auth.onAuthStateChange(async (event, session) => {
+      if (session && session.user) {
+        const email = (session.user.email || "").toLowerCase();
+        if (email !== ADMIN_EMAIL) {
+          document.getElementById("gateSubText").innerHTML = `<span style="color:#fca5a5;">Access Denied: ${esc(email)} is not authorized.</span>`;
+          return;
+        }
+        document.getElementById("gateGoogleStep").classList.add("hidden");
+        document.getElementById("gatePinStep").classList.remove("hidden");
+        document.getElementById("gateVerifiedEmail").textContent = "Verified: " + email;
+
+        if (sessionStorage.getItem("wn_vault_unlocked") === "1") {
+          unlockCommandCenter();
+        }
+      }
+    });
+
+    async function verifyPinSubmit(e) {
+      e.preventDefault();
+      const pin = document.getElementById("vaultPinInput").value.trim();
+      const btn = document.getElementById("btnUnlockVault");
+      const errEl = document.getElementById("gateError");
+      errEl.classList.add("hidden");
+      btn.disabled = true; btn.textContent = "Verifying...";
+
+      try {
+        const { data, error } = await sb.rpc("verify_admin_pin", { input_pin: pin });
+        if (error) throw error;
+        if (data && data.ok) {
+          sessionStorage.setItem("wn_vault_unlocked", "1");
+          unlockCommandCenter();
+        } else {
+          errEl.textContent = data?.msg || "Invalid PIN";
+          errEl.classList.remove("hidden");
+        }
+      } catch (err) {
+        errEl.textContent = err.message || "Verification failed";
+        errEl.classList.remove("hidden");
+      } finally {
+        btn.disabled = false; btn.textContent = "Unlock Command Center";
+      }
+    }
+
+    async function unlockCommandCenter() {
+      isVaultUnlocked = true;
+      document.getElementById("vaultGate").classList.add("hidden");
+      document.getElementById("adminApp").classList.remove("hidden");
+      await refreshAllAdminData();
+    }
+
+    async function refreshAllAdminData() {
+      const [uRes, tRes, sRes, wRes] = await Promise.all([
+        sb.from("contributors").select("*").order("created_at", { ascending: false }),
+        sb.from("tasks").select("*").order("created_at", { ascending: false }),
+        sb.from("submissions").select("*").order("created_at", { ascending: false }),
+        sb.from("withdrawals").select("*").order("created_at", { ascending: false })
+      ]);
+      allUsers = uRes.data || [];
+      allTasks = tRes.data || [];
+      allSubs = sRes.data || [];
+      allWithdrawals = wRes.data || [];
+
+      document.getElementById("stUsers").textContent = allUsers.length;
+      document.getElementById("stPending").textContent = allUsers.filter(u => u.status === "pending_review").length;
+      document.getElementById("stSubs").textContent = allSubs.filter(s => s.qa_status === "in_review").length;
+      document.getElementById("stPayouts").textContent = allWithdrawals.filter(w => w.status === "pending").length;
+
+      renderUsersList();
+      renderAdminTasks();
+      renderAdminSubs();
+      renderAdminWithdrawals();
+    }
+
+    function switchAdmTab(name) {
+      document.querySelectorAll(".bnav-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === name));
+      ["Users", "Tasks", "Subs", "Payouts", "System"].forEach(t => {
+        document.getElementById("admTab" + t).classList.add("hidden");
+      });
+      document.getElementById("admTab" + name).classList.remove("hidden");
+    }
+    function setUserFilter(f, btn) {
+      currentUserFilter = f;
+      document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("btn-primary"));
+      btn.classList.add("btn-primary");
+      renderUsersList();
+    }
+
+    function renderUsersList() {
+      const q = (document.getElementById("userSearchInput").value || "").trim().toLowerCase();
+      const box = document.getElementById("usersListBox");
+      const filtered = allUsers.filter(u => {
+        if (currentUserFilter === "blocked" && !u.is_blocked) return false;
+        if (currentUserFilter !== "all" && currentUserFilter !== "blocked" && u.status !== currentUserFilter) return false;
+        if (!q) return true;
+        return (u.contributor_code || "").toLowerCase().includes(q) ||
+               (u.name || "").toLowerCase().includes(q) ||
+               (u.phone || "").includes(q) ||
+               (u.email || "").toLowerCase().includes(q);
+      });
+
+      if (filtered.length === 0) {
+        box.innerHTML = `<div class="card"><p style="color:var(--slate-500); text-align:center;">No matching contributors found.</p></div>`;
+        return;
+      }
+
+      box.innerHTML = filtered.map(u => {
+        let badge = `<span class="badge b-pending">Pending QA</span>`;
+        if (u.is_blocked) badge = `<span class="badge b-danger">BLOCKED</span>`;
+        else if (u.status === "approved") badge = `<span class="badge b-active">Verified</span>`;
+        else if (u.status === "rejected") badge = `<span class="badge b-danger">Rejected</span>`;
+
+        return `<div class="user-row">
+          <div>
+            <div style="font-family:monospace; font-size:12px; font-weight:700; color:var(--blue-600);">${esc(u.contributor_code)} &bull; ${esc(u.phone)}</div>
+            <div style="font-size:15px; font-weight:700;">${esc(u.name)}</div>
+            <div style="font-size:12px; color:var(--slate-500);">WPM: ${u.assessment_wpm || 0} &bull; Wallet: <strong>₹${Number(u.wallet_balance || 0).toFixed(2)}</strong></div>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            ${badge}
+            <button class="btn btn-primary btn-sm" onclick="openUserControl('${u.id}')">Manage</button>
+          </div>
+        </div>`;
+      }).join("");
+    }
+
+    async function openUserControl(uid) {
+      const u = allUsers.find(x => x.id === uid);
+      if (!u) return;
+      document.getElementById("ucUid").textContent = u.contributor_code;
+      document.getElementById("ucName").textContent = u.name;
+
+      const { data: logs } = await sb.from("credit_logs").select("*").eq("user_id", u.id).order("created_at", { ascending: false }).limit(10);
+      const logsHtml = (logs && logs.length) ? logs.map(l => `
+        <div style="font-size:12px; padding:6px 0; border-bottom:1px solid var(--slate-200); display:flex; justify-content:space-between;">
+          <span>${l.type === "add" ? "+" : "-"}₹${l.amount} (${esc(l.reason)})</span>
+          <span style="color:var(--slate-500);">${new Date(l.created_at).toLocaleDateString("en-IN")}</span>
+        </div>`).join("") : `<div style="font-size:12px; color:var(--slate-500);">No manual credit adjustments yet.</div>`;
+
+      document.getElementById("ucBody").innerHTML = `
+        <div class="card" style="background:var(--slate-50);">
+          <div style="font-size:12px;"><strong>Email:</strong> ${esc(u.email)}</div>
+          <div style="font-size:12px;"><strong>Mobile:</strong> ${esc(u.phone)} &bull; <strong>City:</strong> ${esc(u.city || "-")}</div>
+          <div style="font-size:12px;"><strong>UPI:</strong> ${esc(u.upi_id || "Not set")} &bull; <strong>Bank:</strong> ${esc(u.bank_name || "-")} ${esc(u.account_number || "")} ${esc(u.ifsc_code || "")}</div>
+          <div style="font-size:12px; margin-top:6px;"><strong>2-Min Test (${u.assessment_wpm || 0} WPM | Tabs: ${u.tab_switches || 0}):</strong></div>
+          <div style="font-size:12px; background:#fff; padding:8px; border-radius:6px; border:1px solid var(--slate-200); margin-top:4px;">${esc(u.assessment_text || "No text submitted")}</div>
+        </div>
+
+        <div class="card">
+          <h3>Account Status &amp; Security Control</h3>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn btn-success btn-sm" onclick="updateUserStatus('${u.id}', 'approved')">Approve &amp; Verify</button>
+            <button class="btn btn-warning btn-sm" onclick="updateUserStatus('${u.id}', 'rejected')">Reject Test</button>
+            ${u.is_blocked
+              ? `<button class="btn btn-primary btn-sm" onclick="toggleBlockUser('${u.id}', false)">Unban User</button>`
+              : `<button class="btn btn-danger btn-sm" onclick="toggleBlockUser('${u.id}', true)">Block / Ban User</button>`}
+            <button class="btn btn-secondary btn-sm" style="color:var(--red-600); border-color:#fecaca;" onclick="deleteUserAccount('${u.id}', '${esc(u.contributor_code)}')">Delete Permanently</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Timed Identity Unlock (For Name / Phone Correction)</h3>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn btn-secondary btn-sm" onclick="setIdentityUnlock('${u.id}', 15)">Unlock 15 Mins</button>
+            <button class="btn btn-secondary btn-sm" onclick="setIdentityUnlock('${u.id}', 60)">Unlock 1 Hour</button>
+            <button class="btn btn-secondary btn-sm" onclick="setIdentityUnlock('${u.id}', 1440)">Unlock 24 Hours</button>
+            <button class="btn btn-danger btn-sm" onclick="setIdentityUnlock('${u.id}', 0)">Lock Now</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Wallet Credit Control (Current: ₹${Number(u.wallet_balance || 0).toFixed(2)})</h3>
+          <div class="grid-2">
+            <input type="number" id="adjAmount" class="form-control" placeholder="Amount ₹" min="1" step="0.5" />
+            <input type="text" id="adjReason" class="form-control" placeholder="Reason (Bonus / Penalty)" />
+          </div>
+          <div style="display:flex; gap:8px; margin-top:10px;">
+            <button class="btn btn-success btn-sm" style="flex:1;" onclick="adjustUserCredit('${u.id}', 'add')">+ Add Credit</button>
+            <button class="btn btn-danger btn-sm" style="flex:1;" onclick="adjustUserCredit('${u.id}', 'cut')">- Cut Credit</button>
+          </div>
+          <div style="margin-top:12px;">${logsHtml}</div>
+        </div>
+      `;
+      document.getElementById("userControlModal").classList.remove("hidden");
+    }
+
+    function closeUserModal() { document.getElementById("userControlModal").classList.add("hidden"); }
+
+    async function updateUserStatus(uid, status) {
+      await sb.from("contributors").update({ status }).eq("id", uid);
+      showToast("Status updated to " + status);
+      await refreshAllAdminData();
+      openUserControl(uid);
+    }
+
+    async function toggleBlockUser(uid, blockState) {
+      let reason = "";
+      if (blockState) {
+        reason = prompt("Enter reason for blocking this user:", "Policy violation / Fake submissions");
+        if (reason === null) return;
+      }
+      await sb.from("contributors").update({ is_blocked: blockState, block_reason: reason }).eq("id", uid);
+      showToast(blockState ? "User Blocked!" : "User Unbanned!");
+      await refreshAllAdminData();
+      openUserControl(uid);
+    }
+
+    async function setIdentityUnlock(uid, mins) {
+      const until = mins > 0 ? new Date(Date.now() + mins * 60000).toISOString() : null;
+      await sb.from("contributors").update({ profile_unlocked_until: until }).eq("id", uid);
+      showToast(mins > 0 ? `Identity unlocked for ${mins} mins` : "Identity locked!");
+      await refreshAllAdminData();
+    }
+
+    async function adjustUserCredit(uid, type) {
+      const u = allUsers.find(x => x.id === uid);
+      const amt = Number(document.getElementById("adjAmount").value);
+      const reason = (document.getElementById("adjReason").value || "").trim() || (type === "add" ? "Admin Bonus" : "Quality Deduction");
+      if (!amt || amt <= 0) { showToast("Enter valid amount"); return; }
+
+      const curBal = Number(u.wallet_balance || 0);
+      const newBal = type === "add" ? Number((curBal + amt).toFixed(2)) : Math.max(0, Number((curBal - amt).toFixed(2)));
+
+      await sb.from("contributors").update({ wallet_balance: newBal }).eq("id", uid);
+      await sb.from("credit_logs").insert([{
+        user_id: uid, contributor_code: u.contributor_code, type, amount: amt, reason
+      }]);
+      showToast(type === "add" ? `Added ₹${amt}` : `Deducted ₹${amt}`);
+      await refreshAllAdminData();
+      openUserControl(uid);
+    }
+
+    async function deleteUserAccount(uid, code) {
+      if (!confirm(`Permanently delete user ${code} and all their records? This cannot be undone.`)) return;
+      await sb.from("contributors").delete().eq("id", uid);
+      showToast("User deleted permanently.");
+      closeUserModal();
+      await refreshAllAdminData();
+    }
+    async function createAudioTask(e) {
+      e.preventDefault();
+      const title = document.getElementById("tkTitle").value.trim();
+      const assigned_to = document.getElementById("tkAssign").value.trim();
+      const audio_url = document.getElementById("tkUrl").value.trim();
+      const duration_mins = Number(document.getElementById("tkMins").value);
+      const rate_per_min = Number(document.getElementById("tkRate").value);
+      const task_code = "TSK-" + Math.floor(1000 + Math.random() * 9000);
+
+      const btn = document.getElementById("btnCreateTask");
+      btn.disabled = true;
+      const { error } = await sb.from("tasks").insert([{
+        task_code, title, audio_url, duration_mins, rate_per_min, assigned_to, status: "open"
+      }]);
+      btn.disabled = false;
+      if (error) { showToast("Error: " + error.message); return; }
+      document.getElementById("tkTitle").value = "";
+      document.getElementById("tkUrl").value = "";
+      showToast("Task Published: " + task_code);
+      await refreshAllAdminData();
+    }
+
+    function renderAdminTasks() {
+      const box = document.getElementById("adminTasksList");
+      if (allTasks.length === 0) { box.innerHTML = `<p style="color:var(--slate-500);">No tasks created yet.</p>`; return; }
+      box.innerHTML = allTasks.map(t => `
+        <div class="user-row">
+          <div>
+            <div style="font-size:12px; font-weight:700; color:var(--blue-600);">${esc(t.task_code)} &bull; Target: ${esc(t.assigned_to)}</div>
+            <div style="font-size:14px; font-weight:700;">${esc(t.title)}</div>
+            <div style="font-size:12px; color:var(--slate-500);">${t.duration_mins} min @ ₹${t.rate_per_min}/min</div>
+          </div>
+          <button class="btn btn-danger btn-sm" onclick="deleteTask('${t.id}')">Delete</button>
+        </div>
+      `).join("");
+    }
+
+    async function deleteTask(id) {
+      if (!confirm("Delete this task?")) return;
+      await sb.from("tasks").delete().eq("id", id);
+      showToast("Task deleted.");
+      await refreshAllAdminData();
+    }
+
+    function renderAdminSubs() {
+      const box = document.getElementById("adminSubsList");
+      if (allSubs.length === 0) { box.innerHTML = `<div class="card"><p style="color:var(--slate-500);">No work submissions yet.</p></div>`; return; }
+      box.innerHTML = allSubs.map(s => `
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <strong style="color:var(--blue-600);">${esc(s.task_code)} &bull; ${esc(s.contributor_name)} (${esc(s.contributor_code)})</strong>
+            <span class="badge ${s.qa_status === 'approved' ? 'b-active' : (s.qa_status === 'rejected' ? 'b-danger' : 'b-pending')}">${esc(s.qa_status)}</span>
+          </div>
+          <div style="font-size:12px; color:var(--slate-500); margin-bottom:8px;">Words: ${s.word_count} &bull; Payout: ₹${s.estimated_payout}</div>
+          <div style="font-size:13px; background:var(--slate-50); padding:10px; border-radius:8px; border:1px solid var(--slate-200); margin-bottom:10px;">${esc(s.transcript_text)}</div>
+          ${s.qa_status === "in_review" ? `
+            <div style="display:flex; gap:8px;">
+              <button class="btn btn-success btn-sm" onclick="approveSubmission('${s.id}')">Approve &amp; Credit ₹${s.estimated_payout}</button>
+              <button class="btn btn-danger btn-sm" onclick="rejectSubmission('${s.id}')">Reject</button>
+            </div>` : ""}
+        </div>
+      `).join("");
+    }
+
+    async function approveSubmission(subId) {
+      const s = allSubs.find(x => x.id === subId);
+      const u = allUsers.find(x => x.id === s.user_id);
+      if (!s || !u) return;
+
+      const amt = Number(s.estimated_payout || 0);
+      const newWallet = Number((Number(u.wallet_balance || 0) + amt).toFixed(2));
+      const newEarned = Number((Number(u.approved_earnings || 0) + amt).toFixed(2));
+
+      await sb.from("submissions").update({ qa_status: "approved" }).eq("id", subId);
+      await sb.from("contributors").update({ wallet_balance: newWallet, approved_earnings: newEarned }).eq("id", u.id);
+      await sb.from("credit_logs").insert([{ user_id: u.id, contributor_code: u.contributor_code, type: "add", amount: amt, reason: "Task Approved: " + s.task_code }]);
+
+      showToast(`Approved & Credited ₹${amt}`);
+      await refreshAllAdminData();
+    }
+
+    async function rejectSubmission(subId) {
+      await sb.from("submissions").update({ qa_status: "rejected" }).eq("id", subId);
+      showToast("Submission rejected.");
+      await refreshAllAdminData();
+    }
+
+    function renderAdminWithdrawals() {
+      const box = document.getElementById("adminWithdrawalsList");
+      if (allWithdrawals.length === 0) { box.innerHTML = `<div class="card"><p style="color:var(--slate-500);">No withdrawal requests yet.</p></div>`; return; }
+      box.innerHTML = allWithdrawals.map(w => `
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <strong>${esc(w.contributor_name)} (${esc(w.contributor_code)})</strong>
+            <span class="badge ${w.status === 'paid' ? 'b-active' : (w.status === 'rejected' ? 'b-danger' : 'b-pending')}">${esc(w.status)}</span>
+          </div>
+          <div style="font-size:16px; font-weight:700; color:var(--emerald-600);">₹${Number(w.amount).toFixed(2)} (${esc(w.payout_method)})</div>
+          <div style="font-size:12px; background:var(--slate-50); padding:8px; border-radius:6px; margin:8px 0; font-family:monospace;">${esc(w.payout_details)}</div>
+          ${w.status === "pending" ? `
+            <div style="display:flex; gap:8px;">
+              <button class="btn btn-success btn-sm" onclick="markWithdrawalPaid('${w.id}')">Mark Paid (Enter UTR)</button>
+              <button class="btn btn-danger btn-sm" onclick="rejectWithdrawal('${w.id}')">Reject &amp; Refund</button>
+            </div>` : `<div style="font-size:12px; color:var(--slate-500);">Ref: ${esc(w.utr_reference || w.admin_note || "-")}</div>`}
+        </div>
+      `).join("");
+    }
+
+    async function markWithdrawalPaid(wdId) {
+      const utr = prompt("Enter Bank / UPI UTR Transaction Reference Number:");
+      if (!utr) return;
+      await sb.from("withdrawals").update({ status: "paid", utr_reference: utr }).eq("id", wdId);
+      showToast("Marked as Paid!");
+      await refreshAllAdminData();
+    }
+
+    async function rejectWithdrawal(wdId) {
+      const w = allWithdrawals.find(x => x.id === wdId);
+      const u = allUsers.find(x => x.id === w.user_id);
+      const reason = prompt("Reason for rejecting withdrawal:", "Invalid UPI/Bank details");
+      if (reason === null) return;
+
+      await sb.from("withdrawals").update({ status: "rejected", admin_note: reason }).eq("id", wdId);
+      if (u) {
+        const refunded = Number((Number(u.wallet_balance || 0) + Number(w.amount)).toFixed(2));
+        await sb.from("contributors").update({ wallet_balance: refunded }).eq("id", u.id);
+      }
+      showToast("Rejected & refunded to wallet.");
+      await refreshAllAdminData();
+    }
+
+    async function sendAdminNotification(e) {
+      e.preventDefault();
+      const target_uid = document.getElementById("ntTarget").value.trim();
+      const title = document.getElementById("ntTitle").value.trim();
+      const message = document.getElementById("ntMessage").value.trim();
+      const btn = document.getElementById("btnSendNotif");
+      btn.disabled = true;
+
+      const { error } = await sb.from("notifications").insert([{ target_uid, title, message }]);
+      btn.disabled = false;
+      if (error) { showToast("Failed: " + error.message); return; }
+      document.getElementById("ntTitle").value = "";
+      document.getElementById("ntMessage").value = "";
+      showToast("Notification sent!");
+    }
+
+    async function handleChangePin(e) {
+      e.preventDefault();
+      const old_pin = document.getElementById("oldPin").value.trim();
+      const new_pin = document.getElementById("newPin").value.trim();
+      const btn = document.getElementById("btnChangePin");
+      btn.disabled = true;
+
+      const { data, error } = await sb.rpc("change_admin_pin", { old_pin, new_pin });
+      btn.disabled = false;
+      if (error) { showToast(error.message); return; }
+      showToast(data?.msg || "Done");
+      if (data?.ok) { document.getElementById("oldPin").value = ""; document.getElementById("newPin").value = ""; }
+    }
+  </script>
+</body>
+</html>
