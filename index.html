@@ -282,13 +282,22 @@
             <button class="btn btn-secondary btn-sm" onclick="closeTaskWorkspace()">Back</button>
           </div>
           <div class="audio-panel">
-            <div style="font-size:12px; color:#cbd5e1; margin-bottom:8px;" id="wsTaskMeta"></div>
-            <audio id="wsAudioPlayer" controls style="width:100%; height:40px;"></audio>
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
+              <div style="font-size:12px; color:#cbd5e1;" id="wsTaskMeta"></div>
+              <span style="font-size:11px; background:rgba(239,68,68,0.2); color:#fca5a5; padding:2px 8px; border-radius:6px; font-weight:700;">Paste &amp; Clipboard Locked</span>
+            </div>
+            <audio id="wsAudioPlayer" controls controlsList="nodownload noplaybackrate" preload="auto" style="width:100%; height:42px; border-radius:8px;"></audio>
+            <div style="display:flex; gap:8px; margin-top:10px; flex-wrap:wrap;">
+              <button type="button" class="btn btn-outline-light btn-sm" onclick="rewindWsAudio()">-5s Rewind</button>
+              <button type="button" class="btn btn-outline-light btn-sm" onclick="setWsSpeed(0.8)">0.8x Slow</button>
+              <button type="button" class="btn btn-outline-light btn-sm" onclick="setWsSpeed(1.0)">1.0x Normal</button>
+            </div>
+            <div id="wsAudioErrorMsg" class="hidden" style="font-size:12px; color:#fca5a5; margin-top:8px;">Audio stream failed to load. Check internet or ask Admin to verify the audio link.</div>
           </div>
           <div class="form-group">
-            <label class="form-label">Transcript Editor (Auto-Saves Draft)</label>
-            <textarea id="wsTranscriptInput" class="editor-area" placeholder="Listen to the audio and type the complete transcript..."></textarea>
-            <div class="editor-meta"><span>Words: <strong id="wsWordCount">0</strong></span><span>Auto-saved</span></div>
+            <label class="form-label">Transcript Editor (Type Manually &bull; Auto-Saves Draft)</label>
+            <textarea id="wsTranscriptInput" class="editor-area" placeholder="Listen carefully to the audio above and type manually..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
+            <div class="editor-meta"><span>Words: <strong id="wsWordCount">0</strong> | Paste Blocks: <strong id="wsPasteStrikes">0</strong></span><span>Manual Typing Only</span></div>
           </div>
           <button type="button" id="btnSubmitTaskWork" class="btn btn-primary btn-block" onclick="submitTaskWork()">Submit Completed Transcript</button>
         </div>
@@ -624,8 +633,9 @@
       document.getElementById("viewAssessment").classList.remove("hidden");
       document.getElementById("testUidDisplay").textContent = userProfile.contributor_code || "WN-PENDING";
       const input = document.getElementById("testInput");
-      ["paste", "copy", "cut", "drop", "contextmenu"].forEach(evt => {
-        input.addEventListener(evt, (e) => { e.preventDefault(); showToast("Copy/Paste is disabled."); });
+      applyStrictAntiPasteLock(input, () => {
+        tabSwitches++;
+        document.getElementById("tabSwitchCount").textContent = tabSwitches;
       });
       input.addEventListener("input", () => { startTestTimerOnce(); updateLiveMetrics(); });
       document.addEventListener("visibilitychange", () => {
@@ -753,19 +763,98 @@
       if (count === 0) container.innerHTML = `<div class="card"><p>No audio batches assigned to your UID right now. Check back shortly.</p></div>`;
     }
 
+    function resolvePlayableAudioUrl(rawUrl) {
+      const url = (rawUrl || "").trim();
+      const gdMatch = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+      if (gdMatch && gdMatch[1]) {
+        return `https://docs.google.com/uc?export=download&id=${gdMatch[1]}`;
+      }
+      if (url.includes("dropbox.com")) {
+        return url.replace("www.dropbox.com", "dl.dropboxusercontent.com").replace("?dl=0", "");
+      }
+      return url;
+    }
+
+    function applyStrictAntiPasteLock(textareaEl, onStrikeCallback) {
+      if (!textareaEl || textareaEl.dataset.antiPasteBound === "1") return;
+      textareaEl.dataset.antiPasteBound = "1";
+      let lastSafeValue = textareaEl.value || "";
+
+      ["paste", "copy", "cut", "drop", "contextmenu"].forEach(evt => {
+        textareaEl.addEventListener(evt, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (onStrikeCallback) onStrikeCallback();
+          showToast("Blocked: Copy/Paste is strictly disabled!");
+        });
+      });
+
+      textareaEl.addEventListener("beforeinput", (e) => {
+        const badTypes = ["insertFromPaste", "insertFromPasteAsQuotation", "insertFromDrop", "insertReplacementText"];
+        if (badTypes.includes(e.inputType) || (e.data && e.data.length > 8)) {
+          e.preventDefault();
+          if (onStrikeCallback) onStrikeCallback();
+          showToast("Blocked: Keyboard clipboard paste is disabled!");
+        }
+      });
+
+      textareaEl.addEventListener("keydown", (e) => {
+        if ((e.ctrlKey || e.metaKey) && ["v", "c", "x", "a"].includes(e.key.toLowerCase())) {
+          e.preventDefault();
+          if (onStrikeCallback) onStrikeCallback();
+          showToast("Keyboard shortcut blocked!");
+        }
+      });
+
+      textareaEl.addEventListener("input", () => {
+        const diff = textareaEl.value.length - lastSafeValue.length;
+        if (diff > 10) {
+          textareaEl.value = lastSafeValue;
+          if (onStrikeCallback) onStrikeCallback();
+          showToast("Bulk text insertion blocked! Type manually.");
+          return;
+        }
+        lastSafeValue = textareaEl.value;
+      });
+    }
+
+    let wsPasteStrikes = 0;
+    function rewindWsAudio() {
+      const a = document.getElementById("wsAudioPlayer");
+      a.currentTime = Math.max(0, a.currentTime - 5);
+    }
+    function setWsSpeed(rate) {
+      document.getElementById("wsAudioPlayer").playbackRate = rate;
+      showToast("Audio speed: " + rate + "x");
+    }
+
     function openTaskWorkspace(task) {
       activeTaskObj = task;
+      wsPasteStrikes = 0;
+      document.getElementById("wsPasteStrikes").textContent = "0";
       document.getElementById("tasksListContainer").classList.add("hidden");
       document.getElementById("taskWorkspaceBox").classList.remove("hidden");
       document.getElementById("wsTaskId").textContent = task.task_code || task.id;
       document.getElementById("wsTaskTitle").textContent = task.title;
       document.getElementById("wsTaskMeta").textContent = `Duration: ${task.duration_mins || 5} Mins | Rate: ₹${task.rate_per_min || 8.5}/min`;
-      document.getElementById("wsAudioPlayer").src = task.audio_url || "";
+
+      const audioEl = document.getElementById("wsAudioPlayer");
+      const errEl = document.getElementById("wsAudioErrorMsg");
+      errEl.classList.add("hidden");
+      audioEl.onerror = () => errEl.classList.remove("hidden");
+      audioEl.src = resolvePlayableAudioUrl(task.audio_url);
+      audioEl.load();
 
       const draftKey = `wn_draft_${currentUser.id}_${task.id}`;
       const editor = document.getElementById("wsTranscriptInput");
       editor.value = localStorage.getItem(draftKey) || "";
       document.getElementById("wsWordCount").textContent = editor.value.trim() ? editor.value.trim().split(/\s+/).length : 0;
+
+      applyStrictAntiPasteLock(editor, () => {
+        wsPasteStrikes++;
+        document.getElementById("wsPasteStrikes").textContent = wsPasteStrikes;
+      });
+
       editor.oninput = () => {
         localStorage.setItem(draftKey, editor.value);
         document.getElementById("wsWordCount").textContent = editor.value.trim() ? editor.value.trim().split(/\s+/).length : 0;
