@@ -740,34 +740,64 @@
       _loadingTasksLock = true;
       try {
         const container = document.getElementById("tasksListContainer");
-        const { data: tasks } = await sb.from("tasks").select("*").eq("status", "open").order("created_at", { ascending: false });
+        const [{ data: tasks }, { data: mySubs }] = await Promise.all([
+          sb.from("tasks").select("*").eq("status", "open").order("created_at", { ascending: false }),
+          sb.from("submissions").select("*").eq("user_id", currentUser.id).order("created_at", { ascending: false })
+        ]);
+        const subMap = new Map();
+        (mySubs || []).forEach(s => {
+          if (s.task_id && !subMap.has(String(s.task_id))) subMap.set(String(s.task_id), s);
+          if (s.task_code && !subMap.has(String(s.task_code))) subMap.set(String(s.task_code), s);
+        });
+
         container.innerHTML = "";
         const seenIds = new Set();
-        let count = 0;
+        let activeCount = 0;
+        let totalShown = 0;
         (tasks || []).forEach(t => {
           if (seenIds.has(t.id)) return;
           seenIds.add(t.id);
-        const target = (t.assigned_to || "all").trim();
-        if (target === "all" || target === currentUser.id || target.toUpperCase() === (userProfile.contributor_code || "").toUpperCase()) {
-          count++;
-          const div = document.createElement("div");
-          div.className = "card";
-          div.innerHTML = `
-            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
-              <div>
-                <div style="font-size:11px; font-weight:700; color:var(--blue-600);">${sanitize(t.task_code || t.id)}</div>
-                <div style="font-size:15px; font-weight:700; margin:2px 0;">${sanitize(t.title)}</div>
-                <div style="font-size:12px; color:var(--slate-500);">${t.duration_mins || 5} mins &bull; ₹${t.rate_per_min || 8.5}/min &bull; Est: ₹${((t.duration_mins || 5) * (t.rate_per_min || 8.5)).toFixed(2)}</div>
+          const target = (t.assigned_to || "all").trim();
+          if (target === "all" || target === currentUser.id || target.toUpperCase() === (userProfile.contributor_code || "").toUpperCase()) {
+            totalShown++;
+            const existingSub = subMap.get(String(t.id)) || subMap.get(String(t.task_code));
+            if (!existingSub) activeCount++;
+
+            let badgeHtml = `<span style="display:inline-block; padding:2px 7px; border-radius:5px; font-size:10px; font-weight:700; background:#eff6ff; color:#1d4ed8; margin-left:6px;">OPEN</span>`;
+            let btnText = "Start";
+            let btnClass = "btn btn-primary btn-sm";
+
+            if (existingSub) {
+              const st = (existingSub.qa_status || "in_review").toLowerCase();
+              if (st === "approved" || st === "completed") {
+                badgeHtml = `<span style="display:inline-block; padding:2px 7px; border-radius:5px; font-size:10px; font-weight:700; background:#dcfce7; color:#15803d; margin-left:6px;">COMPLETED</span>`;
+              } else if (st === "rejected" || st === "failed") {
+                badgeHtml = `<span style="display:inline-block; padding:2px 7px; border-radius:5px; font-size:10px; font-weight:700; background:#fee2e2; color:#b91c1c; margin-left:6px;">WRONG / FAILED</span>`;
+              } else {
+                badgeHtml = `<span style="display:inline-block; padding:2px 7px; border-radius:5px; font-size:10px; font-weight:700; background:#fef3c7; color:#b45309; margin-left:6px;">IN REVIEW</span>`;
+              }
+              btnText = "View Record";
+              btnClass = "btn btn-secondary btn-sm";
+            }
+
+            const div = document.createElement("div");
+            div.className = "card";
+            div.innerHTML = `
+              <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+                <div>
+                  <div style="font-size:11px; font-weight:700; color:var(--blue-600);">${sanitize(t.task_code || t.id)} ${badgeHtml}</div>
+                  <div style="font-size:15px; font-weight:700; margin:2px 0;">${sanitize(t.title)}</div>
+                  <div style="font-size:12px; color:var(--slate-500);">${t.duration_mins || 5} mins &bull; ₹${t.rate_per_min || 8.5}/min &bull; Est: ₹${((t.duration_mins || 5) * (t.rate_per_min || 8.5)).toFixed(2)}</div>
+                </div>
+                <button class="${btnClass}">${btnText}</button>
               </div>
-              <button class="btn btn-primary btn-sm">Start</button>
-            </div>
-          `;
-          div.querySelector("button").onclick = () => openTaskWorkspace(t);
-          container.appendChild(div);
-        }
-      });
-        document.getElementById("statActiveTasks").textContent = count;
-        if (count === 0) container.innerHTML = `<div class="card"><p>No audio batches assigned to your UID right now. Check back shortly.</p></div>`;
+            `;
+            div.querySelector("button").onclick = () => openTaskWorkspace(t, existingSub || null);
+            container.appendChild(div);
+          }
+        });
+        document.getElementById("statActiveTasks").textContent = activeCount;
+        if (totalShown === 0) container.innerHTML = `<div class="card"><p>No audio batches assigned to your UID right now. Check back shortly.</p></div>`;
       } finally {
         _loadingTasksLock = false;
       }
@@ -839,7 +869,7 @@
       showToast("Audio speed: " + rate + "x");
     }
 
-    function openTaskWorkspace(task) {
+    function openTaskWorkspace(task, existingSub = null) {
       activeTaskObj = task;
       wsPasteStrikes = 0;
       document.getElementById("wsPasteStrikes").textContent = "0";
@@ -847,7 +877,6 @@
       document.getElementById("taskWorkspaceBox").classList.remove("hidden");
       document.getElementById("wsTaskId").textContent = task.task_code || task.id;
       document.getElementById("wsTaskTitle").textContent = task.title;
-      document.getElementById("wsTaskMeta").textContent = `Duration: ${task.duration_mins || 5} Mins | Rate: ₹${task.rate_per_min || 8.5}/min`;
 
       const audioEl = document.getElementById("wsAudioPlayer");
       const errEl = document.getElementById("wsAudioErrorMsg");
@@ -856,8 +885,38 @@
       audioEl.src = resolvePlayableAudioUrl(task.audio_url);
       audioEl.load();
 
-      const draftKey = `wn_draft_${currentUser.id}_${task.id}`;
       const editor = document.getElementById("wsTranscriptInput");
+      const submitBtn = document.getElementById("btnSubmitTaskWork");
+
+      if (existingSub) {
+        const st = (existingSub.qa_status || "in_review").toLowerCase();
+        const statusLabel = (st === "approved" || st === "completed")
+          ? "STATUS: COMPLETED (APPROVED)"
+          : (st === "rejected" || st === "failed")
+            ? "STATUS: WRONG / FAILED"
+            : "STATUS: SUBMITTED (IN REVIEW)";
+        document.getElementById("wsTaskMeta").textContent = `Duration: ${task.duration_mins || 5} Mins | Rate: ₹${task.rate_per_min || 8.5}/min | ${statusLabel}`;
+        editor.value = existingSub.transcript_text || "";
+        editor.readOnly = true;
+        editor.style.background = "#f8fafc";
+        editor.style.color = "#334155";
+        editor.oninput = null;
+        document.getElementById("wsWordCount").textContent = editor.value.trim() ? editor.value.trim().split(/\s+/).length : 0;
+        if (submitBtn) submitBtn.classList.add("hidden");
+        return;
+      }
+
+      document.getElementById("wsTaskMeta").textContent = `Duration: ${task.duration_mins || 5} Mins | Rate: ₹${task.rate_per_min || 8.5}/min`;
+      editor.readOnly = false;
+      editor.style.background = "";
+      editor.style.color = "";
+      if (submitBtn) {
+        submitBtn.classList.remove("hidden");
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Submit Completed Transcript";
+      }
+
+      const draftKey = `wn_draft_${currentUser.id}_${task.id}`;
       editor.value = localStorage.getItem(draftKey) || "";
       document.getElementById("wsWordCount").textContent = editor.value.trim() ? editor.value.trim().split(/\s+/).length : 0;
 
@@ -884,7 +943,7 @@
     async function submitTaskWork() {
       if (!activeTaskObj) return;
       const transcript = sanitize(document.getElementById("wsTranscriptInput").value);
-      if (transcript.length < 15) { showToast("Please complete the transcription first."); return; }
+      if (!transcript || transcript.trim().length < 2) { showToast("Please type the transcript before submitting."); return; }
       const btn = document.getElementById("btnSubmitTaskWork");
       btn.disabled = true; btn.textContent = "Submitting...";
       try {
