@@ -734,12 +734,19 @@
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
+    let _loadingTasksLock = false;
     async function loadAssignedTasks() {
-      const container = document.getElementById("tasksListContainer");
-      container.innerHTML = "";
-      const { data: tasks } = await sb.from("tasks").select("*").eq("status", "open").order("created_at", { ascending: false });
-      let count = 0;
-      (tasks || []).forEach(t => {
+      if (_loadingTasksLock) return;
+      _loadingTasksLock = true;
+      try {
+        const container = document.getElementById("tasksListContainer");
+        const { data: tasks } = await sb.from("tasks").select("*").eq("status", "open").order("created_at", { ascending: false });
+        container.innerHTML = "";
+        const seenIds = new Set();
+        let count = 0;
+        (tasks || []).forEach(t => {
+          if (seenIds.has(t.id)) return;
+          seenIds.add(t.id);
         const target = (t.assigned_to || "all").trim();
         if (target === "all" || target === currentUser.id || target.toUpperCase() === (userProfile.contributor_code || "").toUpperCase()) {
           count++;
@@ -759,8 +766,11 @@
           container.appendChild(div);
         }
       });
-      document.getElementById("statActiveTasks").textContent = count;
-      if (count === 0) container.innerHTML = `<div class="card"><p>No audio batches assigned to your UID right now. Check back shortly.</p></div>`;
+        document.getElementById("statActiveTasks").textContent = count;
+        if (count === 0) container.innerHTML = `<div class="card"><p>No audio batches assigned to your UID right now. Check back shortly.</p></div>`;
+      } finally {
+        _loadingTasksLock = false;
+      }
     }
 
     function resolvePlayableAudioUrl(rawUrl) {
