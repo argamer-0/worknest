@@ -422,47 +422,51 @@
         </div>`).join("") : `<div style="font-size:12px; color:var(--slate-500);">No manual credit adjustments yet.</div>`;
 
       document.getElementById("ucBody").innerHTML = `
-        <div class="card" style="background:var(--slate-50);">
-          <div style="font-size:12px;"><strong>Email:</strong> ${esc(u.email)}</div>
-          <div style="font-size:12px;"><strong>Mobile:</strong> ${esc(u.phone)} &bull; <strong>City:</strong> ${esc(u.city || "-")}</div>
-          <div style="font-size:12px;"><strong>UPI:</strong> ${esc(u.upi_id || "Not set")} &bull; <strong>Bank:</strong> ${esc(u.bank_name || "-")} ${esc(u.account_number || "")} ${esc(u.ifsc_code || "")}</div>
-          <div style="font-size:12px; margin-top:6px;"><strong>2-Min Test (${u.assessment_wpm || 0} WPM | Tabs: ${u.tab_switches || 0}):</strong></div>
-          <div style="font-size:12px; background:#fff; padding:8px; border-radius:6px; border:1px solid var(--slate-200); margin-top:4px;">${esc(u.assessment_text || "No text submitted")}</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px;">
+          <button class="btn btn-success btn-sm" onclick="updateUserStatus('${u.id}', 'approved')">Approve &amp; Verify</button>
+          <button class="btn btn-warning btn-sm" onclick="updateUserStatus('${u.id}', 'rejected')">Reject Test</button>
+          ${u.is_blocked
+            ? `<button class="btn btn-primary btn-sm" onclick="toggleBlockUser('${u.id}', false)">Unban User</button>`
+            : `<button class="btn btn-danger btn-sm" onclick="toggleBlockUser('${u.id}', true)">Block / Ban</button>`}
+          <button class="btn btn-secondary btn-sm" style="color:var(--red-600); border-color:#fecaca;" onclick="deleteUserAccount('${u.id}', '${esc(u.contributor_code)}')">Delete User</button>
         </div>
 
-        <div class="card">
-          <h3>Account Status &amp; Security Control</h3>
-          <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            <button class="btn btn-success btn-sm" onclick="updateUserStatus('${u.id}', 'approved')">Approve &amp; Verify</button>
-            <button class="btn btn-warning btn-sm" onclick="updateUserStatus('${u.id}', 'rejected')">Reject Test</button>
-            ${u.is_blocked
-              ? `<button class="btn btn-primary btn-sm" onclick="toggleBlockUser('${u.id}', false)">Unban User</button>`
-              : `<button class="btn btn-danger btn-sm" onclick="toggleBlockUser('${u.id}', true)">Block / Ban User</button>`}
-            <button class="btn btn-secondary btn-sm" style="color:var(--red-600); border-color:#fecaca;" onclick="deleteUserAccount('${u.id}', '${esc(u.contributor_code)}')">Delete Permanently</button>
+        <div class="card" style="padding:14px; margin-bottom:12px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <strong style="font-size:13px;">Wallet Balance</strong>
+            <span style="font-size:16px; font-weight:700; color:var(--emerald-600);">₹${Number(u.wallet_balance || 0).toFixed(2)}</span>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1.4fr; gap:8px; margin-bottom:8px;">
+            <input type="number" id="adjAmount" class="form-control" style="padding:8px 10px; font-size:13px;" placeholder="₹ Amount" min="1" step="0.5" />
+            <input type="text" id="adjReason" class="form-control" style="padding:8px 10px; font-size:13px;" placeholder="Reason (Bonus / Cut)" />
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+            <button class="btn btn-success btn-sm" onclick="adjustUserCredit('${u.id}', 'add')">+ Add Money</button>
+            <button class="btn btn-danger btn-sm" onclick="adjustUserCredit('${u.id}', 'cut')">- Cut Money</button>
+          </div>
+          <div style="margin-top:8px; max-height:70px; overflow-y:auto;">${logsHtml}</div>
+        </div>
+
+        <div class="card" style="padding:14px; margin-bottom:12px;">
+          <strong style="font-size:13px; display:block; margin-bottom:8px;">Identity Edit Timer (Name / Phone Unlock)</strong>
+          <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:6px;">
+            <button class="btn btn-secondary btn-sm" style="padding:6px 4px; font-size:11px;" onclick="setIdentityUnlock('${u.id}', 15)">15 Mins</button>
+            <button class="btn btn-secondary btn-sm" style="padding:6px 4px; font-size:11px;" onclick="setIdentityUnlock('${u.id}', 60)">1 Hour</button>
+            <button class="btn btn-secondary btn-sm" style="padding:6px 4px; font-size:11px;" onclick="setIdentityUnlock('${u.id}', 1440)">24 Hrs</button>
+            <button class="btn btn-danger btn-sm" style="padding:6px 4px; font-size:11px;" onclick="setIdentityUnlock('${u.id}', 0)">Lock</button>
           </div>
         </div>
 
-        <div class="card">
-          <h3>Timed Identity Unlock (For Name / Phone Correction)</h3>
-          <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            <button class="btn btn-secondary btn-sm" onclick="setIdentityUnlock('${u.id}', 15)">Unlock 15 Mins</button>
-            <button class="btn btn-secondary btn-sm" onclick="setIdentityUnlock('${u.id}', 60)">Unlock 1 Hour</button>
-            <button class="btn btn-secondary btn-sm" onclick="setIdentityUnlock('${u.id}', 1440)">Unlock 24 Hours</button>
-            <button class="btn btn-danger btn-sm" onclick="setIdentityUnlock('${u.id}', 0)">Lock Now</button>
+        <div class="card" style="padding:14px; background:var(--slate-50); margin-bottom:0;">
+          <strong style="font-size:13px; display:block; margin-bottom:6px;">Contributor Details &amp; 2-Min Test</strong>
+          <div style="font-size:12px; line-height:1.7; color:var(--slate-700);">
+            <div><strong>Email:</strong> ${esc(u.email)}</div>
+            <div><strong>Phone:</strong> ${esc(u.phone)} &bull; <strong>City:</strong> ${esc(u.city || "-")}</div>
+            <div><strong>UPI:</strong> ${esc(u.upi_id || "Not set")}</div>
+            <div><strong>Bank:</strong> ${esc(u.bank_name || "-")} ${esc(u.account_number || "")} ${esc(u.ifsc_code || "")}</div>
+            <div style="margin-top:6px;"><strong>Test (${u.assessment_wpm || 0} WPM | Tab Switches: ${u.tab_switches || 0}):</strong></div>
           </div>
-        </div>
-
-        <div class="card">
-          <h3>Wallet Credit Control (Current: ₹${Number(u.wallet_balance || 0).toFixed(2)})</h3>
-          <div class="grid-2">
-            <input type="number" id="adjAmount" class="form-control" placeholder="Amount ₹" min="1" step="0.5" />
-            <input type="text" id="adjReason" class="form-control" placeholder="Reason (Bonus / Penalty)" />
-          </div>
-          <div style="display:flex; gap:8px; margin-top:10px;">
-            <button class="btn btn-success btn-sm" style="flex:1;" onclick="adjustUserCredit('${u.id}', 'add')">+ Add Credit</button>
-            <button class="btn btn-danger btn-sm" style="flex:1;" onclick="adjustUserCredit('${u.id}', 'cut')">- Cut Credit</button>
-          </div>
-          <div style="margin-top:12px;">${logsHtml}</div>
+          <div style="font-size:12px; background:#fff; padding:8px; border-radius:8px; border:1px solid var(--slate-200); margin-top:4px; max-height:75px; overflow-y:auto; word-break:break-word;">${esc(u.assessment_text || "No text submitted")}</div>
         </div>
       `;
       document.getElementById("userControlModal").classList.remove("hidden");
