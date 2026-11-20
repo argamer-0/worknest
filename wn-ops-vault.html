@@ -155,7 +155,12 @@
               <div class="form-group"><label class="form-label">Task Title *</label><input type="text" id="tkTitle" class="form-control" placeholder="e.g. Hindi Customer Support Batch #04" required /></div>
               <div class="form-group"><label class="form-label">Assign To (UID or 'all') *</label><input type="text" id="tkAssign" class="form-control" value="all" placeholder="all OR WN-33057" required /></div>
             </div>
-            <div class="form-group"><label class="form-label">Direct Audio File URL (MP3 / WAV / OGG) *</label><input type="url" id="tkUrl" class="form-control" placeholder="https://..." required /></div>
+            <div class="form-group">
+              <label class="form-label">Upload Audio File from Phone (MP3 / M4A / WAV / OGG) *</label>
+              <input type="file" id="tkFile" accept="audio/*" class="form-control" style="padding:8px;" />
+              <div style="font-size:11px; color:var(--slate-500); margin-top:4px;">OR paste a direct .mp3/.wav link below:</div>
+              <input type="url" id="tkUrl" class="form-control" style="margin-top:6px;" placeholder="Optional direct audio URL (https://...)" />
+            </div>
             <div class="grid-2">
               <div class="form-group"><label class="form-label">Audio Duration (Minutes) *</label><input type="number" id="tkMins" class="form-control" value="5" min="1" step="0.5" required /></div>
               <div class="form-group"><label class="form-label">Payout Rate (₹ per min) *</label><input type="number" id="tkRate" class="form-control" value="8.5" min="1" step="0.5" required /></div>
@@ -529,22 +534,52 @@
       e.preventDefault();
       const title = document.getElementById("tkTitle").value.trim();
       const assigned_to = document.getElementById("tkAssign").value.trim();
-      const audio_url = document.getElementById("tkUrl").value.trim();
+      const fileInput = document.getElementById("tkFile");
+      let audio_url = document.getElementById("tkUrl").value.trim();
       const duration_mins = Number(document.getElementById("tkMins").value);
       const rate_per_min = Number(document.getElementById("tkRate").value);
       const task_code = "TSK-" + Math.floor(1000 + Math.random() * 9000);
 
+      if ((!fileInput.files || fileInput.files.length === 0) && !audio_url) {
+        showToast("Please select an audio file from your phone or enter a direct link.");
+        return;
+      }
+
       const btn = document.getElementById("btnCreateTask");
       btn.disabled = true;
-      const { error } = await sb.from("tasks").insert([{
-        task_code, title, audio_url, duration_mins, rate_per_min, assigned_to, status: "open"
-      }]);
-      btn.disabled = false;
-      if (error) { showToast("Error: " + error.message); return; }
-      document.getElementById("tkTitle").value = "";
-      document.getElementById("tkUrl").value = "";
-      showToast("Task Published: " + task_code);
-      await refreshAllAdminData();
+      btn.textContent = "Uploading Audio...";
+
+      try {
+        if (fileInput.files && fileInput.files.length > 0) {
+          const file = fileInput.files[0];
+          const ext = (file.name.split(".").pop() || "mp3").toLowerCase();
+          const path = `${task_code}_${Date.now()}.${ext}`;
+          const { error: upErr } = await sb.storage.from("worknest-audio").upload(path, file, {
+            cacheControl: "3600",
+            upsert: false,
+            contentType: file.type || "audio/mpeg"
+          });
+          if (upErr) throw upErr;
+          const { data: pubData } = sb.storage.from("worknest-audio").getPublicUrl(path);
+          audio_url = pubData.publicUrl;
+        }
+
+        const { error } = await sb.from("tasks").insert([{
+          task_code, title, audio_url, duration_mins, rate_per_min, assigned_to, status: "open"
+        }]);
+        if (error) throw error;
+
+        document.getElementById("tkTitle").value = "";
+        document.getElementById("tkUrl").value = "";
+        fileInput.value = "";
+        showToast("Audio Uploaded & Task Published: " + task_code);
+        await refreshAllAdminData();
+      } catch (err) {
+        showToast("Upload Error: " + (err.message || "Failed"));
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Publish Task Live";
+      }
     }
 
     function renderAdminTasks() {

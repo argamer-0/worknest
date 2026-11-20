@@ -807,14 +807,15 @@
       });
 
       textareaEl.addEventListener("input", () => {
-        const diff = textareaEl.value.length - lastSafeValue.length;
-        if (diff > 10) {
+        const curVal = textareaEl.value;
+        const diff = curVal.length - lastSafeValue.length;
+        if (diff > 3) {
           textareaEl.value = lastSafeValue;
           if (onStrikeCallback) onStrikeCallback();
-          showToast("Bulk text insertion blocked! Type manually.");
+          showToast("Keyboard Clipboard Paste Blocked! Type letter-by-letter.");
           return;
         }
-        lastSafeValue = textareaEl.value;
+        lastSafeValue = curVal;
       });
     }
 
@@ -856,8 +857,10 @@
       });
 
       editor.oninput = () => {
-        localStorage.setItem(draftKey, editor.value);
-        document.getElementById("wsWordCount").textContent = editor.value.trim() ? editor.value.trim().split(/\s+/).length : 0;
+        setTimeout(() => {
+          localStorage.setItem(draftKey, editor.value);
+          document.getElementById("wsWordCount").textContent = editor.value.trim() ? editor.value.trim().split(/\s+/).length : 0;
+        }, 10);
       };
     }
 
