@@ -1025,13 +1025,17 @@
         }]);
         if (wdErr) throw wdErr;
 
-        await sb.from("contributors").update({ wallet_balance: newBal }).eq("id", currentUser.id);
+        const { error: balErr } = await sb.from("contributors").update({ wallet_balance: newBal }).eq("id", currentUser.id);
+        if (balErr) throw balErr;
         userProfile.wallet_balance = newBal;
         document.getElementById("wdAmount").value = "";
         showToast("Withdrawal request submitted!");
         renderDashboard();
+        await loadSubmissionsAndWithdrawals();
       } catch (err) {
-        showToast("Withdrawal request failed.");
+        console.error("Withdrawal error:", err);
+        alert("Withdrawal Error: " + (err.message || JSON.stringify(err)));
+        showToast("Failed: " + (err.message || "Check DB policy"));
       } finally {
         btn.disabled = false; btn.textContent = "Submit Withdrawal Request";
       }
