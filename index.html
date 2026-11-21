@@ -518,8 +518,23 @@
 
     async function routeAuthenticatedUser(user) {
       currentUser = user;
-      const { data } = await sb.from("contributors").select("*").eq("id", user.id).maybeSingle();
+      let { data } = await sb.from("contributors").select("*").eq("id", user.id).maybeSingle();
       if (!data) {
+        const metaName = user.user_metadata?.full_name || user.user_metadata?.name || (user.email ? user.email.split("@")[0] : "Contributor");
+        const starter = {
+          id: user.id,
+          email: user.email || "",
+          name: metaName,
+          status: "incomplete_profile",
+          assessment_completed: false,
+          wallet_balance: 0,
+          approved_earnings: 0,
+          verified_minutes: 0,
+          is_blocked: false
+        };
+        await sb.from("contributors").upsert([starter], { onConflict: "id" });
+        userProfile = null; updateNavForUser(true); showOnboardingScreen();
+      } else if (!data.contributor_code || !data.phone) {
         userProfile = null; updateNavForUser(true); showOnboardingScreen();
       } else {
         userProfile = data; updateNavForUser(true);
@@ -574,7 +589,7 @@
           tab_switches: 0, verified_minutes: 0, approved_earnings: 0, wallet_balance: 0, is_blocked: false
         };
 
-        const { error } = await sb.from("contributors").insert([profileData]);
+        const { error } = await sb.from("contributors").upsert([profileData], { onConflict: "id" });
         if (error) { alert("Signup Save Error: " + error.message); throw error; }
         userProfile = profileData; updateNavForUser(true);
         showToast("UID Created: " + contributor_code);
