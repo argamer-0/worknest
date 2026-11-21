@@ -726,24 +726,54 @@
 
     async function markWithdrawalPaid(wdId) {
       const utr = prompt("Enter Bank / UPI UTR Transaction Reference Number:");
-      if (!utr) return;
-      await sb.from("withdrawals").update({ status: "paid", utr_reference: utr }).eq("id", wdId);
-      showToast("Marked as Paid!");
+      if (utr === null) return;
+      const cleanUtr = utr.trim();
+      if (!cleanUtr) { alert("Please enter a valid UTR number."); return; }
+
+      const { error } = await sb.from("withdrawals").update({
+        status: "paid",
+        utr_reference: cleanUtr,
+        utr_number: cleanUtr,
+        admin_note: "Paid | UTR: " + cleanUtr
+      }).eq("id", wdId);
+
+      if (error) { alert("Mark Paid Error: " + error.message); return; }
+      showToast("Marked as Paid (UTR: " + cleanUtr + ")");
       await refreshAllAdminData();
     }
 
     async function rejectWithdrawal(wdId) {
-      const w = allWithdrawals.find(x => x.id === wdId);
-      const u = allUsers.find(x => x.id === w.user_id);
-      const reason = prompt("Reason for rejecting withdrawal:", "Invalid UPI/Bank details");
-      if (reason === null) return;
+      const w = allWithdrawals.find(x => String(x.id) === String(wdId));
+      if (!w) { alert("Withdrawal record not found."); return; }
 
-      await sb.from("withdrawals").update({ status: "rejected", admin_note: reason }).eq("id", wdId);
-      if (u) {
-        const refunded = Number((Number(u.wallet_balance || 0) + Number(w.amount)).toFixed(2));
-        await sb.from("contributors").update({ wallet_balance: refunded }).eq("id", u.id);
+      const reason = prompt("Why is this withdrawal rejected? (Enter reason for user):", "Invalid UPI / Bank details or QA review hold");
+      if (reason === null) return;
+      const cleanReason = reason.trim() || "Rejected by Admin";
+
+      const { error: wdErr } = await sb.from("withdrawals").update({
+        status: "rejected",
+        admin_note: cleanReason,
+        utr_reference: cleanReason,
+        utr_number: cleanReason
+      }).eq("id", wdId);
+
+      if (wdErr) { alert("Reject Error: " + wdErr.message); return; }
+
+      // Refund amount back to user's wallet cleanly
+      const { data: uData } = await sb.from("contributors").select("*").eq("id", w.user_id).maybeSingle();
+      if (uData) {
+        const refundedBal = Number((Number(uData.wallet_balance || 0) + Number(w.amount || 0)).toFixed(2));
+        await sb.from("contributors").update({ wallet_balance: refundedBal }).eq("id", uData.id);
+        await sb.from("credit_logs").insert([{
+          user_id: uData.id,
+          contributor_code: uData.contributor_code || w.contributor_code,
+          type: "add",
+          amount: Number(w.amount || 0),
+          reason: "Withdrawal Refund: " + cleanReason
+        }]);
       }
-      showToast("Rejected & refunded to wallet.");
+
+      showToast("Withdrawal Rejected & ₹" + Number(w.amount || 0) + " Refunded!");
       await refreshAllAdminData();
     }
 
