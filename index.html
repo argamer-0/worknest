@@ -575,7 +575,7 @@
         };
 
         const { error } = await sb.from("contributors").insert([profileData]);
-        if (error) throw error;
+        if (error) { alert("Signup Save Error: " + error.message); throw error; }
         userProfile = profileData; updateNavForUser(true);
         showToast("UID Created: " + contributor_code);
         startAssessmentScreen();
@@ -670,7 +670,7 @@
       const uidStr = userProfile.contributor_code || "WN-ACTIVE";
       const initial = (userProfile.name || "C").charAt(0).toUpperCase();
       const safeWpm = Math.min(Number(userProfile.assessment_wpm || 0), 120);
-      const walletBal = Number(userProfile.wallet_balance || userProfile.approved_earnings || 0);
+      const walletBal = Number(userProfile.wallet_balance ?? 0);
 
       document.getElementById("ovAvatar").textContent = initial;
       document.getElementById("profAvatar").textContent = initial;
@@ -1000,7 +1000,7 @@
       e.preventDefault();
       const amount = Number(document.getElementById("wdAmount").value);
       const method = document.getElementById("wdMethod").value;
-      const walletBal = Number(userProfile.wallet_balance || userProfile.approved_earnings || 0);
+      const walletBal = Number(userProfile.wallet_balance ?? 0);
 
       if (amount < 100) { showToast("Minimum withdrawal amount is ₹100."); return; }
       if (amount > walletBal) { showToast("Insufficient wallet balance."); return; }
