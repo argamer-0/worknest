@@ -1021,7 +1021,7 @@
         const { error: wdErr } = await sb.from("withdrawals").insert([{
           user_id: currentUser.id, contributor_code: userProfile.contributor_code,
           contributor_name: userProfile.name, amount, payout_method: method,
-          payout_details: dest, status: "pending"
+          payout_details: dest, upi_id: userProfile.upi_id || dest, status: "pending"
         }]);
         if (wdErr) throw wdErr;
 
