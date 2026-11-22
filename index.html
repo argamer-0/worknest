@@ -846,10 +846,12 @@
 
       textareaEl.addEventListener("beforeinput", (e) => {
         const badTypes = ["insertFromPaste", "insertFromPasteAsQuotation", "insertFromDrop"];
-        if (badTypes.includes(e.inputType)) {
+        const incoming = e.data || "";
+        const hasMultipleWords = incoming.trim().includes(" ");
+        if (badTypes.includes(e.inputType) || hasMultipleWords || incoming.length > 15) {
           e.preventDefault();
           if (onStrikeCallback) onStrikeCallback();
-          showToast("Blocked: Keyboard clipboard paste is disabled!");
+          showToast("Blocked: Clipboard paste is disabled!");
         }
       });
 
@@ -862,13 +864,21 @@
       });
 
       textareaEl.addEventListener("input", (e) => {
-        if (e.inputType === "insertFromPaste" || e.inputType === "insertFromDrop") {
+        const curVal = textareaEl.value;
+        const addedLen = curVal.length - lastSafeValue.length;
+        const addedPart = addedLen > 0 ? curVal.slice(-addedLen) : "";
+        if (
+          e.inputType === "insertFromPaste" ||
+          e.inputType === "insertFromDrop" ||
+          addedLen > 15 ||
+          addedPart.trim().includes(" ")
+        ) {
           textareaEl.value = lastSafeValue;
           if (onStrikeCallback) onStrikeCallback();
-          showToast("Paste Blocked! Only manual typing allowed.");
+          showToast("Paste Blocked! Type word by word only.");
           return;
         }
-        lastSafeValue = textareaEl.value;
+        lastSafeValue = curVal;
       });
     }
 
